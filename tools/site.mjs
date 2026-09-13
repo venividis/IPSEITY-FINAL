@@ -11,6 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sel, encodeAddressArg } from "./evm.mjs";
 import { keccak256 } from "ethereum-cryptography/keccak.js";
+import { validateExistingProtocols } from "./protocols.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -498,7 +499,15 @@ export const EXPECTED = [
  * that keeps the routes serving the artwork off the mutable path.
  */
 export async function deploySite(c, A,
-    { hub, pool, lease, sigil, parley: existingParley, uniswap = NO_VENUE }) {
+    { hub, pool, lease, sigil, parley: existingParley, kiln: existingKiln,
+      locker: existingLocker, succession: existingSuccession, consign: existingConsign,
+      uniswap = NO_VENUE,
+      /*  The commons' LayerZero port, when this chain has one — the console
+          seeds it so the SPEAK lane can walk the federated archive. Zero
+          means the chain does not federate, which is a fact, not a gap. */
+      port = "0x" + "00".repeat(20) }) {
+  await validateExistingProtocols(c, hub, { parley: existingParley, kiln: existingKiln,
+    locker: existingLocker, succession: existingSuccession, consign: existingConsign }, uniswap.poolManager);
   const chrome = await c.deploy(A("src/Chrome.sol", "Chrome").bytecode, "", "Chrome");
 
   /*  Parley is the protocol, not a page: the rooms, the back-links that
@@ -514,10 +523,10 @@ export async function deploySite(c, A,
   /*  The kiln launches (gated by holding a token), the locker keeps.
       The kiln learns the PoolManager so the Gate hooks it ships refuse
       callbacks from anywhere else.                                       */
-  const kiln = await c.deploy(
+  const kiln = existingKiln || await c.deploy(
     A("src/Kiln.sol", "Kiln").bytecode,
     encodeAddressArg(hub) + encodeAddressArg(uniswap.poolManager || ZERO), "Kiln");
-  const locker = await c.deploy(
+  const locker = existingLocker || await c.deploy(
     A("src/Locker.sol", "Locker").bytecode, "", "Locker");
 
   /*  Venue takes a `Wiring` struct — a static tuple, so it encodes flat in
@@ -620,11 +629,11 @@ export async function deploySite(c, A,
       all — every page below is one more caller. They land here rather than
       beside their page because the two pages that host a terminal compose
       the estate's words, and a word cannot be composed before it exists. */
-  const succession = await c.deploy(
+  const succession = existingSuccession || await c.deploy(
     A("src/Succession.sol", "Succession").bytecode,
     encodeAddressArg(hub), "Succession");
 
-  const consign = await c.deploy(
+  const consign = existingConsign || await c.deploy(
     A("src/Consign.sol", "Consign").bytecode,
     encodeAddressArg(hub), "Consign");
 
@@ -758,7 +767,7 @@ export async function deploySite(c, A,
   const pConsole = await c.deploy(
     A("src/PageConsole.sol", "PageConsole").bytecode,
     encodeAddressArg(hub) + encodeAddressArg(consoleRead) + encodeAddressArg(consoleSkin) +
-    encodeAddressArg(consoleCore),
+    encodeAddressArg(consoleCore) + encodeAddressArg(parley) + encodeAddressArg(port),
     "PageConsole");
 
   /*  The granted key's own door — /k/<id>/<key>. Fixed-length deploy, so

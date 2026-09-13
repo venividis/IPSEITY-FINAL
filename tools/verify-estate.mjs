@@ -165,6 +165,13 @@ head("succession · two clocks, and what resets them");
   eq("now the knock lands, and a second clock starts",
      decUint(await c.read(succ, "wouldPass(uint256)", [id])), 8n);
 
+  const firstOpening = decUint(await c.read(succ, "opensAt(uint256)", [id]));
+  warp(now() + DAY);
+  await refuses("a stranger cannot restart an existing inheritance notice",
+    () => thief.exec(succ, "summon(uint256)", [id]));
+  eq("a repeated knock leaves the original opening time unchanged",
+    decUint(await c.read(succ, "opensAt(uint256)", [id])), firstOpening);
+
   await refuses("claiming during the notice is refused",
     () => heir.exec(succ, "claim(uint256)", [id]));
 

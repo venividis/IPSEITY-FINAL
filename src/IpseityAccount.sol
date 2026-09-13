@@ -806,7 +806,20 @@ contract IpseityAccount {
       sealing, or not guard it. Deny-by-default means some legitimate things
       are denied; that is what the word default is doing.                  */
     function _refuseUnlessSafe(address to, bytes calldata data) internal view {
-        if (!onManifest[to]) return;                 // not promised, not policed
+        /*  A guarded NFT is promised by identity rather than by balance,
+            but an approval defers its loss in exactly the same way. The
+            piece remains ours during this call, so _verifyPieces cannot
+            see the authority that will remove it in the next transaction.
+            Both manifests therefore share the same approval wall. The
+            bounded scan avoids a second collection index which could
+            disagree when the holder releases one of several pieces. */
+        bool promised = onManifest[to];
+        if (!promised) {
+            for (uint256 i; i < _pieces.length; ++i) {
+                if (_pieces[i].collection == to) { promised = true; break; }
+            }
+        }
+        if (!promised) return;                       // not promised, not policed
         if (data.length < 4) revert NotSafeWhileSealed(bytes4(0));
 
         bytes4 sel = bytes4(data[0:4]);

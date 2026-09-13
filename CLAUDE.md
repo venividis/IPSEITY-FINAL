@@ -291,3 +291,21 @@ deployments/          machine-checked deployment records (the authoritative ones
 | What is deployed where, deployment history | `deployments/*.json`, then `DEPLOYMENTS.md` |
 | Agent integration: session keys, sealed kernel, ERC-7857 stance | `AGENT.md` |
 | Why a standard is or is not claimed | `src/interfaces/Standards.sol` |
+
+
+## Original-to-final rebuild checkpoint
+
+The baseline is ef1b0e3ac65cf7bf3c75b023ee4043515384cff2. REBUILD.md and
+rebuild-audit/ describe the current changes and evidence. INSCRIPTION.md is
+still the full forward specification; the first implemented subset is now
+Etch, Shard, DeskEtch, PageEtch and Vitrine. Do not mistake deferred DATA
+continuation, shader mounting or renderer metadata integration for shipped code.
+
+compile() now checks production runtime size in quiet/imported/cached paths.
+The cache validates exact source/settings/compiler/remappings and callback
+imports. Chain.call executes simulated state changes and always discards them.
+The Forge-compatible runner now fails unmet or mismatched revert expectations
+and zero accepted fuzz cases. Production size gates exempt only test/script
+harness sources; production imports remain checked. Run npm run check:core
+for the non-browser battery; npm run check also requires installed Chromium.
+New behavior requires updating the Rebuild guarantees table in INVARIANTS.md.

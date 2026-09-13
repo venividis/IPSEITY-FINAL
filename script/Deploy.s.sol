@@ -37,6 +37,17 @@ import {GripVault} from "../src/GripVault.sol";
 contract Deploy is Script {
     using stdJson for string;
 
+    // The same edition bands as tools/site.mjs. Rehearsal chains carry
+    // the whole edition; their tokens are not part of the mainnet run.
+    function _band() internal view returns (uint256 first, uint256 last) {
+        if (block.chainid == 1) return (1, 1024);
+        if (block.chainid == 8453) return (1025, 2048);
+        if (block.chainid == 130) return (2049, 3072);
+        if (block.chainid == 56) return (3073, 3584);
+        if (block.chainid == 4663) return (3585, 4096);
+        return (1, 4096);
+    }
+
     function run() external {
         string memory plan = vm.readFile("dist/shards.json");
 
@@ -61,8 +72,9 @@ contract Deploy is Script {
         IpseityAccount reachImpl = new IpseityAccount();
         GripVault gripImpl = new GripVault();
 
+        (uint256 first, uint256 last) = _band();
         Ipseity token = new Ipseity(
-            IRenderer(address(renderer)), address(reachImpl), address(gripImpl)
+            IRenderer(address(renderer)), address(reachImpl), address(gripImpl), first, last
         );
 
         for (uint256 i; i < headCount; ++i) {

@@ -53,8 +53,12 @@ contract PageGallery {
         if (skip >= supply) return "<p class=e>Past the end of the collection.</p>";
         uint256 from = supply - skip;                  // newest first
         uint256 to = from > PER_PAGE ? from - PER_PAGE : 0;
+        uint256 first = HUB.FIRST_ID();
         out = "<div class=gal>";
-        for (uint256 id = from; id > to; --id) out = string.concat(out, _cell(id));
+        // Pagination is by mint ordinal; the link and reads use band ids.
+        for (uint256 ordinal = from; ordinal > to; --ordinal) {
+            out = string.concat(out, _cell(first + ordinal - 1));
+        }
         return string.concat(out, "</div>");
     }
 

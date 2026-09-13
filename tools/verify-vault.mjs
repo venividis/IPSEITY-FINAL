@@ -102,7 +102,11 @@ head("the seal");
 const T0 = evm.GENESIS_TIME;
 const refuses = async (name, fn, why) => {
   let threw = false;
-  try { await fn(); } catch { threw = true; }
+  try { await fn(); } catch (e) {
+    // An ABI encoder or JavaScript failure never exercised the contract.
+    if (!/\brevert(?:ed)?\b/.test(String(e.message))) throw e;
+    threw = true;
+  }
   ok(name, threw, "IT WENT THROUGH — " + why);
 };
 
@@ -791,12 +795,35 @@ head("a guarded piece cannot be dropped from inside the call that moves it");
   const inner = enc("transferFrom(address,address,uint256)", [v, me, 7n]);
   const drop  = enc("unguardNFT(uint256)", [0n]);
   await refuses("nor moved and then quietly dropped from the list in one batch",
-    () => c.exec(v, "executeBatch((address,uint256,bytes)[])",
-      [[[PUNK, 0n, inner], [v, 0n, drop]]]),
+    () => c.send({ to: v, data: batch([
+      { to: PUNK, data: inner }, { to: v, data: drop }]) }),
     "the whole promise of guarding a named piece, defeated in two calls");
   eq("the piece is still held by the vault",
      decAddr(await c.read(PUNK, "ownerOf(uint256)", [7n])).toLowerCase(), v.toLowerCase());
   eq("and still named by it", decUint(await c.read(v, "pieces()"), 1), 1);
+
+  /* An approval leaves ownerOf unchanged in this transaction. The promise
+     must also refuse the authority that would move the piece later. */
+  await refuses("a guarded piece cannot approve a deferred drain",
+    () => c.exec(v, "execute(address,uint256,bytes,uint8)",
+      [PUNK, 0n, enc("approve(address,uint256)", [me, 7n]), 0n]));
+  await refuses("nor grant an operator over its guarded collection",
+    () => c.exec(v, "execute(address,uint256,bytes,uint8)",
+      [PUNK, 0n, enc("setApprovalForAll(address,bool)", [me, true]), 0n]));
+  await refuses("nor hide the same approval inside a batch",
+    () => c.send({ to: v, data: batch([
+      { to: PUNK, data: enc("approve(address,uint256)", [me, 7n]) }]) }));
+  const pieceBot = await c.as("0x" + "91".repeat(32));
+  await c.exec(v, "grantSession(address,uint64,uint128,address[],bytes4[])",
+    [pieceBot.from.toString(), evm.GENESIS_TIME + 86400n, 0n,
+      [PUNK, me], ["0x095ea7b3"]]);
+  await refuses("a session is bound by the guarded piece's approval wall too",
+    () => pieceBot.exec(v, "executeAsSession(address,uint256,bytes)",
+      [PUNK, 0n, enc("approve(address,uint256)", [me, 7n])]));
+  await refuses("the outsider cannot take the piece in the following transaction",
+    () => c.exec(PUNK, "transferFrom(address,address,uint256)", [v, me, 7n]));
+  eq("the deferred attacks leave the guarded identity where it belongs",
+    decAddr(await c.read(PUNK, "ownerOf(uint256)", [7n])).toLowerCase(), v.toLowerCase());
 }
 
 /*════════════ a key does not survive the sale of what it spends from ════════

@@ -179,6 +179,11 @@
       control too.                                                        */
   function paintAccount(acct) {
     var led = $("#led"), who = $("#acct"), held = $("#held"), by = $("#heldby");
+    /*  Restore the served identity on EVERY answer. Rewriting only the
+        owner's arrival left "you" behind when that owner disconnected. */
+    var mine = !!(acct && C.owner && acct.toLowerCase() === C.owner.toLowerCase());
+    if (held) held.textContent = mine ? "you" : short(C.owner);
+    if (by) by.textContent = mine ? "you" : short(C.owner);
     if (!acct) {
       if (led) led.className = "led ro";
       if (who) {
@@ -193,11 +198,6 @@
     }
     if (led) led.className = "led live";
     if (who) { who.textContent = short(acct); who.style.cursor = ""; }
-    var mine = C.owner && acct.toLowerCase() === C.owner.toLowerCase();
-    if (mine) {
-      if (held) held.textContent = "you";
-      if (by) by.textContent = "you";
-    }
   }
 
   /*  The wrong chain, said where the wallet is named — §E.5. A wallet on
@@ -206,8 +206,9 @@
       the crest says so the moment the wallet answers, the cell offers the
       one move that fixes it, and `propose` refuses to build a transaction
       while it stands. A provider that cannot say which chain it is on —
-      some cannot — leaves `chainOk` unknown, and unknown does not refuse:
-      the wallet itself still guards its own chain.                      */
+      some cannot — leaves `chainOk` unknown. A fresh chain answer is
+      required when signing; a transaction without a chain cannot ask a
+      wallet to enforce a chain it was never given.                      */
   function paintChain(walletChain) {
     var who = $("#acct"), led = $("#led");
     if (C.chainOk === false) {
@@ -257,9 +258,16 @@
         C.account = acct;
         paintAccount(acct);
         if (loud && acct) say("Connected as " + short(acct) + ".", "ok");
-        return checkChain().then(function () { return acct; });
+        return checkChain().then(function () {
+          if (C.walletChanged) C.walletChanged();
+          return acct;
+        });
       })
       .catch(function (e) {
+        C.account = null;
+        C.chainOk = undefined;
+        paintAccount(null);
+        if (C.walletChanged) C.walletChanged();
         if (loud) say(e && e.message ? e.message : "The wallet refused.", "err");
         return null;
       });
@@ -281,8 +289,19 @@
       polling.                                                            */
   if (window.ethereum && window.ethereum.on) {
     try {
-      window.ethereum.on("accountsChanged", function () { connect(false); });
-      window.ethereum.on("chainChanged", function () { connect(false); });
+      var changed = function () {
+        /*  A review belongs to the wallet state that opened it. Close it
+            immediately, before the asynchronous account read answers. */
+        C.walletEpoch = (C.walletEpoch || 0) + 1;
+        var box = $("#cbox");
+        if (box && box.classList.contains("on")) {
+          box.classList.remove("on");
+          say("The wallet changed. Review the action again.", "err");
+        }
+        connect(false);
+      };
+      window.ethereum.on("accountsChanged", changed);
+      window.ethereum.on("chainChanged", changed);
     } catch (e) { /* a provider without .on is a provider we ask once */ }
   }
 

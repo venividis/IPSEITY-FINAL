@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 import { compile, artifact } from "./compile.mjs";
 import { RpcChain } from "./rpc.mjs";
 import { deploySite, getter, UNISWAP } from "./site.mjs";
+import { retainedProtocols } from "./protocols.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const recPath = process.argv[2];
@@ -24,6 +25,7 @@ if (!recPath) throw new Error("which deployment? pass its record file");
 const rec = JSON.parse(fs.readFileSync(recPath, "utf8"));
 
 const c = await RpcChain.open(rec.rpc, fs.readFileSync(path.join(ROOT, ".testnet-key"), "utf8").trim());
+const retained = retainedProtocols(rec, c.chainId);
 console.log(`\n  chain ${c.chainId} · deployer ${c.from.toString()}`);
 console.log(`  keeping Parley ${rec.contracts.parley} — the conversation survives\n`);
 
@@ -34,12 +36,24 @@ const uni = UNISWAP[c.chainId];
 console.log(uni
   ? `  Uniswap v3 wiring for ${uni.name}: router ${uni.router}`
   : "  no Uniswap wiring known for this chain — the swap tab will say so");
+/*  The chain's LayerZero port, when one was deployed — its record lives
+    beside the site's, per chain. The console seeds it so the SPEAK lane
+    can walk the federated archive; a chain without a record simply does
+    not federate, and the console says so.                              */
+let port;
+try {
+  port = JSON.parse(fs.readFileSync(
+    path.join(ROOT, `deployments/port-${c.chainId}.json`), "utf8")).port;
+  console.log(`  the commons federates through port ${port}`);
+} catch { /* no port on this chain */ }
+
 const site = await deploySite(c, A, {
   hub: rec.contracts.ipseity,
   pool: rec.contracts.pool,
   lease: rec.contracts.lease,
   sigil: rec.contracts.sigil,
-  parley: rec.contracts.parley,
+  ...retained,
+  ...(port ? { port } : {}),
   ...(uni ? { uniswap: uni } : {})
 });
 

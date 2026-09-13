@@ -1079,6 +1079,72 @@ because a bare key cannot find its granting account without an indexer.
   grant, act, check, revoke, and its door"*, *"/k — the one surface
   where the actor is not the holder"*
 
+**150. The seed distinguishes an absent market contract from a closed
+market.** The console's `mkt` key is present exactly when the pool
+answered — `open:0` is a market that could open, an absent key is a
+chain where no pool spoke, and the trade lane renders those as the two
+different facts they are.
+→ `tools/verify-console.mjs` · *"before a market opens, the seed says
+  so"*, *"once it opens, the seed carries the market"*
+
+**151. Every selector in the seed is the keccak of its signature,
+derived on chain.** The browser ships no hash function; the seed's
+twenty-seven selectors come from `ConsoleRead.sels()` and the `Said`
+topic from Parley's own `topics()` — and the verifier re-derives each
+with its own keccak and compares.
+→ `tools/verify-console.mjs` · *"sel.swap is keccak(…)[:4]"* (seven
+  spot checks), *"the seed's Said topic is Parley's own answer"*
+
+**152. The approval is the button's current step, exact, never
+unlimited.** Pressing the swap with no allowance proposes an approve
+for exactly the amount entered; pressing the same button with the
+allowance standing proposes the swap. There is no separate approve
+control and no unlimited allowance anywhere in the console.
+→ `tools/verify-console.mjs` · *"with no allowance, the button's
+  current step is an exact approve"*, *"and never an unlimited one"*,
+  *"with the allowance standing, the same button proposes the swap"*
+
+**153. A proposed swap carries its floor and its deadline.** The quote
+is read at review time, the slab states the minimum out in words
+beside "or nothing moves", and the calldata carries both — the two
+front-running defenses ride in every swap the console builds.
+→ `tools/verify-console.mjs` · *"with a floor under it, or nothing
+  moves"*, *"and a deadline"*
+
+**154. The commons is walked by its own back-pointers, and silence has
+two spellings.** The speak lane opens with the sentence that justifies
+the one past this console shows; the walk is one `stateOf` and one
+single-block `eth_getLogs` per hop; and a commons that did not answer
+is never rendered as a commons where nothing was said.
+→ `tools/verify-console.mjs` · *"the speak lane opens with the
+  sentence that justifies its past"*, *"a commons that did not answer
+  is never an empty commons"*
+
+**155. The hand lane runs shallow to deep, and the shallow end says it
+ends by itself.** FOR AN AFTERNOON precedes FOR GOOD in the rendered
+lane — the ordering is the warning — the loan's slab states that it
+ends on its own, and an unanswered bolt is "not reported", never open
+or shut.
+→ `tools/verify-console.mjs` · *"the hand lane runs shallow to deep,
+  and the loan is first"*, *"the loan raises a slab that names setUser
+  and its self-ending"*, *"the bolt's unanswered state is not
+  reported, never open or shut"*
+
+**156. Foreign voices are labeled and never mixed.** The SPEAK lane
+walks the port's `Echoed` archive under its own heading, each message
+named by its origin chain, and no federated message ever renders in
+the local column — the port cannot impersonate a local token on chain,
+and the console preserves that boundary in the rendering. The seed's
+`Echoed` topic is held equal to the event the compiled port declares
+(the port's address is sealed, so it cannot be asked the way Parley
+is), and the eid-name map is held in lockstep with the deployment
+tool's own chain tables.
+→ `tools/verify-console.mjs` · *"a foreign voice is labeled by the
+  chain it came from"*, *"and the foreign voice never leaked into the
+  local column"*, *"the seed's Echoed topic is the hash of the event
+  the port declares"*, *"every chain the tools name is named the same
+  in the seed's eid map"*
+
 ## Found by adversarial review, and fixed
 
 Five adversary lenses — an MEV searcher, a DeFi economist, a griefer, a rogue
@@ -1535,3 +1601,28 @@ What is still missing relative to Foundry is stateful/invariant campaigns, a
 coverage-guided corpus, traces on failure, and every cheatcode the suite does
 not use — so this is a smaller net, not a replacement. Run the Foundry suite
 before deploying anywhere real.
+
+
+## Rebuild guarantees (original to final, checkpoint 1)
+
+These additions describe source changes. They do not update contracts already
+deployed at addresses in deployments/. Exact executed evidence is in REBUILD.md.
+
+| Guarantee | Executable evidence |
+| --- | --- |
+| Guarded NFT collections share the seal's deferred-approval refusal with fungible manifest assets. Pre-seal external approvals remain a limitation. | tools/verify-vault.mjs |
+| Market lifecycle and term mutations cannot run inside a liquidity/trade callback. | test/Pool.t.sol::test_aDepositCallbackCannotCloseItsMarketBeforeCredit |
+| Missing canonical registry code cannot change predicted hands or hide the artwork. | test/Ipseity.t.sol::test_aMissingRegistryCannotHideTheArtworkOrChangeItsHands |
+| Numeric identity and membership use FIRST_ID plus minted count on all five bands. | tools/verify-identity-bands.mjs; tools/verify-rebuild-band.mjs |
+| A second inheritance summons cannot move an existing notice deadline. | tools/verify-estate.mjs: a stranger cannot restart an existing inheritance notice |
+| A console review binds the provider, account and chain checked again at signing; a granted key acts only on the configured chain. | tools/verify-rebuild-dom.mjs; tools/verify-rebuild-ui.mjs |
+| Nested documents receive scripts-only sandbox flags and srcdoc is removed on close. Browser isolation itself requires the browser gate. | tools/verify-rebuild-dom.mjs; tools/verify-rebuild-ui.mjs |
+| Renderer quoting preserves the old byte-level escape semantics with linear allocation. | tools/verify-renderer-quote.mjs |
+| Quiet/imported/cached builds reject oversized production contracts. | tools/verify-compile-gate.mjs; tools/verify-compile-cache.mjs |
+| A simulated call sees its own writes but cannot persist them or revert a concurrent transaction. | tools/verify-call-isolation.mjs |
+| The Forge-compatible harness rejects missing/mismatched expected reverts and zero accepted fuzz attempts. | tools/forge.mjs embedded EVM negative self-controls |
+| Page redeployment preserves Parley, Kiln, Locker, Succession and Consign addresses; mismatched chain/hub/code aborts. | tools/verify-protocol-retention.mjs |
+| Only the holder or token's own Reach may inscribe; bytes/digest/author/root are immutable, quota-bounded and directly readable. | test/Etch.t.sol |
+| Retraction preserves underlying bytes, seals prevent unlisting, and exhibitions expire or die on transfer. | test/Etch.t.sol |
+| Holder bytes are delivered as inert text or attachments; paths and pagination are bounded; the reader stays independent of token metadata. | test/Vitrine.t.sol |
+| Writing requires a separate confirmed, zero-native-value transaction containing exactly the previewed bytes. Ownership/account/chain/provider changes invalidate it. | tools/verify-etch-client.mjs |

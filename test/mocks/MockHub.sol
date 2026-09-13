@@ -8,6 +8,7 @@ pragma solidity ^0.8.24;
 ///      id asked of a resolver sitting on Ethereum is the whole point, and
 ///      no real hub can be made to answer for one.
 contract MockHub {
+    uint256 public constant FIRST_ID = 1;
     mapping(uint256 => address) public ownerOf;
     mapping(uint256 => address) public account;
     mapping(uint256 => address) public grip;

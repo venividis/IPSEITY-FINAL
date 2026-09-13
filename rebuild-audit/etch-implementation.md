@@ -1,0 +1,21 @@
+# Inscription foundation implemented in the rebuild
+
+`src/Etch.sol` and `src/lib/Shard.sol` add a new inscription satellite to the ORIGINAL IPSEITY baseline. They do not require changes to the token, Reach, Grip, Engine or Renderer. Constructor: `Etch(IIpseityEtch hub)`.
+
+The holder or the token's own Reach may inscribe. Approved NFT operators, renters, strangers and another token's Reach have no inscription authority. Holder writes still work if account-address discovery fails. Every leaf stores a derived byte length, block number, kind and listing/seal flags in one packed slot; separate write-once mappings preserve its digest and actual submitting address. Its root appends `keccak256(abi.encode(previousRoot, digest, index))`.
+
+Shard uses CREATE2 with a zero salt and deterministic initcode containing the full payload. Its address therefore depends on the bytes and the Etch deployer, and identical bytes deduplicate across authors and kinds. Every runtime begins with STOP. No caller can supply a shard address or a claimed size. DATA supports any nonempty bytes up to 24,575 per leaf.
+
+MEMO, NOTE, GLYPH and TERM enforce fixed alphabets and limits. GLYPH and TERM are stored text, not parsed, evaluated or mounted. MEMO is restricted printable ASCII without quotes, backslash, angle brackets, ampersand, backtick, colon, semicolon or newline. NOTE also excludes parser delimiters/backtick but permits colon, semicolon and newline. The original specification's table admits a MEMO newline but its safety prose and explicit adversarial test prohibit one; implementation follows the latter. No standard compliance or shader safety is inferred from these alphabet checks.
+
+The archive accepts 32 leaves per transfer epoch and 256 in its lifetime. Retraction does not refund either quota and cannot delete bytes. Transfer resets the epoch allowance, including a self-transfer because the underlying hub's transfer counter is the authority. The lifetime bound always survives.
+
+A listed leaf can be sealed permanently, after which no owner can retract or relist it. An unlisted leaf cannot be sealed. Only a listed MEMO can be exhibited, for at most 180 days. Exhibition becomes inactive on expiry or any transfer; an ownership round trip does not reactivate it. Retraction clears that exhibition, so relisting also does not reactivate it.
+
+Read ABI includes count/rootOf/leafAt/bodyAt/joined/digestsOf/shown/epochLeft, plus preview calls admits/addressFor and authorization mayActAs. Pagination bounds its output to the archive size and handles arbitrarily large caller offsets/limits without addition overflow. Raw bodyAt remains readable after retraction.
+
+Deferred from the broader INSCRIPTION specification: DATA continuation/extend, reader governance, renderer traits and shader mounting. `Leaf.next` remains zero and `joined` returns the one body. Shard.join is present as an internal bounded, allocation-checked helper for a future extension, but Etch exposes no raw-address join or executable deployment path. Root owns the Vitrine read/write surface and its integration separately.
+
+Validation: focused compiler typecheck passed. Compiler storageLayout confirmed all six Leaf fields occupy slot 0 and the element is 32 bytes. `test/Etch.t.sol` contains 12 real EVM tests for authorization, content prediction/dedup/provenance, permanent bytes, sealing, owner/expiry changes, caps, pagination, all 256 MEMO byte boundaries, kind admission, maximum DATA and allocation-safe joins. All 12 Etch tests passed on the project's unchanged in-process EVM/Foundry harness using a focused source copy with identical files. Runtime size is 6,892 bytes under solc 0.8.36, viaIR, optimizer 800, Cancun. The complete log is etch-only-tests.log and the compiler output is etch-only-solc.json. A full-repository compile was also started, but it is not the source of these completed test results.
+
+Integrated reader validation: the first monolithic Vitrine was measured at 38,732 bytes and correctly refused by the EIP-170 gate. Root split it into Vitrine (11,178 bytes), PageEtch (6,719) and DeskEtch (10,674). With Etch (6,892), all 18 Etch/Vitrine tests passed using unchanged harness files and identical focused source copies. See etch-focused-tests.log and etch-vitrine-solc.json.

@@ -337,7 +337,9 @@ contract DeskTalk {
         "if(stage){const o=document.createElement('button');"
         "o.textContent='open it here';"
         "o.addEventListener('click',()=>{stage.textContent='';"
-        "const f=document.createElement('iframe');f.src='/token/'+t+'/live';"
+        "const f=document.createElement('iframe');"
+        "f.setAttribute('sandbox','allow-scripts');f.referrerPolicy='no-referrer';"
+        "f.src='/token/'+t+'/live';"
         "f.setAttribute('title','IPSEITY #'+t);"
         "f.style.aspectRatio='16/10';f.style.maxWidth='none';stage.append(f)});"
         "row.append(o)}"
@@ -407,19 +409,21 @@ contract DeskTalk {
             handful of reads and no indexer at all. Each member is drawn
             with the door beside it; pressing it is `evict`, which the
             contract refuses for everyone but the steward, so the button is
-            offered to everyone and answered for by the chain.          */
+            offered to everyone and answered for by the chain. Empty
+            windows do not end the walk: both chain bands and group
+            membership can leave whole windows with no members.        */
         "const roster=async()=>{const box=$('roster');if(!box||!T.roster)return;"
         "const me=K.me();"
         "let mem=[],pend=[];"
         "for(let base=1;base<4096;base+=256){"
         "const r=await I.tryCall(T.roster,S.inWin+I.W(T.room)+I.W(base));"
-        "if(!r)break;const bits=I.word(r,0);"
+        "if(!r){box.textContent='roster not reported at #'+base;return}const bits=I.word(r,0);"
         "const p=await I.tryCall(T.roster,S.invWin+I.W(T.room)+I.W(base));"
-        "const pbits=p?I.word(p,0):0n;"
+        "if(!p){box.textContent='invitations not reported at #'+base;return}"
+        "const pbits=I.word(p,0);"
         "for(let i=0;i<256;i++){"
         "if((bits>>BigInt(i))&1n)mem.push(base+i);"
-        "if((pbits>>BigInt(i))&1n)pend.push(base+i)}"
-        "if(bits===0n&&pbits===0n&&base>1)break}"
+        "if((pbits>>BigInt(i))&1n)pend.push(base+i)}}"
         "if(!mem.length){box.textContent='nobody has walked in yet';return}"
         "box.innerHTML='';"
 

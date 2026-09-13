@@ -463,12 +463,32 @@ contract Ipseity is
 
     /// @notice The Reach: the hand that acts. This is "the" ERC-6551 account.
     function account(uint256 id) public view returns (address) {
-        return REGISTRY.account(ACCOUNT_IMPL, REACH_SALT, block.chainid, address(this), id);
+        return _accountAddress(ACCOUNT_IMPL, REACH_SALT, id);
     }
 
     /// @notice The Grip: the hand that only closes. Derived, never asked for.
     function grip(uint256 id) public view returns (address) {
-        return REGISTRY.account(GRIP_IMPL, GRIP_SALT, block.chainid, address(this), id);
+        return _accountAddress(GRIP_IMPL, GRIP_SALT, id);
+    }
+
+    /*  An address is arithmetic; creating its account needs the registry.
+        Calling the registry just to read that address made viewOf and
+        tokenURI revert on a chain whose singleton was not deployed yet.
+        These are the canonical ERC-6551 creation bytes, also derived by
+        the instrument. Nothing about the eventual account changes when
+        the registry arrives, and no executable registry is needed to draw. */
+    function _accountAddress(address implementation, bytes32 salt, uint256 id)
+        private view returns (address)
+    {
+        bytes32 initHash = keccak256(abi.encodePacked(
+            hex"3d60ad80600a3d3981f3363d3d373d3d3d363d73",
+            implementation,
+            hex"5af43d82803e903d91602b57fd5bf3",
+            abi.encode(salt, block.chainid, address(this), id)
+        ));
+        return address(uint160(uint256(keccak256(
+            abi.encodePacked(hex"ff", address(REGISTRY), salt, initHash)
+        ))));
     }
 
     /// @notice Bring the Grip into being. Anyone may pay for this; the

@@ -12,3 +12,6 @@ dist/
 # a throwaway testnet deployer key, generated in-container, never committed
 .testnet-key
 .testnet-crew
+
+# Local dependency link and generated release/check reports.
+/node_modules

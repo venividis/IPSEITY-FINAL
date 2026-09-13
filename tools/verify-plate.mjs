@@ -48,7 +48,12 @@ const eq = (n, g, w) => ok(n, String(g) === String(w), `got  ${g}\n      want ${
 const head = (s) => console.log(`\n  \x1b[1m${s}\x1b[0m`);
 const refuses = async (n, fn, why) => {
   try { await fn(); ok(n, false, why || "it went through"); }
-  catch { ok(n, true); }
+  catch (e) {
+    // A JavaScript TypeError is a broken test, not contract authorization.
+    // Two actors below once remained Promises and never sent a transaction.
+    if (!/reverted:/.test(String(e.message))) throw e;
+    ok(n, true);
+  }
 };
 
 const out = compile({ quiet: true, dirs: ["src", "test/mocks"] });
@@ -144,7 +149,7 @@ head("an id from another band is refused until somebody says where that chain is
 
 head("a station, write-once, authorised by the parent's ENS owner");
 {
-  const renter = c.as("0x" + "cd".repeat(32));
+  const renter = await c.as("0x" + "cd".repeat(32));
   await refuses("a stranger cannot set one",
     () => renter.exec(plate, "setStation(uint256,address,address)",
       [8453, ELSEWHERE[8453].premises, ELSEWHERE[8453].hub]));
@@ -414,7 +419,7 @@ head("a name's expiry, read from the registrar the registry names");
 head("renewal is permissionless, so the page needs an address and a price");
 {
   const H = await fixture(1);
-  const renter = H.c.as("0x" + "cd".repeat(32));
+  const renter = await H.c.as("0x" + "cd".repeat(32));
   const ctrl = await H.c.deploy(A("test/mocks/MockRegistrar.sol", "MockController").bytecode,
     (10n ** 16n).toString(16).padStart(64, "0"), "Controller");
 

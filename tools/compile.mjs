@@ -8,6 +8,7 @@
 ───────────────────────────────────────────────────────────────────────────*/
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
@@ -16,6 +17,41 @@ const solc = require("solc");
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const QUIET = process.argv.includes("--quiet");
+
+export const CONTRACT_SIZE_LIMIT = 24576;
+
+/*  Silence is a reporting choice, never a deployment permission.
+
+    The gate used to live only in the verbose CLI. Every verifier and
+    deployment imported compile({ quiet: true }), so the paths used to
+    ship the contracts skipped the very limit the CLI claimed to enforce.
+    Check the output before returning it, regardless of the caller.
+
+    Foundry test and script contracts embed other contracts' creation
+    code. They are harnesses, not deployed application artifacts, and may
+    exceed EIP-170. This exception is scoped to their source directories:
+    a production contract imported by a test still has to fit. Probes and
+    any other source directory are checked normally.                    */
+export function assertDeployableSizes(out) {
+  const rows = [];
+  for (const [file, contracts] of Object.entries(out.contracts || {})) {
+    if (/^(?:test|script|lib\/forge-std)\//.test(file.replaceAll("\\", "/"))) continue;
+    for (const [name, c] of Object.entries(contracts)) {
+      const n = (c.evm?.deployedBytecode?.object || "").length / 2;
+      if (n) rows.push({ name, file, n });
+    }
+  }
+  const over = rows.filter(({ n }) => n > CONTRACT_SIZE_LIMIT);
+  if (over.length) {
+    const err = new Error("EIP-170: deployed contract size exceeds " +
+      CONTRACT_SIZE_LIMIT + " bytes: " + over.map(({ file, name, n }) =>
+        `${file}:${name} (${n} bytes)`).join(", "));
+    err.code = "CONTRACT_SIZE_LIMIT";
+    err.contracts = over;
+    throw err;
+  }
+  return rows;
+}
 
 function sources(dir, out = {}) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -28,7 +64,7 @@ function sources(dir, out = {}) {
   return out;
 }
 
-export function compile({ quiet = false, dirs = ["src"] } = {}) {
+export function compile({ quiet = false, dirs = ["src"], cache = true } = {}) {
   const input = {
     language: "Solidity",
     sources: dirs.reduce((a, d) => Object.assign(a, sources(path.join(ROOT, d))), {}),
@@ -48,21 +84,55 @@ export function compile({ quiet = false, dirs = ["src"] } = {}) {
         .map((l) => { const i = l.indexOf("="); return [l.slice(0, i), l.slice(i + 1)]; })
     : [];
 
-  const findImport = (p) => {
+  const imports = new Map();
+  const resolveImport = (p) => {
     for (const [from, to] of remaps) {
       if (p.startsWith(from)) {
         const full = path.join(ROOT, to + p.slice(from.length));
-        if (fs.existsSync(full)) return { contents: fs.readFileSync(full, "utf8") };
+        if (fs.existsSync(full)) return full;
       }
     }
     for (const base of ["", "src/", "src/lib/", "src/interfaces/"]) {
       const full = path.join(ROOT, base, p);
-      if (fs.existsSync(full)) return { contents: fs.readFileSync(full, "utf8") };
+      if (fs.existsSync(full)) return full;
     }
-    return { error: "not found: " + p };
+    return null;
+  };
+  const findImport = p => {
+    const full = resolveImport(p);
+    if (!full) return { error: "not found: " + p };
+    const contents = fs.readFileSync(full, "utf8");
+    imports.set(p, { file: path.relative(ROOT, full), contents });
+    return { contents };
   };
 
-  const out = JSON.parse(solc.compile(JSON.stringify(input), { import: findImport }));
+  /*  The suite used to recompile the same application for every verifier.
+      Cache only an identical compiler input and compiler build. Imports
+      resolved through the callback are checked by content too: hashing
+      only input.sources would miss a changed forge-std or relative import.
+      The output checksum catches partial/corrupt files. A cache hit still
+      passes the size gate below; it is never a validation exemption.    */
+  const hash = value => createHash("sha256").update(value).digest("hex");
+  const inputJSON = JSON.stringify(input);
+  const key = hash(JSON.stringify({ schema: 1, compiler: solc.version(), remaps, input: inputJSON }));
+  const cacheDir = path.join(ROOT, "out", "compile-cache");
+  const cacheFile = path.join(cacheDir, key + ".json");
+  let out;
+  if (cache) {
+    try {
+      const saved = JSON.parse(fs.readFileSync(cacheFile, "utf8"));
+      if (saved.key === key && saved.outputHash === hash(saved.output) &&
+          saved.imports.every(([request, file, digest]) => {
+            const resolved = resolveImport(request);
+            return resolved === path.join(ROOT, file) &&
+              hash(fs.readFileSync(resolved, "utf8")) === digest;
+          })) {
+        out = JSON.parse(saved.output);
+      }
+    } catch { /* absent, stale or corrupt cache: compile from source */ }
+  }
+  const cached = !!out;
+  if (!out) out = JSON.parse(solc.compile(inputJSON, { import: findImport }));
 
   const errors = (out.errors || []).filter((e) => e.severity === "error");
   const warnings = (out.errors || []).filter((e) => e.severity === "warning");
@@ -80,6 +150,22 @@ export function compile({ quiet = false, dirs = ["src"] } = {}) {
     err.errors = errors;
     throw err;
   }
+  assertDeployableSizes(out);
+  if (cache && !cached) {
+    const output = JSON.stringify(out);
+    const saved = JSON.stringify({ key, outputHash: hash(output), output,
+      imports: [...imports].map(([request, { file, contents }]) => [request, file, hash(contents)]) });
+    let tmp;
+    try {
+      fs.mkdirSync(cacheDir, { recursive: true });
+      tmp = cacheFile + "." + process.pid + "." + Date.now() + ".tmp";
+      fs.writeFileSync(tmp, saved);
+      fs.renameSync(tmp, cacheFile);
+    } catch {
+      if (tmp) { try { fs.unlinkSync(tmp); } catch {} }
+      // A cache is optional. A read-only output directory does not change compilation.
+    }
+  }
   return out;
 }
 
@@ -96,7 +182,7 @@ export function artifact(out, file, name) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const t0 = Date.now();
   const out = compile({ quiet: QUIET });
-  const LIMIT = 24576;
+  const LIMIT = CONTRACT_SIZE_LIMIT;
   const rows = [];
   for (const [file, cs] of Object.entries(out.contracts)) {
     for (const [name, c] of Object.entries(cs)) {

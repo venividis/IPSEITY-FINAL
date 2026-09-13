@@ -1,5 +1,7 @@
 # IPSEITY
 
+This checkout is the first **original-to-final rebuild**. The baseline is original commit `ef1b0e3ac65cf7bf3c75b023ee4043515384cff2`, preserved unchanged in the destination repository before upgrades. Read [REBUILD.md](REBUILD.md) for the implemented changes, exact validation and remaining work. Historical deployment records and measurements below describe the original project; they are not deployments of this rebuild.
+
 *ipseity, n. — the property of being oneself; selfhood as distinct from any of its appearances.*
 
 A four-dimensional solid, and the instrument for turning it, are the same token.
@@ -1164,7 +1166,7 @@ somebody asks for it.
 ## Building it
 
 ```bash
-npm install
+npm ci
 
 node tools/selftest.mjs         # the engine's own keccak, ABI coder, EIP-712, CREATE2
 node tools/build-engine.mjs     # minify, gzip, shard  → dist/shards.json
@@ -1231,7 +1233,7 @@ node tools/verify.mjs                    # do not skip this
 forge script script/Deploy.s.sol --rpc-url <chain> --broadcast
 
 # check engine.headBytes()/bodyBytes() against dist/ipseity.min.html, then:
-ENGINE=0x… IPSEITY=0x… forge script script/Seal.s.sol --rpc-url <chain> --broadcast
+ENGINE=0x… IPSEITY=0x… forge script script/Deploy.s.sol:Seal --rpc-url <chain> --broadcast
 ```
 
 `freeze()` and `sealRenderer()` are both one-way. After them the document and the
@@ -1295,7 +1297,7 @@ The collection is live on **Base Sepolia** (see DEPLOYMENTS.md). To stand in
 front of it:
 
 ```bash
-git clone <this repo> && cd Most-Advanced-NFT-Possible && npm install
+git clone <this repo> && cd Most-Advanced-NFT-Possible && npm ci
 node tools/gateway.mjs          # serves the deployed contract at localhost:8080
 ```
 
