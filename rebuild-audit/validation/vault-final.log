@@ -1,0 +1,204 @@
+
+  deploy
+  ✓ deployed
+      account implementation 0x73b647cba2fe75ba05b8e12ef8f8d6327d6367bf
+
+  a token's vault
+  ✓ the account exists
+      0x5b7af40a82799d8b98b6ae2a83ac68299c0b6d9d
+  ✓ it knows which token it belongs to
+  ✓ and which collection
+  ✓ and who holds it
+  ✓ it holds gold
+
+  unsealed, the vault is the holder's to empty
+  ✓ gold left as asked
+  ✓ the 6551 state counter moved
+
+  the seal
+  ✓ sealed
+  ✓ the date is readable by anyone
+  ✓ and so is everything under it
+  ✓ shortening the seal
+  ✓ a seal nobody can outlive
+
+  trying to get the gold out
+  ✓ the obvious word — transfer
+  ✓ transferFrom, pulling from the vault itself
+  ✓ a word no list has ever heard of
+  ✓ approving a spender to pull later
+  ✓ setApprovalForAll on an NFT
+  ✓ permit, which is an approval wearing a signature
+  ✓ sending the vault's ether
+  ✓ delegatecall, which would rewrite the account itself
+  ✓ not one satoshi of gold moved
+
+  but the vault still works
+  ✓ a call to something it never promised still executes
+  ✓ but an unlisted word said to a promised asset does not
+      this is the cost, stated: a holder who wants to claim() on a
+      promised asset must unguard it first, or not promise it
+  ✓ and the vault can still be paid
+
+  a signature is an authority measurement cannot see
+  ✓ so ERC-1271 refuses while sealed
+
+  the promise survives the sale
+  ✓ the token moved
+  ✓ the vault followed it
+  ✓ the seal is untouched
+  ✓ and so is the gold
+  ✓ the seller can no longer act as the vault
+  ✓ and the buyer is bound by it too, until it expires
+
+  and then it lifts
+  ✓ no longer sealed
+  ✓ the buyer can move what they bought
+  ✓ the gold is theirs
+
+  what the seal does not cover
+  ✓ an asset nobody put on the manifest can still leave — by design, and why manifest() is public
+      a buyer reads manifest(), they do not assume it
+
+  the other hand — the Grip
+  ✓ a second account, at a second salt
+      reach 0x5b7af40a82799d8b98b6ae2a83ac68299c0b6d9d
+      grip  0xa46b467dd77b9251c5da52522fffacace8e9f8f5
+  ✓ it exists
+  ✓ and it knows whose it is
+
+  the guarantee is in the shape, so read the shape
+  ✓ every state-changing function is a token receiver
+      (none)
+  ✓ there is no execute
+  ✓ there is no withdraw, sweep, rescue or transfer
+  ✓ there is no owner override, admin or upgrade path
+  ✓ it says so itself
+  ✓ and it declines to advertise IERC6551Executable
+
+  so the attacks have nothing to aim at
+  ✓ the grip holds gold
+  ✓ the holder calling execute
+  ✓ the holder calling anything that spends
+  ✓ nothing moved, because nothing could
+  ✓ no signer is ever valid
+
+  what a buyer reads is a floor, not a snapshot
+  ✓ ether
+      a seller has no function with which to move either number
+
+  a bounded key, for something that is not you
+  ✓ the session is live
+  ✓ the agent can do the one thing it was granted
+  ✓ and it happened
+  ✓ a selector it was not granted
+  ✓ a target it was not granted
+  ✓ calling the account itself, to grant itself more
+  ✓ granting a session at all
+  ✓ sealing the vault
+
+  an approval names its spender in the argument, not in the target
+  ✓ approving a spender nobody named
+  ✓ but it may approve one that was
+  ✓ and setApprovalForAll is checked the same way
+
+  the spend cap counts across the whole session, not per call
+  ✓ two sends inside the cap go through
+  ✓ the third, which would exceed it, does not
+  ✓ and the session cannot raise its own cap
+
+  the expiry is a wall the key cannot move
+  ✓ sessionAllows says no once it has passed
+  ✓ and the call is refused
+
+  two allowlists are a cross-product, and this is what that means
+  ✓ GOLD × transfer is allowed, whether or not that pair was intended
+  ✓ GOLD × approve is allowed, whether or not that pair was intended
+  ✓ SILVER × transfer is allowed, whether or not that pair was intended
+  ✓ SILVER × approve is allowed, whether or not that pair was intended
+      a holder who wants one pair and not the other uses two keys;
+      sessionAllows answers for any combination before you grant it
+
+  the holder takes it back
+  ✓ revoked instantly
+  ✓ and the key is dead
+
+  and it never had a way to the Grip
+  ✓ the Grip is not on any allowlist it could be given
+      and even allowlisted it would find no function that spends
+
+  an asset that stops answering — the hole, not the brick
+  ✓ nothing is unmeasurable to begin with
+  ✓ a token that stops answering is named
+  ✓ and it is the right one
+      a buyer reads unmeasurable() beside holdings(), so the gap
+      in the promise is stated rather than silently taken
+  ✓ the sealed account still acts with a blind asset on the manifest
+  ✓ and the assets it can still see are still held
+
+  going blind during a call is refused, not shrugged at
+  ✓ a call that ends with an asset unreadable
+
+  a blind asset can be let go of; a visible one cannot
+  ✓ a token that stopped answering can be released mid-seal
+  ✓ while the ones it CAN see stay exactly where they are
+
+  the manifest is no longer append-only forever
+  ✓ it can be taken off while unsealed
+  ✓ the flag went with it
+  ✓ while sealed, nobody may take one off
+
+  a batch is one act or none
+  ✓ two calls landed in one act
+  ✓ a sealed batch that ends poorer
+  ✓ and an approval anywhere inside it
+  ✓ but a batch that dips and comes back whole goes through
+
+  a sealed vault can say who it is, and cannot promise what it holds
+  ✓ a raw hash gets nothing while sealed
+      an order hash from any venue is built under that venue's own
+      domain, so it can never be the output of attestationDigest
+  ✓ but it validates the one digest it can rebuild
+  ✓ a well-formed envelope over a different hash is refused
+  ✓ garbage is a plain no rather than a revert
+
+  and it can take it back
+  ✓ an expired attestation is refused
+  ✓ and one bump retires every signature the account ever gave
+  ✓ the same statement re-signed after the bump is a different digest
+  ✓ and that one is honoured
+
+  the manifest cannot move while a call is being measured
+  ✓ a contract holder sealed a vault over two assets
+  ✓ with both assets readable the drain is refused
+  ✓ one asset is now unmeasurable, and says so publicly
+  ✓ and a batch that unguards the blind one mid-flight is refused too
+  ✓ the gold never moved
+  ✓ and the manifest is intact
+
+  a guarded piece cannot be dropped from inside the call that moves it
+  ✓ one named piece is under the seal
+  ✓ the piece cannot simply be sent away
+  ✓ nor moved and then quietly dropped from the list in one batch
+  ✓ the piece is still held by the vault
+  ✓ and still named by it
+  ✓ a guarded piece cannot approve a deferred drain
+  ✓ nor grant an operator over its guarded collection
+  ✓ nor hide the same approval inside a batch
+  ✓ a session is bound by the guarded piece's approval wall too
+  ✓ the outsider cannot take the piece in the following transaction
+  ✓ the deferred attacks leave the guarded identity where it belongs
+
+  a session key does not survive the sale
+  ✓ the key is granted and current
+  ✓ and it spends
+  ✓ the Reach follows the token
+  ✓ the seller's key cannot spend from the buyer's Reach
+  ✓ not one wei moved
+  ✓ and the page-facing read says so rather than showing it as live
+  ✓ `sessionCurrent` names the reason
+  ✓ the token comes back to the one who granted it
+  ✓ and the retired key stays retired
+  ✓ a key granted by the holder who holds it now works
+
+  124 passed, 0 failed

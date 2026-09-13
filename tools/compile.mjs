@@ -64,10 +64,15 @@ function sources(dir, out = {}) {
   return out;
 }
 
-export function compile({ quiet = false, dirs = ["src"], cache = true } = {}) {
+export function compile({ quiet = false, dirs = ["src"], files = [], cache = true } = {}) {
   const input = {
     language: "Solidity",
-    sources: dirs.reduce((a, d) => Object.assign(a, sources(path.join(ROOT, d))), {}),
+    sources: Object.assign(
+      dirs.reduce((a, d) => Object.assign(a, sources(path.join(ROOT, d))), {}),
+      Object.fromEntries(files.map(file => [file, {
+        content: fs.readFileSync(path.join(ROOT, file), "utf8")
+      }]))
+    ),
     settings: {
       optimizer: { enabled: true, runs: 800 },
       viaIR: true,

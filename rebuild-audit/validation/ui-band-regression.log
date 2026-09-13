@@ -1,0 +1,16 @@
+  PASS an unminted later band still has a readable door
+  PASS an empty manifest reports no offering and no next issued page
+  PASS the root instrument route works when the first minted token is 2049
+  PASS the door opens its own band's first console
+  PASS the recent list names the real token instead of token one
+  PASS the gallery's first cell is the real minted token
+  PASS the newest gallery page contains exactly 24 descending band ids
+  PASS the second gallery page contains the first minted token once
+  PASS the next gallery page is explicitly past the end
+  PASS the manifest's first window uses actual ids
+  PASS an offering in the first band window remains discoverable
+  PASS the second manifest page reaches the later offering
+  PASS a page beyond the issued band does not invent an offering
+  PASS the door's recent list stops after twelve real tokens
+
+14 non-one band assertions passed.

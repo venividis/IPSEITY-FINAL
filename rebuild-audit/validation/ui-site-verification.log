@@ -1,0 +1,722 @@
+
+  IPSEITY · the shopfront
+
+  a collection, a market, a lease and a site
+  ✓ the site is deployed
+  ✓ three tokens issued
+
+  a token whose symbol is a script tag
+  ✓ the market page still answers 200
+  ✓ the raw script tag is gone
+  ✓ it survives as inert text
+  ✓ every script tag the page opens is closed by one it wrote
+  ✓ the hostile symbol contributed no bracket to the document
+  ✓ a quote-breaking name cannot escape an attribute
+  ✓ the token page too
+  ✓ no raw script there either
+  ✓ the counter page does not inline the whole instrument
+  ✓ it points at the still as its own request
+  ✓ which is served as an image
+  ✓ and is an SVG
+  ✓ and the manifest
+  ✓ no unescaped angle bracket inside the JSON strings
+  ✓ the manifest is valid JSON
+  ✓ the raw bytes escape the angle brackets
+  ✓ and contain no literal < at all
+  ✓ while a consumer still gets the real string
+  ✓ truncated to a label length a page can survive
+      symbol came through as: "<script>alert(document.domain)</"
+
+  five more ways an ERC-20 can refuse to behave
+  ✓ SilentToken — reverts when asked
+  ✓ Bytes32Token — answers in bytes32, like MKR
+  ✓ HugeToken — answers with eight kilobytes
+  ✓ LiarToken — declares a length longer than it sent
+  ✓ MadDecimalsToken — claims 200 decimals
+  ✓ GasBurnerToken — burns every drop of gas it is given
+  ✓ OffsetBombToken — points its ABI offset 33 MB past the buffer
+  ✓ OffsetBombToken — and the same at the top of the old bound
+
+  and the directory, with all of them in it
+  ✓ 200
+  ✓ it renders
+  ✓ no raw script
+  ✓ it says how much of the real list it showed
+  ✓ and warns that swap-and-pop can move an entry under a reader
+      15691 bytes
+
+  every route
+  ✓ the index                     1413 bytes
+  ✓ /open                        15691 bytes
+  ✓ /open/0                      15691 bytes
+  ✓ /services.json                4303 bytes
+  ✓ /services.json/0              4303 bytes
+  ✓ /token/1                     16447 bytes
+  ✓ /token/1/faces               14611 bytes
+  ✓ /token/1/market              28659 bytes
+  ✓ /token/1/pool                26734 bytes
+  ✓ /chat                        29322 bytes
+  ✓ /terminal                    41291 bytes
+  ✓ /gallery                     15989 bytes
+  ✓ /gallery/0                   15989 bytes
+  ✓ /launch                      45599 bytes
+  ✓ /lock                        29493 bytes
+  ✓ /door                        57254 bytes
+  ✓ /projector                   27565 bytes
+  ✓ /seal                        27092 bytes
+  ✓ /keys                        33542 bytes
+  ✓ /name                        30063 bytes
+  ✓ /estate                      36784 bytes
+  ✓ /hook                        13713 bytes
+  ✓ /swap                        37063 bytes
+  ✓ /rooms                       32820 bytes
+  ✓ /dm/1                        32915 bytes
+  ✓ /token/1/rent                25640 bytes
+  ✓ /token/1/vault               24750 bytes
+  ✓ /token/1/services.json        3660 bytes
+  ✓ /token/1/raw                 10561 bytes
+  ✓ /token/1/live                 1413 bytes
+  ✓ /token/1/face/1               8005 bytes
+  ✓ /token/1/sigil.svg            3188 bytes
+  ✓ /c/1                         91438 bytes
+  ✓ /k/1/<key>                   19047 bytes
+
+  the four bytes that make web3:// resolve at all
+  ✓ resolveMode() returns the exact word ERC-6944 specifies
+      without it ERC-6860 falls back to auto mode, where web3://<addr>/
+      is an empty call to a contract with no fallback, and /token/1 is a
+      call to a method named `token` — both revert, and the site is
+      reachable only from a gateway that hard-codes 5219, i.e. a server
+
+  one resource, one URL
+  ✓ a trailing slash is the same page
+  ✓ and on a collection route too
+  ✓ junk after a leaf is not the leaf
+  ✓ nor after the token
+  ✓ a leading zero is not a second address for token 1
+  ✓ nor for a page number
+  ✓ face takes exactly one index
+      every response carries a Cache-Control, so a page reachable at
+      unboundedly many URLs is a gateway cache waiting to be flooded
+
+  and nonsense is still a 404
+  ✓ an undefined leaf
+  ✓ face with no index
+  ✓ face with a non-numeric index
+  ✓ a page that is not a number
+  ✓ a json page that is not a number
+
+  and it describes the collection-wide surface too
+  ✓ the manifest publishes the whole edition, not just this chain's band
+  ✓ and it says exactly what the deploy table says
+  ✓ which tiles the edition exactly once, checked by the same guard the deploy uses
+  ✓ and this hub issues inside the range it publishes for itself
+  ✓ every flat route the site answers is in the manifest
+  ✓ the routes are listed
+  ✓   / is discoverable
+  ✓   /door is discoverable
+  ✓   /terminal is discoverable
+  ✓   /chat is discoverable
+  ✓   /rooms is discoverable
+  ✓   /room/<n> is discoverable
+  ✓   /dm/<id> is discoverable
+  ✓   /gallery is discoverable
+  ✓   /launch is discoverable
+  ✓   /lock is discoverable
+  ✓   /projector is discoverable
+  ✓   /seal is discoverable
+  ✓   /keys is discoverable
+  ✓   /name is discoverable
+  ✓   /hook/<address> is discoverable
+  ✓   /swap is discoverable
+  ✓   /open is discoverable
+  ✓   /services.json is discoverable
+  ✓   and / actually answers
+  ✓   and /door actually answers
+  ✓   and /terminal actually answers
+  ✓   and /chat actually answers
+  ✓   and /rooms actually answers
+  ✓   and /room/<n> actually answers
+  ✓   and /dm/<id> actually answers
+  ✓   and /swap actually answers
+  ✓   and /gallery actually answers
+  ✓   and /launch actually answers
+  ✓   and /hook/<address> actually answers
+  ✓   and /lock actually answers
+  ✓   and /projector actually answers
+  ✓   and /name actually answers
+  ✓   and /keys actually answers
+  ✓   and /k/<id>/<key> actually answers
+  ✓   and /c/<id> actually answers
+  ✓   and /seal actually answers
+  ✓   and /estate actually answers
+  ✓   and /open actually answers
+  ✓ the place the tokens talk is described rather than left out
+  ✓ with the contract the site was deployed against
+  ✓ and the topic a program filters on
+  ✓ which is the topic the contract itself derives
+  ✓ and how to walk backwards through it
+  ✓ the venue is described rather than left out
+  ✓ with the factory the site was deployed against
+  ✓ and the router
+  ✓ and the router's calldata shape, which is the part a program needs
+  ✓ and whether there is a venue there at all
+      a program can now find /swap and know the router takes eight words with a deadline at index 4
+
+  the manifest tells a program how to call, not just what exists
+  ✓ it declares its schema
+  ✓ it names the chain
+  ✓ it lists six services — the session surface joined in /2
+  ✓ every selector matches keccak of its signature (11 checked)
+      a caller holding these needs an RPC endpoint and nothing else
+  ✓ the grip is named as one-way
+  ✓ rent says who is paid
+  ✓ draw says nobody is paid
+  ✓ rent teaches the powers it grants — commit and setTrait, on the hub
+  ✓ the session surface is discoverable: grant, act, check, revoke, and its door
+  ✓ the index sells the mint with its door, not only its price
+  ✓ the terminal desk is one read away for an RPC-only agent
+  ✓ parley teaches speak, not only the walk
+  ✓ the routes name the console and the key's door
+
+  /k — the one surface where the actor is not the holder
+  ✓ it serves, and says whose door it is
+  ✓ an unembodied account is a stated fact, never a zero
+  ✓ a checksummed spelling is sent to the one URL
+  ✓ a token that does not exist has no keys to show
+  ✓ its selectors are computed on chain, and they are the account's
+
+  the app is handed selectors a contract computed
+  ✓ the swap page carries a config block
+  ✓ naming the pool, the market and the chain
+  ✓ with both sides' decimals, so the browser never guesses
+  ✓ every pool selector matches keccak of its signature (12)
+  ✓ and every lease selector too (8)
+      the browser never computes a selector, so it needs no keccak
+  ✓ a symbol cannot end the config block it appears in
+      base symbol parsed back as: "<script>alert(document.domain)</"
+
+  the app itself
+  ✓ parses decimals into BigInt base units
+  ✓ formats them back the same way
+  ✓ refuses a value that will not fit a word
+  ✓ checks the chain before it sends
+  ✓ quotes live, debounced
+  ✓ knows whether it is approving or swapping
+  ✓ computes the floor from a slippage tolerance
+  ✓ and no keccak or ABI coder was shipped
+
+  the market picker, and the token list that is not fetched
+  ✓ the pool enumerates its own open markets
+  ✓ a market on token #40 appears on the first page of the directory
+  ✓ the swap card carries a market picker
+  ✓ listing markets the pool says exist
+  ✓ including the far one
+  ✓ and marking the one you are on
+  ✓ every market it offers is genuinely open
+  ✓ closing one drops it from the count
+  ✓ and from the directory
+
+  the app parses as JavaScript
+  ✓ the flat door — 11 block(s)
+  ✓ the terminal — 6 block(s)
+  ✓ the launchpad — 5 block(s)
+  ✓ the vault — 4 block(s)
+  ✓ the projector — 4 block(s)
+  ✓ the seals — 4 block(s)
+  ✓ the keys — 4 block(s)
+  ✓ the nameplate page — 4 block(s)
+  ✓ the estate — 4 block(s)
+  ✓ the commons — 4 block(s)
+  ✓ the rooms — 5 block(s)
+  ✓ a direct message — 5 block(s)
+  ✓ the swap card — 5 block(s)
+  ✓ the market page — 4 block(s)
+  ✓ the pool page — 4 block(s)
+  ✓ the rent page — 4 block(s)
+  ✓ the vault page — 3 block(s)
+  ✓ the counter ships no signing client, because it has nothing to sign
+  ✓ the flat door ships one, because it is a way in
+
+  the holder's side is on the site too
+  ✓ 200
+  ✓ add liquidity
+  ✓ remove liquidity
+  ✓ set the fee
+  ✓ bond the market
+  ✓ sync the curve to the artwork
+  ✓ and it says whose page it is
+
+  the holder's side of the rental counter
+  ✓ names the lease agent
+  ✓ publishes terms
+  ✓ collects
+  ✓ ends a lease properly
+  ✓ and brings the books up to date
+  ✓ while an unlisted token shows no rent card, rather than a dead one
+
+  driving the swap card
+  ✓ the client loaded against the page's own config
+  ✓ typing an amount produced a quote
+  ✓ and it is what Pool.quote says, to the displayed precision
+      1 WETH in, the card says 2941.147499 USDC, the pool says 2941.147499
+  ✓ the details name a rate, a floor and the fee
+  ✓ and the button knows an approval is needed first
+  ✓ pressing it sent one transaction
+  ✓ which was the approval, and it landed
+  ✓ now the button offers the swap
+  ✓ pressing it again sent a second transaction
+  ✓ and the trader was actually paid
+  ✓ at no worse than the floor the card promised
+      received 2941.147499 USDC — the card, the pool and the balance all agree
+  ✓ flipping turns the pair round
+  ✓ nonsense in the amount field is refused rather than sent
+  ✓ a wallet on the wrong chain is told so rather than used
+
+  driving the commons
+  ✓ the talking client loaded against the page's own config
+  ✓ connecting found the tokens this wallet holds
+  ✓ and it is speaking as one of them
+  ✓ the gate opened
+  ✓ and the page says which token is speaking
+  ✓ pressing send put a message on the chain
+  ✓ and the conversation came back onto the page
+  ✓ all three messages are on the page, oldest first
+  ✓ the hostile one reads exactly as it was typed
+  ✓ and the newest is at the bottom
+  ✓ and it is text, not markup — nothing was parsed out of it
+  ✓ because the client never assigned innerHTML to it
+  ✓ the sender is named by token, not by address
+  ✓ the archive was read by following pointers, not by reading one block
+  ✓ and every one of them asked for exactly one block
+  ✓ filtered to the room, by a topic the contract computed
+      3 single-block queries, no range scan
+
+  driving a direct message, and the room nobody founded
+  ✓ the client derived the pair room rather than being told it
+  ✓ and a whisper lands in it
+  ✓ without touching the commons
+
+  the front page is the instrument
+  ✓ / answers 200
+  ✓ and what it answers with is the instrument, not a page about one
+  ✓ carrying the token's own state rather than a placeholder
+  ✓ and the flat front page still answers at /door
+  ✓ with the whole row of surfaces on it
+
+  the door is the map, in a person's words
+  ✓ the ways in are on the door, rendered by the contract
+  ✓ and the mint stands at the gate with its price in the label
+  ✓ and the terminal speaks from the door itself
+  ✓ and the lore folds itself behind stars, script willing
+  ✓ the tesseract is gone, and nothing else answers to its name
+  ✓ the doors exist as data derived from the page itself
+  ✓ every door names a route, and the routes are the site's
+  ✓ the terminal came up on the door
+  ✓ `go` walks by word
+  ✓ to the same place the node leads
+  ✓ and a wrong word lists the right ones
+
+  the door hands over what the wallet holds
+  ✓ the door listed the tokens this wallet holds
+  ✓ each one offers its instrument
+  ✓ its counter
+  ✓ and its messages
+
+  driving the terminal
+  ✓ /terminal answers
+  ✓ the terminal came up
+  ✓ and publishes its table as data — 46 commands
+  ✓ each entry says whether it writes
+  ✓ help is the same table, for people
+  ✓ `mint` minted
+  ✓ `say` reached the commons
+  ✓ `launch` fired through the kiln, signed by the active token
+  ✓ and the kiln remembers which token signed it
+  ✓ `launched` lists it with its address
+  ✓ `lockup` locked and says until when
+  ✓ `lockups` reads it back off the vault
+  ✓ the estate's words joined the same table
+  ✓ `will` on a token with no plan says so
+  ✓ `will` wrote the arrangement the words asked for
+  ✓ with the silence in days, turned into seconds
+  ✓ and reading it back names the heir and why it cannot fire yet
+  ✓ `approve-will` is the one grant it needs
+  ✓ `consign` states the floor it committed to
+  ✓ a percentage typed as 7.5 arrives as 750 basis points
+  ✓ and the floor as wei
+  ✓ `window` reads the note back off the chain
+
+  the new tabs render what the terminal did
+  ✓ /launch lists the terminal's coin, address first
+  ✓ with a copy button and a watch button
+  ✓ and names the token that signed it
+  ✓ /gallery wears one still per token (up to a page)
+
+  driving the Uniswap card
+  ✓ /swap answers 200
+  ✓ the shared client loaded
+  ✓ and the Uniswap client on top of it
+  ✓ the factory in the page is the factory the site was deployed with
+  ✓ and the router
+  ✓ and the router's calldata shape travels with it
+  ✓ the v3 router selector is the hash of the v3 router's own signature
+  ✓ and SwapRouter02's is a different function entirely
+  ✓ which are not the same four bytes
+  ✓ the quoter selector follows the struct declaration, not the comment
+  ✓ and not the order its own documentation gives
+  ✓ the offered assets were derived from open markets, not fetched
+  ✓ and every one of them carries its own decimals
+  ✓ the page offers a box for anything not on that list
+  ✓ typing an amount produced a quote
+  ✓ and it came from the deepest tier rather than the first one that answered
+  ✓ the card names which pool it quoted through
+      quoted every tier that had a pool and took 2995 over 2900
+  ✓ the first press approved the router and nothing else
+  ✓ the swap reached the router
+  ✓ tokenIn arrived as tokenIn
+  ✓ tokenOut arrived as tokenOut
+  ✓ the fee tier arrived as the fee tier
+  ✓ the recipient is the person who pressed the button
+  ✓ the deadline is in the future and not decades away
+  ✓ one WETH typed as text arrived as one WETH in base units
+  ✓ and the floor is the quote less the slippage tolerance, to the wei
+  ✓ with no price limit, which is what zero means there
+  ✓ and the tokens actually moved
+  ✓ the shallower tier is offered as a choice
+  ✓ choosing it changes the quote to that tier's price
+  ✓ and the trade goes through the tier that was chosen, not the best one
+      pressed 0.05%: quote 2995 -> 2900, and the swap went through the 0.05% pool rather than the 0.3% one
+  ✓ an amount of zero cannot be sent
+  ✓ and pressing anyway sends nothing
+      zero is CONTRACT_BALANCE on SwapRouter02 — "swap everything the router holds", not "swap nothing"
+  ✓ a pasted token's ticker is stripped to something inert
+      a symbol of "<script>alert(1)</script>" renders as "scriptalertdocum"
+  ✓ and the market card's own config is scrubbed the same way
+      after JSON.parse the raw symbol is back — so every ticker in the config is put through the whitelist once, centrally
+
+  the same page wired to the other router
+  ✓ the page says which router it is wired to and what that costs
+  ✓ rather than showing a deadline box that quietly does nothing
+  ✓ the client picked up the other shape
+  ✓ the swap reached SwapRouter02
+  ✓ tokenIn is still tokenIn with a field removed
+  ✓ and the recipient did not shift by a word
+  ✓ and two WETH is two WETH
+      seven words instead of eight, and every field still landed where its name says
+  ✓ sending the eight-word shape to the seven-word router does NOT arrive intact
+      which is exactly why the kind is stored beside the address
+
+  who is in the room, and who may show them out
+  ✓ the steward is in the room it founded
+  ✓ and the guest is not
+  ✓ an invitation shows as invited, not as present
+  ✓ once it walks in, the roster says so
+  ✓ and the same answer arrives as a list, for a caller that would rather not shift
+  ✓ a token that does not keep the room cannot show anyone out
+  ✓ the steward can, and the roster empties
+  ✓ the rooms a token keeps are found from the token alone
+  ✓ the commons holds every token, not none of them
+  ✓ and a token nobody minted is not in it
+  ✓ the commons, a group and a key nobody founded are three different answers
+  ✓ and a room nobody founded holds nobody
+      invited, joined, listed, shown out — over a Parley nothing changed
+
+  driving the seals
+  ✓ /seal answers 200
+  ✓ it reads the token's three states
+  ✓ the bolt flips on chain, not on screen
+  ✓ a bolted token will not move even for an approved operator
+  ✓ and the thief cannot unbolt it, because they do not hold it
+  ✓ the holder lifts it again, as many times as they like
+      bolted, refused an approved operator, refused the thief, lifted
+
+  driving the estate
+  ✓ /estate answers 200
+  ✓ the page names both contracts it drives
+  ✓ it reads who holds the token and whether the succession is approved
+  ✓ the arrangement landed, made by the holder
+  ✓ and a token number in the heir box arrived as a token, not as an address
+  ✓ the address slot is left empty, as it must be when a token is named
+  ✓ the silence is the one the bar was dragged to
+  ✓ and the heir resolves to whoever holds that token
+  ✓ with no approval the contract reports the plan as unable to move anything
+  ✓ and the page's own approve button fixes exactly that
+  ✓ an heir token held by the owner is reported as no inheritance at all
+  ✓ an address in the same box arrives as an address
+  ✓ with the token slot empty this time
+  ✓ and now the plan waits on silence and nothing else
+  ✓ the token is in escrow
+  ✓ consigned by the holder
+  ✓ to the agent that was typed
+  ✓ with the floor the field carried, in wei
+  ✓ and the cut the bar was dragged to
+  ✓ while the seller keeps the use of it
+  ✓ and the agent hands it back
+      a will written through the page, and a consignment opened and closed
+
+  driving the session keys
+  ✓ /keys answers 200
+  ✓ and says the two things that have bitten people
+  ✓ the page found the token's Reach
+  ✓ the permissions are offered as chips carrying their selectors
+  ✓ including the pool's swap, hashed on chain
+  ✓ the account permits exactly the selector that was chosen
+  ✓ and not one the person never pressed
+  ✓ and not the same selector at another address
+      granted one permission at one address, and the account agrees
+  ✓ revoking takes it back
+
+  driving the nameplate page
+  ✓ /name answers 200
+  ✓ with no registry here, it says so instead of offering controls
+  ✓ with a registry, the page offers to bind
+  ✓ the client shows the very bytes the test encoded independently
+  ✓ the name the client encoded is the name the contract hashed
+  ✓ and it answers with the token's own account
+  ✓ and carries the ERC-6821 record that points a browser at this site
+  ✓ unbinding gives the name back
+      built the wire by hand, and the contract that hashes agreed
+  ✓ the page offers a renewal
+  ✓ and says plainly that anyone may pay it
+  ✓ with no renewer set it refuses rather than building a transaction to nowhere
+  ✓ and the button stays disabled
+  ✓ with a registrar, the page shows the date the name lapses
+  ✓ and still says where it cannot renew
+      the expiry is read from the registrar the registry names
+
+  driving the launchpad
+  ✓ /launch answers 200
+  ✓ the bars are real controls, not pictures
+  ✓ the page offers a choice of hook
+  ✓ the gate's controls are the ones showing at rest
+  ✓ and the fee band is put away until it is asked for
+  ✓ choosing the Facet brings out the fee band
+  ✓ and puts the gate's dates away
+  ✓ the band has a floor, a ceiling and a token to read them against
+  ✓ and it switches back
+  ✓ the supply bar is logarithmic and writes the box
+  ✓ `where would it land` answered from the kiln, nothing sent
+  ✓ the dynamic checkbox writes the sentinel fee
+  ✓ a dynamic fee with no hook sends nothing — a pool nothing can ever price
+  ✓ and the manager was never reached
+  ✓ a token you do not hold cannot sign a launch
+  ✓ the launch fired through the kiln
+  ✓ and landed exactly where the page said it would
+  ✓ attributed to the signing token
+  ✓ with the whole supply in the launcher's wallet
+  ✓ the liquidity bar runs to ten years and writes the box
+  ✓ and the page says both dates out loud
+  ✓ the salt was mined by the node itself, under eth_call
+  ✓ and the deploy button armed
+  ✓ the gate was deployed at the mined address
+  ✓ whose low fourteen bits are exactly beforeSwap + beforeRemoveLiquidity
+  ✓ both timestamps immutable, the unlock after the open
+  ✓ and the gate reports shut, because only the clock opens it
+  ✓ the fee bar is logarithmic: 400 of 600 lands on 1.00%
+  ✓ and the label says so
+  ✓ typing snaps the label back
+  ✓ initialize reached the PoolManager
+  ✓ currency0 is the lower address
+  ✓ currency1 is the higher
+  ✓ the fee arrived as the fee
+  ✓ the spacing arrived as the spacing
+  ✓ the hook is the gate that was just mined
+  ✓ and the price is the venue's own sqrt of the snapped tick
+      six flat words: currencies sorted, fee, spacing, the mined hook, the price
+
+  what the address already says
+  ✓ /hook/<the gate> answers 200
+  ✓ and reads both powers off the address, with no call
+  ✓ and says the half that is not reassuring
+  ✓ a checksummed spelling is a different URL and gets moved
+  ✓ to the one canonical address
+  ✓ bare /hook explains itself
+  ✓ an address with no flag bits is called what it is: not a hook
+
+  driving the vault
+  ✓ /lock answers 200
+  ✓ ten years sits on the bar itself
+  ✓ the bar writes the box
+  ✓ and the page answers with a date, not a number
+  ✓ typing writes the bar back
+  ✓ the token was asked what it is
+  ✓ the first press approved the vault for exactly the amount
+  ✓ the lock is in the vault
+  ✓ and the ledger holds both locks to the wei
+  ✓ recorded at what arrived
+  ✓ it cannot come out early — no such function exists to call
+  ✓ it cannot come out to anyone else
+  ✓ the date cannot be brought nearer
+  ✓ and nothing locks past ten years from now
+  ✓ at term, the clock lets it out to the wei
+  ✓ and only once
+  ✓ the ledger followed it out
+      locked, refused early, refused to a stranger, out at term to the wei
+  ✓ a second lock landed
+  ✓ the open lock offers to be given
+  ✓ which reveals the hand-over panel
+  ✓ the vault now answers to the new owner
+  ✓ and no longer to the old one
+  ✓ who claims it at term, to the wei
+  ✓ a claimed lock cannot be given
+  ✓ a dead permit does not kill a lock that has its allowance
+  ✓ and without the allowance the lock refuses at the transfer
+      given away, claimed by its new owner, and the permit path fails soft
+
+  the nameplate answers for the collection
+  ✓ with no registry here, binding refuses honestly
+  ✓ a name you do not own cannot be bound
+  ✓ owning the name is not enough without the token
+  ✓ bound, the name answers with the token's own account
+  ✓ text(contentcontract) is the ERC-6821 record, chain-scoped, to this site
+  ✓ which is an ERC-3770 chain-specific address, not a CAIP identifier
+  ✓ and the avatar is the token itself, as ENS apps draw one
+  ✓ the parent slot needs the parent's owner
+  ✓ and is written once
+  ✓ 2.ipseity.eth means token 2, with no registration at all
+  ✓ and ENSIP-10 resolve hands back its account
+  ✓ a token that does not exist resolves to nobody
+      bound, wildcarded, and the ERC-6821 record points a name at this site
+
+  two tokens whisper through a sealed room
+  ✓ the DM page grew a seal bar
+  ✓ and the page itself warns that a key belongs to a wallet, not a token
+  ✓ it says the key is missing and offers to publish
+  ✓ one press derived from a signature and published the point
+  ✓ the other side published too
+  ✓ with both points on chain, the room arms itself
+  ✓ and its claim agrees with what the chain says about that token
+  ✓ rather than promising something about the far end it never checked
+  ✓ the pair room's log is there for anyone with a node
+  ✓ and the envelope says sealed out loud
+  ✓ and the words are not in the bytes
+  ✓ the other end derives the same secret and reads it
+  ✓ the far token has moved again
+  ✓ a key published before a sale is called out, not sealed over in silence
+  ✓ and the bar says so as a warning rather than as reassurance
+      a sold token keeps its published key — and the page says whose it is
+      derived from a signature, sealed with WebCrypto, bytes to everyone else
+
+  the projector answers anyone
+  ✓ /projector answers 200
+  ✓ and arrives with the picture already drawn
+  ✓ eight solids on chips, every number on a bar
+  ✓ moving a bar redraws through the caller's own node
+  ✓ the chips carry their solids as data
+  ✓ a different solid is a different picture
+      drawn by the chain, redrawn by the chain, free either way
+
+  driving the holder's side
+  ✓ Add liquidity sent a transaction
+  ✓ and the inventory actually grew
+      1.5 WETH typed as text became 1500000000000000000 base units — no float anywhere in that
+  ✓ setting the fee from a percentage lands as bps
+  ✓ Remove liquidity works too
+
+  driving the rental counter
+  ✓ choosing five days prices it exactly
+  ✓ renting sent one transaction
+  ✓ carrying exactly the wei the card showed
+  ✓ and ERC-4907 now names the renter
+  ✓ a term outside the holder's range is refused before it is sent
+
+  renting: the narrow capability
+  ✓ listing before naming a lease agent is refused
+  ✓ the holder names an agent and lists
+  ✓ it reads back as rentable
+  ✓ the rent card appears once there are terms
+  ✓ with a day field
+  ✓ and a place for the exact wei
+  ✓ priced from the terms just published
+  ✓ a stranger cannot list someone else's token
+  ✓ Lease's ABI contains no transfer, approve or lock of any kind
+
+  a lease agent that wants more than it was given
+  ✓ it really is the agent — setUserVia goes through
+  ✓ it cannot transfer the token
+  ✓ it cannot approve itself
+  ✓ it cannot lock it
+  ✓ it cannot call setUser directly
+  ✓ it cannot name itself agent on another token
+  ✓ and the token is still the holder's
+      an ERC-721 approval would have carried transferFrom with it;
+      this is why the narrow power got its own name
+
+  renting, continued
+  ✓ a stranger rents it for seven days
+  ✓ solvent: rent taken
+  ✓ the contract now holds the rent
+  ✓ and ERC-4907 says the renter is the user
+  ✓ nobody can rent it twice
+  ✓ and the payment must be exact
+
+  what the renter may and may not do
+  ✓ the renter drives the instrument — commit goes through
+  ✓ and the state really moved
+  ✓ the renter cannot sell it
+  ✓ nor lock it
+  ✓ nor set a user of their own
+
+  a lease that runs its term
+  ✓ all of it vested to the token
+  ✓ solvent: term completed
+  ✓ the holder collected it
+  ✓ and nothing is left owing on that token
+  ✓ nothing is left held against token 1
+  ✓ solvent: after collection
+
+  a lease cut short by the sale of the token
+  ✓ the sale cleared the ERC-4907 user
+  ✓ and cleared the standing permission to grant one
+  ✓ two days of ten vested to the token
+  ✓ and every remaining wei is the renter's
+  ✓ solvent: lease cut short
+      20000000000000000 vested, 80000000000000000 refundable, 100000000000000000 paid — nothing lost
+  ✓ the BUYER collects the vested rent, not the seller
+      rent accrues to the token, so selling it sells the income
+  ✓ and the renter reclaims the time they did not get
+  ✓ and nothing against it a second time
+
+  the invariant that matters
+  ✓ solvent: at rest
+  ✓ and nothing is stranded: the balance is exactly what is owed, to the wei
+      checked after every operation above, not only at the end — a
+      contract briefly insolvent in the middle passes a closing check
+
+  read off the compiled ABI
+  ✓ PageToken has no state-changing function
+  ✓ PageMarket has no state-changing function
+  ✓ PageServices has no state-changing function
+  ✓ PageManifest has no state-changing function
+  ✓ Chrome has no state-changing function
+  ✓ Premises has no state-changing function
+  ✓ PageDoor has no state-changing function
+  ✓ PageTalk has no state-changing function
+  ✓ PageRooms has no state-changing function
+  ✓ DeskTalk has no state-changing function
+  ✓ PageTerminal has no state-changing function
+  ✓ PageGallery has no state-changing function
+  ✓ PageLaunch has no state-changing function
+  ✓ PageLock has no state-changing function
+  ✓ PageHook has no state-changing function
+  ✓ DeskLaunch has no state-changing function
+  ✓ DeskSeal has no state-changing function
+  ✓ Roster has no state-changing function
+  ✓ DeskRooms has no state-changing function
+  ✓ PageCast has no state-changing function
+  ✓ PageSeal has no state-changing function
+  ✓ PageKeys has no state-changing function
+  ✓ PageName has no state-changing function
+  ✓ PageEstate has no state-changing function
+  ✓ DeskEstate has no state-changing function
+  ✓ PageSwap has no state-changing function
+  ✓ DeskUni has no state-changing function
+  ✓ DeskTrade has no state-changing function
+  ✓ Venue has no state-changing function
+  ✓ DeskTerm has no state-changing function
+  ✓ Desk has no state-changing function
+  ✓ Lease takes ether through exactly one function
+  ✓ and has neither receive nor fallback
+
+  580 passed, 0 failed

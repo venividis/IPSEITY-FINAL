@@ -10,7 +10,24 @@ This review started from IPSEITY-FINAL commit `8fe69315258532ed90ccc1722d6c34305
 4. **Quiet and imported compilation bypassed the deployment-size check. Repaired.** EIP-170 enforcement lived inside `if (!QUIET)` in the CLI. The application, deployment tools and tests imported `compile({quiet:true})`. The check now runs before every compiler result is returned, including cache hits. Test/script/forge-std harness artifacts may exceed the limit because they embed deployment bytecode; production imports and probe sources do not inherit that exception. `verify-compile-gate.mjs` passed five assertions, including actual solc compilation of an oversized contract.
 5. **The in-process eth_call analogue could persist state. Repaired.** `Chain.call()` invoked `vm.evm.runCall` directly, without discarding successful changes. Simulating a state-changing call could alter later tests. The repaired call takes a checkpoint and always reverts it in `finally`; it does not use STATICCALL, because a real eth_call may simulate writes. Calls and transactions share a per-VM queue so overlapping simulations cannot pop one another's checkpoints or discard a transaction. `verify-call-isolation.mjs` passed eight raw-bytecode controls covering internal writes, persistent transactions, concurrent calls, a call overlapping a transaction, and failure cleanup.
 
-These defects do not prove the production contracts fail their stated protections. They prove historical passing counts alone were insufficient evidence for those protections. A fresh suite run with the repaired harness is necessary.
+6. **Secondary actors lost a custom chain's signing domain. Repaired.** `Chain.as()` shared the VM but did not carry its Common configuration into the new actor, so its transaction builder fell back to mainnet. The actor now retains its chain configuration. Two additional controls inspect the EIP-155 `v` of an actual secondary-actor transaction on chain 8453 and verify that the transfer reaches the shared chain.
+
+These defects do not prove the production contracts fail their stated protections. They prove historical passing counts alone were insufficient evidence for those protections. The repaired harness was used for the fresh execution below.
+
+## Rebuild validation performed
+
+| Execution | Observed result | Evidence |
+|---|---|---|
+| Stable `src` plus `test/mocks` compilation | 72 production runtime artifacts within EIP-170; largest DeskTerm is 23,908 bytes with 668 bytes headroom | `compiler-validation.json`; `out/solc.json` |
+| Full default Node Solidity suite, after repairing the runner | **154 passed, 1 failed**, exit 1 | `forge-full.log` |
+| Corrected Parley test only, `--file test/Parley.t.sol --match anUnfoundedRoom` | **1 passed, 0 failed**, exit 0 | `forge-parley-corrected.log` |
+| Compiler deployment-size gate, after explicit-file support | 5 assertions passed, including actual oversized Solidity refusal | `compile-gate-final.log` |
+| Compiler cache, after explicit-file support | 4 assertions passed, including changed and invalid callback imports | `compile-cache-final.log` |
+| EVM call isolation and secondary actor signing | 10 assertions passed | `call-isolation-final.log` |
+
+The full suite's single failure exposed an existing test-ordering mistake in `test_anUnfoundedRoomIsNotARoom`: `parley.groupKey(7)` was evaluated as a successful external getter after arming `expectRevert`, before the intended `speak` call. The getter is now evaluated before arming the expectation. Production Parley code did not need a change. An explicit `--file` option compiles only the selected test and its normal imports for the focused rerun; the default whole-suite path and compiler settings are unchanged. The complete suite was not rerun after this correction, so the evidence is the full **154/1** run plus the focused **1/0** rerun, not a claimed fresh full 155/0 run.
+
+The full run also passed `test_aMissingRegistryCannotHideTheArtworkOrChangeItsHands` and `test_aDepositCallbackCannotCloseItsMarketBeforeCredit`, as well as all Etch and Vitrine tests. Separate broader verifier results belong in the parent rebuild receipt. No live deployment was performed.
 
 ## Deployment and recovery
 

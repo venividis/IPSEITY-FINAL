@@ -1,0 +1,33 @@
+
+  IPSEITY · properties   seed 1552813290   256 runs each
+
+  the section word
+  ✓ six angles, an offset, a solid and a hue survive the round trip  256 runs
+
+  SSTORE2
+  ✓ a blob written to code comes back byte for byte  32 runs
+
+  minting
+  ✓ every token is born renderable, whatever the block  16 runs
+
+  the curve
+  ✓ concentration is bounded, at every word there is  256 runs
+  ✓ the three planes that do not contain w never move the price  256 runs
+  ✓ more in never means less out  256 runs
+  ✓ the quote never exceeds the reserve it is priced against  256 runs
+  ✓ k never falls, measured against the offsets the market anchored  256 runs
+  ✓ a round trip never profits, at any concentration, at any size  256 runs
+
+  the market
+  ✓ a live swap never lowers the invariant, at any curve a holder can commit  32 runs
+  ✓ buying and selling straight back never comes out ahead  32 runs
+  ✓ the pool never pays out more than it holds  32 runs
+
+  custody
+  ✓ locked() and isTransferable() never disagree  16 runs
+
+  the seal
+  ✓ a sealed vault's manifest never shrinks, whatever is called  16 runs
+
+  14 properties held, 0 broken
+  seed 1552813290 — pass --seed 1552813290 to run exactly this again

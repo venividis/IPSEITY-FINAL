@@ -1,0 +1,17 @@
+PASS preview simulates without sending
+PASS simulation contains the exact owner-selected bytes
+PASS separate confirmation sends once
+PASS submission is not presented as a mined success
+PASS a consumed review cannot send again
+PASS silent chain change cannot reuse an earlier review
+PASS silent account change cannot reuse an earlier review
+PASS ownership transfer cannot reuse an earlier review
+PASS disconnected wallet cannot reuse an earlier review
+PASS replaced provider cannot reuse an earlier review
+PASS edited inscription cannot reuse an earlier review
+PASS wallet event cannot reuse an earlier review
+PASS wrong-chain preview never reaches the archive
+PASS contract admission refusal prevents confirmation
+PASS wallet rejection clears the review and reports failure
+PASS binary DATA is encoded byte-exactly without text conversion
+17 inscription client assertions passed (DOM shim; no live transactions).

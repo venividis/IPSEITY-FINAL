@@ -21,7 +21,7 @@ The following 32 production source files were assigned and reviewed. Site pages,
 | `src/lib/Assets.sol`, `src/lib/Curve.sol`, `src/lib/Hook.sol`, `src/lib/Mul.sol`, `src/lib/Tick.sol`, `src/lib/Timelock.sol`, `src/lib/Trig.sol` | Finance reviewer | Balance movement, curve arithmetic, hook encoding and fixed-point/timelock primitives |
 | `src/Parley.sol`, `src/ParleyPort.sol`, `src/Roster.sol`, `src/Nameplate.sol` | Messaging/identity reviewer | Complete files; separate report and real-hub five-band regression |
 
-Some financial findings below remain source-derived because their executable reproductions were not completed. Validation distinguishes these from tested repairs.
+Some financial findings remain source-derived; validation distinguishes them from reproduced and tested repairs.
 
 ## Architectural map
 

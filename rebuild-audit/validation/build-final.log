@@ -1,0 +1,30 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> ipseity@1.0.0 build
+> node tools/build-engine.mjs
+
+(node:68) [DEP0151] DeprecationWarning: No "main" or "exports" field defined in the package.json for /workspace/scratch/c2bb8c103f14/IPSEITY-FINAL/node_modules/@shaderfrog/glsl-parser/ resolving the main entry point "index.js", imported from /workspace/scratch/c2bb8c103f14/IPSEITY-FINAL/tools/glsl-check.mjs.
+Default "index" lookups for the main are deprecated for ES modules.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+  IPSEITY · shard plan
+  ───────────────────────────────────────────────────────────────
+  source              200,632 bytes
+  after minifying     118,418 bytes   59.0% of source
+  stored on chain     41,069 bytes   20.5% of source
+  mode                gzip, inflated in the browser by DecompressionStream
+  ───────────────────────────────────────────────────────────────
+  head                387 bytes -> 1 shard(s)
+  body                40,682 bytes -> 3 shard(s)
+  transactions        4 load(s) + 1 freeze
+  storage gas         ~9.10M
+  tokenURI response   ~77 KB
+  ───────────────────────────────────────────────────────────────
+  00  loadHead     387 bytes   ~0.14M gas
+  01  loadBody   20000 bytes   ~4.38M gas
+  02  loadBody   20000 bytes   ~4.38M gas
+  03  loadBody     682 bytes   ~0.21M gas
+
+  wrote dist/shards.json and dist/ipseity.min.html
+  feed each .data to loadHead()/loadBody() in order, check document()
+  against the source, then freeze().

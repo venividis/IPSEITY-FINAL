@@ -1,0 +1,76 @@
+
+  IPSEITY · the gas budget
+
+  what a read costs, and who will run it
+      call                          gas   returned   runs on
+      tokenURI()                 19.71M  107,456 B   nodes at 30.00M and above
+                              the pinned face — what every wallet calls
+      tokenURIAt(id,0)           19.66M  107,456 B   nodes at 30.00M and above
+                              face 0, the instrument: the whole GUI
+      tokenURIAt(id,1)            3.32M    8,096 B   everywhere
+                              face 1, the still: one sigil
+      tokenURIAt(id,2)           13.72M   17,056 B   nodes at 30.00M and above
+                              face 2, the quartet: four sigils
+      tokenURIs()                36.79M  132,736 B   nodes at 50.00M and above
+                              ERC-7160: every face at once
+      contractURI()               0.28M    2,720 B   everywhere
+                              ERC-7572: collection metadata
+      viewOf()                    0.01M      544 B   everywhere
+                              the state the engine reads
+      ownerOf()                   0.00M       32 B   everywhere
+                              plain ERC-721
+
+  the site, over ERC-5219
+      /                           4.23M   56,512 B   everywhere
+                              the collection, and what it offers
+      /token/1                    0.19M   17,056 B   everywhere
+                              one token's counter, with live service status
+      /token/1/live               4.19M   56,512 B   everywhere
+                              the instrument, on a real origin
+      /token/1/market             0.33M   22,592 B   everywhere
+                              the swap card
+      /token/1/pool               0.28M   24,704 B   everywhere
+                              the holder's side: inventory, fee, bond, curve
+      /token/1/rent               0.29M   26,208 B   everywhere
+                              lease the instrument by the day
+      /token/1/vault              0.21M   25,376 B   everywhere
+                              the two hands, give, draw, verify
+      /token/1/services.json      0.22M    3,616 B   everywhere
+                              the same, machine-readable
+      /open                       0.13M   15,040 B   everywhere
+                              every token open for business (24 at a time)
+      /services.json              0.27M    4,320 B   everywhere
+                              the directory, machine-readable
+      /chat                       0.31M   29,952 B   everywhere
+                              the commons: one room, every token
+      /rooms                      0.32M   33,440 B   everywhere
+                              the groups a token has entered
+      /room/1                     0.37M   33,760 B   everywhere
+                              one group
+      /dm/1                       0.33M   33,536 B   everywhere
+                              the room two tokens share
+      /terminal                   0.53M   41,952 B   everywhere
+                              every function, one line at a time
+      /gallery                    0.15M   14,752 B   everywhere
+                              the collection, wearing its stills
+      /launch                     0.62M   41,696 B   everywhere
+                              the launchpad: token, hook, pool
+      /lock                       0.27M   30,112 B   everywhere
+                              the vault: ten years on a slider
+      /projector                  3.14M   28,192 B   everywhere
+                              the 4-D renderer, free for anyone
+      /seal                       0.23M   27,712 B   everywhere
+                              the three seals
+      /keys                       0.31M   34,176 B   everywhere
+                              session keys
+      /name                       0.29M   30,688 B   everywhere
+                              a name bound to a token
+      /swap                       0.08M   14,560 B   everywhere
+                              the Uniswap card (venueless on this bare chain)
+      /live is the same document tokenURI base64s, one step earlier —
+      no data: URI wrapper, so it is the cheaper route to the identical
+      page and the one a web3:// gateway takes.
+
+  verdict
+      every read is under 50.00M — a default geth, erigon or reth
+      will serve all of them.

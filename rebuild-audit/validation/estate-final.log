@@ -1,0 +1,94 @@
+
+  deploy
+  ✓ both contracts deployed
+  ✓ five tokens minted to one wallet
+
+  succession · a plan only its owner can write
+  ✓ an approved operator cannot name the heir
+  ✓ the owner can, and the heir reads back
+  ✓ and the operator cannot erase it either
+  ✓ a silence of one day is refused
+  ✓ and one of twenty years is too
+  ✓ naming yourself is not a plan
+
+  succession · two clocks, and what resets them
+  ✓ nobody may knock while the token is still in use
+  ✓ and claiming without a knock is refused
+  ✓ the plan reads as speaking
+  ✓ after the silence, it reads as knockable
+  ✓ the hub's own stamp no longer counts as a sign of life
+  ✓ so the knock still lands after it
+  ✓ and only the owner saying so puts it back to speaking
+  ✓ after which the knock is refused again
+  ✓ now the knock lands, and a second clock starts
+  ✓ a stranger cannot restart an existing inheritance notice
+  ✓ a repeated knock leaves the original opening time unchanged
+  ✓ claiming during the notice is refused
+  ✓ and the owner speaking up cancels the knock outright
+  ✓ so the heir who was mid-notice gets nothing
+
+  succession · a stranger cannot hold the switch open
+  ✓ after the silence the plan is knockable
+  ✓ a stranger calling embody does not reset the silence
+  ✓ nor does doing it again
+  ✓ the hub does not count it as an operation the token performed
+  ✓ while the owner saying so does reset it
+  ✓ an approved operator cannot say the owner is here
+
+  succession · the token actually passes
+  ✓ both clocks run out and it reads as ready
+  ✓ a stranger may press the button
+  ✓ and the plan is spent
+
+  succession · what it refuses to promise
+  ✓ a soulbound token reports that it cannot be inherited
+  ✓ and the claim reverts rather than half-working
+  ✓ with the approval withdrawn the plan is inert
+  ✓ a sold token carries no inheritance to its buyer
+  ✓ and the old heir cannot knock on the new owner's door
+
+  succession · inheritance that follows an instrument
+  ✓ the heir is whoever holds the named token
+  ✓ and it follows that token when it changes hands
+
+  consignment · the terms
+  ✓ a consignment with no floor is refused
+  ✓ an agent's cut of more than half is refused
+  ✓ a term of ten minutes is refused
+  ✓ and a soulbound token cannot be offered at all
+
+  consignment · what the agent may and may not do
+  ✓ the token is in escrow
+  ✓ but the seller keeps the use of it
+  ✓ and can still operate it while it sits in the window
+  ✓ the seller cannot simply take it back mid-term
+  ✓ nor can a stranger price it
+  ✓ and the agent cannot price it below the floor
+  ✓ the split is stated to the wei before anybody agrees
+
+  consignment · the sale
+  ✓ a buyer who underpays gets nothing
+  ✓ an agent who raises the price under a buyer gets a revert, not the difference
+  ✓ the buyer gets the token
+  ✓ and the overpayment comes back rather than being kept
+  ✓ the seller's lease on it is gone with the sale
+  ✓ the agent's cut is credited, not sent
+  ✓ and the seller's share is the rest
+  ✓ what was credited can be withdrawn once
+  ✓ and not twice
+
+  consignment · the agent cannot keep it by going silent
+  ✓ mid-term, nobody can pull it out from under the agent
+  ✓ once the term is over the window is shut
+  ✓ but a stranger can send it home, and home is the seller
+
+  consignment · ending it early takes both sides
+  ✓ the seller alone cannot end it
+  ✓ and neither can a stranger
+  ✓ the agent handing it back is how a dealer says no
+
+  consignment · the only door in is the one that writes the terms
+  ✓ a token cannot be safe-transferred into escrow
+  ✓ so it never left its owner
+
+  66 passed, 0 failed

@@ -1,0 +1,264 @@
+
+  build
+  ✓ shard plan is packed
+      41,063 bytes on chain across 4 shard(s)
+  ✓ contracts compile
+
+  deploy
+  ✓ ERC-6551 registry placed at the canonical address
+      Engine 0x73b647cba2fe75ba05b8e12ef8f8d6327d6367bf
+      Sigil  0x7d73424a8256c0b2ba245e5d5a3de8820e45f390
+      Renderer 0x08425d9df219f93d5763c3e85204cb5b4ce33aaa
+      Ipseity 0x79eafd0b5ec8d3f945e6bb2817ed90b046c0d0af
+
+  load the document into contract state
+  ✓ head bytes stored
+  ✓ body bytes stored
+  ✓ engine is frozen
+      real cost of loading: 9.28M gas (the plan estimated ~9.10M)
+  ✓ a frozen engine refuses more shards
+
+  mint
+  ✓ totalSupply
+  ✓ owner of #1
+      mint cost 0.19M gas
+  ✓ section word is inside 128 bits
+  ✓ solid is one of the eight
+  ✓ an underpaid mint is refused
+
+  tokenURI round trip
+  ✓ tokenURI is a data URI
+      104.9 KB returned
+  ✓ tokenURI reads for under 30M gas — inside every node's eth_call cap
+      tokenURI costs 19.71M gas to read
+  ✓ metadata parses as JSON
+  ✓ name
+  ✓ has an image
+  ✓ has an animation
+  ✓ has attributes
+      document: 54.6 KB
+  ✓ the loader carries a payload
+  ✓ the loader calls DecompressionStream
+  ✓ the loader hands the payload over on a property, not a global binding
+  ✓ and declares nothing at all in global scope — a name declared here is still declared after document.open(), and would collide with the engine
+  ✓ the document that comes back is byte-for-byte the document that went in
+
+  state injected into the document
+  ✓ a state block was written into the gap
+  ✓ state.id
+  ✓ state.collection
+  ✓ state.owner
+  ✓ state.word
+  ✓ state.form
+  ✓ state.hue
+  ✓ state.rot has six angles
+  ✓ state.rot matches the packed word
+  ✓ state.open is the birth bitmap
+  ✓ and the birth bitmap is exactly the instruments that only look
+  ✓ no instrument that moves value is born open
+      born open: Self, Rotate, Section, Scan, Vault, Nest
+  ✓ state.depth
+  ✓ bound account agrees with the registry
+  ✓ the document is not empty of engine
+
+  the token rewrites what it renders
+  ✓ section word was rewritten
+      commit cost 0.05M gas
+  ✓ ops
+  ✓ strata
+  ✓ tokenURI changed after the commit
+  ✓ the Solid trait followed the word
+  ✓ the Hue trait followed the word
+  ✓ turned through w
+  ✓ the still image changed too
+  ✓ the engine itself did not change — only the state around it
+  ✓ a solid that does not exist cannot be committed
+  ✓ bits above the section word are refused
+
+  the sigil, drawn on chain
+  ✓ is an svg
+  ✓ has a path with real geometry
+  ✓ the projection produced points
+  ✓ every projected point is on a sane canvas
+  ✓ solid 0 projects to a non-empty path
+  ✓ solid 1 projects to a non-empty path
+  ✓ solid 2 projects to a non-empty path
+  ✓ solid 3 projects to a non-empty path
+  ✓ solid 4 projects to a non-empty path
+  ✓ solid 5 projects to a non-empty path
+  ✓ solid 6 projects to a non-empty path
+  ✓ solid 7 projects to a non-empty path
+
+  standards
+  ✓ declares ERC-165
+  ✓ declares ERC-721
+  ✓ declares ERC-721Metadata
+  ✓ declares ERC-721Enumerable
+  ✓ declares ERC-2981
+  ✓ declares ERC-4906
+  ✓ declares ERC-4907
+  ✓ declares ERC-5192
+  ✓ declares ERC-6454
+  ✓ declares ERC-7572
+  ✓ declares ERC-7160
+  ✓ declares ERC-7496
+  ✓ declares ERC-173
+  ✓ refuses 0xffffffff, as ERC-165 requires
+
+  ERC-173 · collection administration
+  ✓ owner() is the curator
+
+  ERC-2981 royalties
+  ✓ 5% of 1 ether
+
+  ERC-7160 · the solid has more than one face
+  ✓ three faces
+  ✓ face 1 is the sigil
+  ✓ face 1 carries no animation
+  ✓ face 2 is the quartet
+  ✓ the quartet draws four elevations
+  ✓ tokenURIAt serves one face without pulling all three
+  ✓ not pinned to begin with
+  ✓ pinning takes
+  ✓ tokenURI now serves the pinned face
+
+  ERC-7496 · traits read straight off the chain
+  ✓ solid
+  ✓ hue
+  ✓ strata
+  ✓ nodes open
+  ✓ section word
+  ✓ hue is settable
+  ✓ a derived trait refuses to be set, as ERC-7496 requires
+  ✓ trait metadata is a data URI
+
+  ERC-7572 · the collection itself
+  ✓ collection name
+  ✓ collection has an image
+
+  the hands cannot hold the token that made them
+  ✓ a token is not transferable to its own Reach
+  ✓ nor to its own Grip
+  ✓ and the transfer itself reverts, not merely the view
+  ✓ while an ordinary address is still fine
+
+  ERC-5192 / ERC-6454 · binding
+  ✓ transferable to begin with
+  ✓ locked() says so
+  ✓ and it is no longer transferable
+  ✓ a bound token will not move
+
+  ERC-4907 · lending the instrument
+  ✓ userOf
+  ✓ the borrower can operate the instrument
+  ✓ but cannot transfer it
+
+  ERC-6551 · the bound account
+  ✓ the account now exists
+      0x77e5e851b5e3e6e873d22ef8705296bd202ef8f6
+
+  transfers
+  ✓ new owner
+  ✓ transfer counter moved
+  ✓ the lease did not survive the sale
+  ✓ balance of the old owner
+  ✓ balance of the new owner
+  ✓ tokenOfOwnerByIndex
+  ✓ tokenByIndex
+
+  enumeration holds under churn
+  ✓ supply
+  ✓ minter holds four
+  ✓ owner index is still consistent
+  ✓ and so is the recipient's
+  ✓ reading past the end reverts
+
+  safeTransferFrom
+  ✓ a contract that accepts gets the token
+  ✓ a contract that does not implement the hook is refused
+
+  the sealed kernel (ERC-7857 in spirit, not in name)
+  ✓ data hash recorded
+  ✓ a proof about some other payload is rejected
+  ✓ the token moved
+  ✓ and the kernel was re-sealed
+  ✓ to the new payload hash
+
+  curation
+  ✓ a stranger cannot reprice the collection
+  ✓ a sealed renderer can never be replaced
+
+  labels are safe in both formats they are written into
+      (the notation is dropped into SVG character data and into JSON,
+       and neither is escaped on the way out)
+  ✓ solid 0 · {4,3,3}
+  ✓ solid 1 · {3,3,4}
+  ✓ solid 2 · {3,4,3}
+  ✓ solid 3 · D2 x D2
+  ✓ solid 4 · S1 x S1
+  ✓ solid 5 · ((II)(II))
+  ✓ solid 6 · (((II)I)I)
+  ✓ solid 7 · z ← z² + c
+  ✓ name 0 · Tesseract
+  ✓ name 1 · Hexadecachoron
+  ✓ name 2 · Icositetrachoron
+  ✓ name 3 · Duocylinder
+  ✓ name 4 · Clifford torus
+  ✓ name 5 · Tiger
+  ✓ name 6 · Ditorus
+  ✓ name 7 · Quaternion Julia
+
+  artefacts
+      dist/token-1.html   the document exactly as a marketplace receives it
+      dist/token-1.json   the metadata
+      dist/sigil-1.svg    the still, drawn on chain
+      dist/quartet-1.svg  four elevations
+
+  the bolt survives a stolen approval
+  ✓ the token is bolted
+  ✓ an approved operator cannot lift it
+  ✓ and therefore cannot take it
+  ✓ the token did not move
+  ✓ while the holder lifts it whenever they like
+
+  a chain owns a band, and can issue nothing outside it
+  ✓ a band starting at zero is refused
+  ✓ a band that runs backwards is refused
+  ✓ and one that runs past the edition is refused
+  ✓ the edition is the same everywhere
+  ✓ this chain may issue its band and no more
+  ✓ and it says where its band starts
+  ✓ and ends
+  ✓ the first token it issues is the first of its band
+  ✓ held by whoever minted it
+  ✓ and the next is the next
+  ✓ while its own supply counts from zero, as ERC-721 expects
+  ✓ a number outside the band belongs to no token here
+  ✓ and two tokens on two chains never derive the same hand
+      bands are a constructor argument and a bounds check — no bridge, nothing to trust
+
+  gas, measured
+      (totals across every call the run made)
+      Engine                  0.67M
+      Sigil                   3.56M
+      Renderer                4.51M
+      Ipseity                 4.43M
+      loadHead                0.19M
+      loadBody                9.09M
+      mint                    0.90M
+      commit                  0.05M
+      setTrait                0.04M
+      pin                     0.05M
+      lock                    0.05M
+      setUser                 0.05M
+      embody                  0.10M
+      transferFrom            0.10M
+      safeTransferFrom        0.11M
+      sealKernel              0.12M
+      kernel transfer         0.13M
+      ————————————————————————————
+      deployment             13.17M
+      document                9.28M
+      total to launch        22.45M
+
+  164 passed, 0 failed

@@ -1,0 +1,35 @@
+
+  IPSEITY · a world with people in it   seed 1237968579   220 ticks
+
+  setting the stage
+      token #1 is held by holder
+      a second market, token #2, shares the same WETH balance
+      reach 0x5b7af40a82799d8b98b6ae2a83ac68299c0b6d9d
+      grip  0xa46b467dd77b9251c5da52522fffacace8e9f8f5
+      market opened: 1,000 WETH / 3,000,000 USDC at 30 bps
+
+  220 ticks
+
+  who ended up with what
+      731 trades · concentration 80000 bps · reserves 2,200.883 WETH / 324,315.442 USDC
+
+      holder        -782.221 WETH-equivalent   47 acts, 41 refused
+      arb       +     499.789 WETH-equivalent   34 acts, 186 refused
+      whale     +     354.624 WETH-equivalent   77 acts, 26 refused
+      shrimp    +       0.019 WETH-equivalent   660 acts, 0 refused
+      sandwich        -1.824 WETH-equivalent   18 acts, 70 refused
+      griefer        -72.227 WETH-equivalent   107 acts, 25 refused
+      renter                0 WETH-equivalent   80 acts, 0 refused
+
+      holder: the token's owner — the only liquidity provider
+      arb: an arbitrageur chasing an external price
+      whale: occasional very large flow
+      shrimp: constant tiny flow, to accumulate rounding
+      sandwich: front-runs and back-runs whatever it can see
+      griefer: spends money to make things worse
+      renter: an ERC-4907 user: may turn the artwork, may not sell
+
+      the Grip holds 5,030.227 WETH, and there is no function that can move it
+
+  every monitor held for 220 ticks
+  seed 1237968579 — pass --seed 1237968579 to run exactly this world again

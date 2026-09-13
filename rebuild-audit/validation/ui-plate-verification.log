@@ -1,0 +1,105 @@
+
+  an id in this chain's own band answers, as it always did
+  ✓ 7.ipseity4d.eth means token 7
+  ✓ and whereIs puts it on Ethereum
+  ✓ at this deployment
+  ✓ reachable
+
+  an id from another band is refused until somebody says where that chain is
+  ✓ 1500 is in Base's band
+  ✓ but nothing has said where Base is
+  ✓ so it is not reachable
+  ✓ and the wildcard does not answer for it
+  ✓ and it does not quote this chain's address under Base's number
+
+  a station, write-once, authorised by the parent's ENS owner
+  ✓ a stranger cannot set one
+  ✓ nor can a chain the edition does not use be given one
+  ✓ nor a station pointing at nothing
+  ✓ the parent's owner can
+  ✓ and only once
+
+  now one name answers for a token on another chain
+  ✓ 1500.ipseity4d.eth means token 1500
+  ✓ the ERC-6821 record names Base and Base's premises
+  ✓ the avatar names Base's hub, not this one
+  ✓ and the https link is Base's gateway host
+  ✓ addr stays empty, because the account is not on this chain
+  ✓ and ENSIP-10 resolve(addr) is empty too, for the same reason
+
+  a band whose chain no gateway serves says so, rather than inventing a host
+  ✓ 2500 is Unichain's
+  ✓ and its url is web3://, because no public gateway serves Unichain
+
+  the ERC-6821 record is an ERC-3770 address, not a CAIP one
+  ✓ it does not use the CAIP form
+  ✓ it is shortName:address, one colon
+  ✓ and the short name is Base's, from the canonical registry
+  ✓ the address half is a 20-byte hex address
+  ✓ while the avatar is still eip155, which is right for an NFT
+      every band's short name is checked against ethereum-lists/chains
+
+  an id outside the edition is nowhere at all
+  ✓ 4097 has no band
+  ✓ and no name
+  ✓ nor does 0
+
+  a name held inside a token needs no binding at all
+  ✓ before the name moves, nobody holds it
+  ✓ with the name in token 7's reach, the name is token 7's
+  ✓ and it is not sealed — a reach can send it back out
+  ✓ the resolver answers for 7 with no bind() ever called
+  ✓ moved to the grip, the same name reads as sealed
+      a name in the grip sells with the token and cannot be taken out
+
+  custody beats a binding that has gone stale
+  ✓ bound, it means token 3
+  ✓ once it moves, it means token 7 — the bind is the stale one
+  ✓ and the old binding is still on record, simply outranked
+
+  an account's own word is not enough
+  ✓ a contract claiming to be token 7's account is disbelieved
+  ✓ so is another collection's account
+  ✓ a wallet holding a name is not a token holding it
+
+  a wrapped name is unwrapped one level first
+  ✓ through the wrapper, the name is token 9's
+
+  a name's expiry, read from the registrar the registry names
+  ✓ with no registrar reachable, expiry says nothing rather than zero-as-a-date
+  ✓ the registrar is derived from registry.owner(namehash('eth'))
+  ✓ a live name reports its date
+  ✓ and ninety days of grace beyond it
+  ✓ live
+  ✓ not in grace
+  ✓ asking with the full name finds nothing, because that is a different hash
+  ✓ just lapsed, it is no longer live
+  ✓ but it is in grace, where only the owner may renew
+  ✓ past grace, neither live nor protected — anyone may take it
+  ✓ and the grace period is the registrar's answer, not a number in here
+  ✓ a registrar that answers nothing reads as unknown, not as lapsed
+
+  renewal is permissionless, so the page needs an address and a price
+  ✓ with no renewer set, the price is zero — which the page must show as unknown
+  ✓ and the renewer is empty, so the page says so instead of guessing
+  ✓ a stranger cannot set the renewer
+  ✓ nor can it point at an address with no code
+  ✓ the parent's owner can set it
+  ✓ and only once
+  ✓ now a year quotes at the controller's own price
+  ✓ and ten years at ten times it
+  ✓ nameStatus carries the date
+  ✓ whether it is live
+  ✓ where to renew
+  ✓ and what that costs
+      one call: the clock, and the address anyone may pay it at
+
+  a rehearsal holds the whole edition, and routes nothing away
+  ✓ token 7 stays on this chain, not Ethereum
+  ✓ and so does an id from Base's mainnet band
+  ✓ 2500.ipseity4d.eth resolves here
+  ✓ with this chain's short name and this chain's premises
+  ✓ and this chain's gateway
+      the branch a harness pinned to one chain id could not reach
+
+  71 passed, 0 failed

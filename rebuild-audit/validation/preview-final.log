@@ -1,0 +1,15 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> ipseity@1.0.0 preview
+> node tools/preview.mjs
+
+
+  wrote dist/preview.html  (186.7 KB)
+
+  solid    Icositetrachoron
+  hue      33
+  w        +0.220
+  word     0x210291995fbf0ca1271d00004d6a111d
+
+  Every node is open in this preview, so every instrument can be looked at.
+  Nothing can be signed - there is no chain behind it.

@@ -1,0 +1,49 @@
+node tools/verify-compile-gate.mjs
+5 compile-gate assertions passed, including a real oversized Solidity negative control
+exit 0
+
+node tools/verify-call-isolation.mjs
+8 call-isolation assertions passed against raw EVM bytecode
+exit 0
+
+node tools/verify-compile-cache.mjs
+4 compile-cache assertions passed, including changed and broken callback imports
+exit 0
+
+node tools/forge.mjs --match bondFreezes --runs 2
+PoolTest test_bondFreezesEveryExitAndEveryTerm passed
+1 passed, 0 failed; runner negative self-controls also passed
+exit 0
+
+These are recorded outputs of commands executed in this task. Full stable-source compile and full Forge suite are tracked separately.
+
+Stable src+test/mocks compile succeeded in 318.453 seconds. All 72 production runtime artifacts fit EIP-170. Largest DeskTerm 23,908 bytes, 668 bytes headroom. Full evidence: compiler-validation.json.
+
+Final extended node tools/verify-call-isolation.mjs
+10 call-isolation assertions passed against raw EVM bytecode and a custom-chain signer
+exit 0
+
+node tools/forge.mjs
+154 passed, 1 failed
+exit 1; full output: forge-full.log
+Only failure: test_anUnfoundedRoomIsNotARoom. The strict repaired runner correctly rejected an expectation consumed by an earlier successful getter in the test's argument expression.
+Production regressions test_aMissingRegistryCannotHideTheArtworkOrChangeItsHands and test_aDepositCallbackCannotCloseItsMarketBeforeCredit both passed.
+
+After precomputing that getter before expectRevert:
+node tools/forge.mjs --file test/Parley.t.sol --match anUnfoundedRoom
+1 passed, 0 failed
+exit 0; full output: forge-parley-corrected.log
+The full suite was not rerun after this correction.
+
+After explicit-file compiler/runner support:
+node tools/verify-compile-gate.mjs
+5 compile-gate assertions passed, including a real oversized Solidity negative control
+exit 0; full output: compile-gate-final.log
+
+node tools/verify-compile-cache.mjs
+4 compile-cache assertions passed, including changed and broken callback imports
+exit 0; full output: compile-cache-final.log
+
+node tools/verify-call-isolation.mjs
+10 call-isolation assertions passed against raw EVM bytecode and a custom-chain signer
+exit 0; full output: call-isolation-final.log

@@ -1,0 +1,41 @@
+
+  the market is a function of the cut plane, not of the angles
+  ✓ π in two w-planes is the same plane, so the same price
+  ✓ and the mirror plane prices the same too
+  ✓ which is what the old code got wrong, by 5.33x and 8.00x
+  ✓ spinning the picture without reshaping it leaves the market alone
+  ✓ and that holds at any turn, not just at rest
+
+  an untouched token is plain constant product
+  ✓ Tesseract    unturned and centred is 0 bps
+  ✓ 16-cell      unturned and centred is 0 bps
+  ✓ 24-cell      unturned and centred is 0 bps
+  ✓ Duocylinder  unturned and centred is 0 bps
+  ✓ Clifford     unturned and centred is 0 bps
+  ✓ Tiger        unturned and centred is 0 bps
+  ✓ Ditorus      unturned and centred is 0 bps
+  ✓ Julia        unturned and centred is 0 bps
+
+  the curve is the solid
+  ✓ the eight solids price differently — 8 distinct values
+      Tesseract    41725
+      16-cell      44862
+      24-cell      69960
+      Duocylinder  10352
+      Clifford     10666
+      Tiger        61490
+      Ditorus      74666
+      Julia        69333
+
+  where the cut sits matters, and both sides sit alike
+  ✓ moving the cut off centre concentrates the market
+  ✓ and a cut the same distance the other way prices identically
+
+  it stays inside the bounds the pool relies on
+  ✓ over 216 orientations concentration never leaves [0, 80000]
+      range across every solid and turn: 0 .. 80000
+
+  the direction is the one the engine draws with
+  ✓ the contract's cut direction matches the engine's rotation to 1e-6
+
+  18 passed, 0 failed

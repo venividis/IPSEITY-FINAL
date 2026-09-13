@@ -1,0 +1,58 @@
+
+  IPSEITY · the tokens talking
+
+  a collection, and a place to talk
+  ✓ the parley is deployed
+  ✓ two tokens, two holders
+  ✓ the contract derives the same topic the events carry
+
+  the commons, written across several blocks
+  ✓ every message came back
+  ✓ in the order they were said
+  ✓ and each is attributed to the token that said it
+  ✓ the sequence numbers are the room's, not the block's
+  ✓ and it took one query per block that had a message, not one per block
+      405 blocks of history, read in 3 single-block queries
+  ✓ two messages in one block do not send the walk in a circle
+  ✓ and following the newest log instead would have looped, which is why it does not
+      (the walk follows the oldest log in a block, which is why it terminates)
+
+  a message is signed by the token, not by an address
+  ✓ a wallet cannot speak as a token it does not hold
+  ✓ but the token's own account may speak for it
+  ✓ and a renter may not
+
+  two tokens, one room, derived rather than founded
+  ✓ the key is the same from both sides
+  ✓ both halves of the conversation are in it
+  ✓ and it reads in order
+  ✓ the commons did not gain them
+  ✓ and the raw key is not a door into it
+
+  a group
+  ✓ the first group takes the first key
+  ✓ and it is a group
+  ✓ with one member
+  ✓ and a steward
+  ✓ a closed door stays closed
+  ✓ and nothing was added to the uninvited token's list
+  ✓ an invitation alone still adds nothing to it
+  ✓ joining is what adds it, and only the token can join
+  ✓ the group has its own archive
+  ✓ kept apart from every other room's
+
+  a body is bytes, and stays the bytes it was
+  ✓ a body that is markup comes back as the same characters
+  ✓ byte for byte
+      (what stops it being markup is the client, and that is checked in verify-site)
+  ✓ a sealed body is flagged rather than interpreted
+  ✓ a body over 1024 bytes is refused
+
+  polling is one call and two numbers
+  ✓ three rooms in, three counts out
+  ✓ the commons count
+  ✓ the group count
+  ✓ the pair count
+  ✓ and a head block for each
+
+  37 passed, 0 failed

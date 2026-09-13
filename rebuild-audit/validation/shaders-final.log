@@ -1,0 +1,19 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> ipseity@1.0.0 shaders
+> node tools/glsl-check.mjs
+
+(node:26) [DEP0151] DeprecationWarning: No "main" or "exports" field defined in the package.json for /workspace/scratch/c2bb8c103f14/IPSEITY-FINAL/node_modules/@shaderfrog/glsl-parser/ resolving the main entry point "index.js", imported from /workspace/scratch/c2bb8c103f14/IPSEITY-FINAL/tools/glsl-check.mjs.
+Default "index" lookups for the main are deprecated for ES modules.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+  GLSL ES 3.00
+
+  ✓ VS3           3 lines
+  ✓ FS_FIELD    335 lines
+  ✓ FS_ACC       11 lines
+  ✓ FS_DOWN      21 lines
+  ✓ FS_UP        18 lines
+  ✓ FS_POST      45 lines
+
+  every shader parses and type-checks

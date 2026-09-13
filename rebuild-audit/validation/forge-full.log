@@ -1,0 +1,182 @@
+
+  IPSEITY · the Foundry suite, without Foundry
+  cheatcodes at 0x7109709ecfa91a80626ff3989d68f67f5b1dd12d
+  reused
+
+  EtchTest  test/Etch.t.sol
+  ✓ test_EtchAFormerOwnerCannotChangeTheArchive
+  ✓ test_EtchAllKindAlphabetsRefuseExecutableDelimiters
+  ✓ test_EtchEveryByteIsCheckedAgainstTheMemoBoundary
+  ✓ test_EtchExhibitionDiesOnExpiryTransferAndRoundTrip
+  ✓ test_EtchMaxSizeDataStaysInertAndRoundTrips
+  ✓ test_EtchOnlyHolderAndOwnReachCanWrite
+  ✓ test_EtchPaginationCannotOverflowOrExceedTheArchive
+  ✓ test_EtchPerEpochAndLifetimeBudgetsCannotBeErased
+  ✓ test_EtchPredictionDeduplicationDigestAndAuthorshipHold
+  ✓ test_EtchRetractionPreservesBytesAndDoesNotReviveShownMemory
+  ✓ test_EtchSealingIsPermanentAcrossTransferButNeverForUnlistedLeaf
+  ✓ test_EtchShardJoinChecksAllocationBeforeCopying
+
+  IpseityTest  test/Ipseity.t.sol
+  ✓ testFuzz_lockAndTransferableNeverDisagree  24 runs
+  ✓ testFuzz_mint_alwaysBornRenderable  24 runs
+  ✓ testFuzz_sectionWord_roundTrips  24 runs
+  ✓ testFuzz_sstore2_roundTrips  22 runs
+  ✓ test_aMissingRegistryCannotHideTheArtworkOrChangeItsHands
+  ✓ test_borrowerMayOperateButNotSell
+  ✓ test_boundAccountIsDerivedNotAsked
+  ✓ test_boundTokenWillNotMove
+  ✓ test_cloneRecordsItsParent
+  ✓ test_commit_isForHoldersOnly
+  ✓ test_commit_refusesASolidThatDoesNotExist
+  ✓ test_commit_refusesBitsAboveTheWord
+  ✓ test_commit_rewritesWhatRenders
+  ✓ test_engine_documentMatchesWhatWasLoaded
+  ✓ test_engine_frozenIsForever
+  ✓ test_enumerationSurvivesChurn
+  ✓ test_faces
+  ✓ test_isTransferable_mintingAndBurning
+  ✓ test_kernelTransferNeedsAProofAboutThisPayload
+  ✓ test_leaseDoesNotSurviveTheSale
+  ✓ test_leaseExpires
+  ✓ test_mint
+  ✓ test_mint_refusesUnderpayment
+  ✓ test_ownershipCanBeAbandonedDeliberately
+  ✓ test_ownershipTakesTwoSteps
+  ✓ test_pinRefusesAFaceThatDoesNotExist
+  ✓ test_royalty
+  ✓ test_royaltyHasACeiling
+  ✓ test_safeTransferChecksTheReceiver
+  ✓ test_sealedRendererIsForever
+  ✓ test_sstore2_roundTripsExactly
+  ✓ test_strangersCannotCurate
+  ✓ test_supportsInterface
+  ✓ test_traits_onlyHueIsSettable
+
+  SigilTest  test/Ipseity.t.sol
+  ✓ testFuzz_pythagorean  24 runs
+  ✓ testFuzz_svgIsWellFormed  24 runs
+  ✓ test_everySolidProjects
+  ✓ test_fourElevationsAllDiffer
+  ✓ test_trig
+
+  LeaseTest  test/Lease.t.sol
+  ✓ testFuzz_theHolderNeverVestsMoreThanTheTimeDelivered  24 runs
+  ✓ testFuzz_theSplitNeverLosesOrCreatesEther  24 runs
+  ✓ test_aHolderWhoNeverSettlesIsCreditedOnlyToTheLastLook
+  ✓ test_aLeaseBrokenOnDayOneStillRefundsAfterTheTermHasPassed
+  ✓ test_aRaisedPriceMakesTheRentFailRatherThanCostMore
+  ✓ test_aSaleMidTermSplitsTheRentByElapsedTime
+  ✓ test_aTermThatRunsOutVestsWhole
+  ✓ test_anApproveeCannotNameALeaseAgent
+  ✓ test_delistingDoesNotEndALeaseAlreadyPaidFor
+  ✓ test_endLeasePaysTheHolderForExactlyTheTimeDelivered
+  ✓ test_listingWithoutNamingTheAgentIsRefused
+  ✓ test_namingAnAgentIsForTheHolder
+  ✓ test_nothingToCollectIsAnError
+  ✓ test_obligationsCountsEveryLedger
+  ✓ test_oneRenterAtATime
+  ✓ test_paymentMustBeExact
+  ✓ test_rentAndDrive
+  ✓ test_settlingLateCreditsNoTimeBeyondTheBreak
+  ✓ test_termsAreEnforced
+  ✓ test_theAgentDoesNotSurviveTheSale
+  ✓ test_theAgentMaySetTheUserAndNothingElse
+  ✓ test_theBuyerCollectsTheRentNotTheSeller
+  ✓ test_theHolderMayEndALeaseAndPaysForIt
+  ✓ test_theRenterReclaimsTimeTheyDidNotGet
+  ✓ test_theSellersTermsDoNotReArmForTheBuyer
+
+  MulTest  test/Mul.t.sol
+  ✓ testFuzz_agreesWithPlainMathWhenPlainMathWorks  24 runs
+  ✓ testFuzz_dividingByTheOtherFactorGivesTheFirst  24 runs
+  ✓ testFuzz_neverExceedsTheTrueQuotient  24 runs
+  ✓ testFuzz_theTwoDirectionsAreReciprocal  24 runs
+  ✓ test_aDeadPoolPricesAtNothing
+  ✓ test_aQuotientThatWillNotFitIsRefused
+  ✓ test_aRealPoolPrice
+  ✓ test_divisionByZeroIsRefused
+  ✓ test_parityIsParityInBothDirections
+  ✓ test_theExpectationIsAgainstTheActualError
+  ✓ test_theProductThatDoesNotFit
+
+  ParleyTest  test/Parley.t.sol
+  ✓ test_aBodyHasBothEnds
+  ✓ test_aGroupIsClosedUntilItIsOpened
+  ✓ test_aGroupKeyIsNeverAPairKey
+  ✓ test_aKindThisContractDoesNotKnowIsRefused
+  ✓ test_aPairIsTheSameRoomFromBothSides
+  ✓ test_aPairRoomCannotBePostedToThroughSpeak
+  ✓ test_aRoomNeedsAName
+  ✓ test_aTokenRemembersWhereItLastSpokeWhoeverElseHasSpoken
+  ✓ test_aTokenThatDoesNotExistHasNoVoice
+  ✓ test_aWhisperNeedsSomebodyToWhisperTo
+  ✓ test_anOpenDoorNeedsNoInvitation
+  ✗ test_anUnfoundedRoomIsNotARoom
+      expected the next call to revert, but it succeeded
+  ✓ test_bothSidesLandInTheSameRoom
+  ✓ test_everyRoomKeepsItsOwnHead
+  ✓ test_evictionCannotUnsayAnything
+  ✓ test_headsAnswersForEveryRoomAtOnce
+  ✓ test_leavingIsRememberedWithoutErasingTheRoom
+  ✓ test_nobodyCanLengthenSomebodyElsesRoomList
+  ✓ test_onlyTheHolderSpeaksAsATheirToken
+  ✓ test_onlyTheStewardInvitesAndEvicts
+  ✓ test_onlyTheTokenPublishesItsOwnKey
+  ✓ test_rejoiningDoesNotDuplicateTheEntry
+  ✓ test_theBoundAccountMaySpeakAndTheRenterMayNot
+  ✓ test_theRoomRemembersWhereItsNewestMessageIs
+  ✓ test_theTopicsAreDerivedFromTheSignaturesThemselves
+
+  PoolTest  test/Pool.t.sol
+  ✓ testFuzz_bondOnlyRatchets  24 runs
+  ✓ testFuzz_concentrationIsBounded  24 runs
+  ✓ testFuzz_invariantNeverFalls  24 runs
+  ✓ testFuzz_neverPaysMoreThanItHolds  24 runs
+  ✓ testFuzz_outputIsMonotonicInInput  24 runs
+  ✓ testFuzz_outputStaysUnderThePricedReserve  24 runs
+  ✓ testFuzz_roundTripNeverProfits  24 runs
+  ✓ test_aDepositCallbackCannotCloseItsMarketBeforeCredit
+  ✓ test_adminHandoverTakesTwoSteps
+  ✓ test_allowlistGatesNewMarkets
+  ✓ test_bondExpiresAndReleases
+  ✓ test_bondFreezesEveryExitAndEveryTerm
+  ✓ test_bondHasACeiling
+  ✓ test_bondSurvivesTheSaleAndBindsTheBuyer
+  ✓ test_deadlineIsHonoured
+  ✓ test_depositCap
+  ✓ test_feeCap
+  ✓ test_feeOnTransferTokenIsCreditedOnlyWhatArrived
+  ✓ test_marketMustBeEmptyToClose
+  ✓ test_onlyAdminMayFlipTheSwitches
+  ✓ test_onlyHolderMayOpenDepositWithdrawOrSetFee
+  ✓ test_pauseHaltsTradeButNeverCustody
+  ✓ test_renterCannotRepriceSomeoneElsesLiquidity
+  ✓ test_sellingTheTokenSellsTheMarket
+  ✓ test_silentTokenIsAccepted
+  ✓ test_slippageFloorIsHonoured
+  ✓ test_theCurveIsTheSolid
+  ✓ test_turningThroughWConcentratesTheCurve
+
+  TimelockTest  test/Timelock.t.sol
+  ✓ testFuzz_neverExecutesEarly  24 runs
+  ✓ test_adminRotationGoesThroughTheQueue
+  ✓ test_cancel
+  ✓ test_delayIsEnforced
+  ✓ test_etaCannotBeMovedOncePublished
+  ✓ test_executedNeverReplays
+  ✓ test_forgottenOperationsExpire
+  ✓ test_onlyAdmin
+  ✓ test_unqueuedNeverExecutes
+
+  VitrineTest  test/Vitrine.t.sol
+  ✓ test_VitrineNeverServesHolderProgramsAsHtml
+  ✓ test_VitrinePaginationHandlesHugeOffsetsWithoutOverflow
+  ✓ test_VitrineRejectsMalformedMissingAndOverflowingPaths
+  ✓ test_VitrineRetractionIsGoneButKeepsProvenance
+  ✓ test_VitrineServesNotesByteExactlyWithInertHeaders
+  ✓ test_VitrineWriterPageUsesImmutableArchiveAndExplicitConfirmation
+
+  154 passed, 1 failed
+  this runner is not forge: no invariant campaigns, no coverage
+  guidance, no traces. Run the real one when it is reachable.

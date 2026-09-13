@@ -57,6 +57,7 @@
     node tools/forge.mjs
     node tools/forge.mjs --runs 64 --seed 3      fuzz depth
     node tools/forge.mjs --match seal            only matching names
+    node tools/forge.mjs --file test/Parley.t.sol --match Unfounded
     FORGE_TRACE=1 node tools/forge.mjs           message-level trace
 ───────────────────────────────────────────────────────────────────────────*/
 import fs from "node:fs";
@@ -80,6 +81,7 @@ if (!Number.isSafeInteger(RUNS) || RUNS < 1)
   throw new Error("--runs must be a positive safe integer");
 const SEED = BigInt(arg("seed", "20260727"));
 const MATCH = arg("match", "");
+const FILE = arg("file", "");
 
 let s0 = SEED ^ 0x9e3779b97f4a7c15n, s1 = SEED * 0xbf58476d1ce4e5b9n + 1n;
 const M64 = (1n << 64n) - 1n;
@@ -263,7 +265,16 @@ console.log("\n  \x1b[1mIPSEITY · the Foundry suite, without Foundry\x1b[0m");
 console.log(`  \x1b[2mcheatcodes at ${VM_ADDR}\x1b[0m`);
 console.log(`  \x1b[2m${provisionStd()}\x1b[0m`);
 
-const out = compile({ quiet: true, dirs: ["src", "test", "lib/forge-std/src"] });
+const files = fs.readdirSync(path.join(ROOT, "test"))
+  .filter((f) => f.endsWith(".t.sol")).map((f) => "test/" + f);
+if (FILE && !files.includes(FILE)) throw new Error("--file must name an existing test/*.t.sol file");
+/*  An explicitly selected file compiles together with all of its imports,
+    at the same settings as the full suite. The selection is a caller's
+    choice, not a heuristic that could silently miss inherited tests.   */
+const out = compile({ quiet: true,
+  dirs: FILE ? [] : ["src", "test", "lib/forge-std/src"],
+  files: FILE ? [FILE] : []
+});
 const common = new Common({ chain: Mainnet, hardfork: Hardfork.Cancun });
 
 const GENESIS = 1_733_000_000n;
@@ -738,10 +749,7 @@ async function selfCheck() {
 await selfCheck();
 
 /*══════════════ run every test contract ══════════════*/
-const files = fs.readdirSync(path.join(ROOT, "test"))
-  .filter((f) => f.endsWith(".t.sol")).map((f) => "test/" + f);
-
-for (const file of files) {
+for (const file of FILE ? [FILE] : files) {
   const contracts = out.contracts[file] || {};
   for (const [cname, c] of Object.entries(contracts)) {
     const abi = c.abi || [];

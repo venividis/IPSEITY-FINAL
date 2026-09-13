@@ -1,0 +1,75 @@
+
+  deploy
+  ✓ deployed
+
+  this collection deploys with no oracle, and does not imply one
+  ✓ hasVerifier() is false
+  ✓ verifier reads back as zero
+  ✓ a token with no kernel is ABSENT
+  ✓ and nothing about it is proved
+
+  sealing a kernel
+  ✓ a stranger cannot seal onto someone else's token
+  ✓ status is CURRENT
+  ✓ the hash is on chain
+  ✓ and the key handle it was sealed to
+
+  but sealed is not proved, and they are asked separately
+  ✓ kernelProved is false
+      sealKernel asserts; only a transfer through a verifier proves
+
+  the seam — transferFrom still exists, because it has to
+  ✓ the token moved
+  ✓ and the kernel went STALE by itself
+      no hook fired, no gas was spent, no transaction was needed
+  ✓ the key handle is unchanged — nothing was rewritten
+  ✓ still not proved
+  ✓ the ERC-7496 trait reports it too
+      a marketplace reading traits is told, not left to guess
+  ✓ and the seller can no longer re-seal it
+
+  with no oracle, the atomic path refuses rather than waving through
+  ✓ transferWithKernel on a live kernel
+  ✓ cloneWithKernel likewise
+  ✓ a token with no kernel still transfers through it
+  ✓ it simply moved
+
+  the verifier is chosen once and never rotated
+  ✓ it cannot be set to zero
+  ✓ hasVerifier() now says so
+  ✓ and it can never be swapped
+      a rotatable verifier is not a verifier, it is a curator
+
+  the proof has to be about this token's payload
+  ✓ a proof about a different payload is rejected
+  ✓ and a malformed proof is not read optimistically
+  ✓ a proved transfer moves the token
+  ✓ the kernel stays CURRENT across it
+  ✓ and it is proved
+  ✓ re-sealed to the buyer's key
+
+  and a proof does not survive the next plain transfer
+  ✓ STALE again
+  ✓ and proved goes with it
+
+  lending the use without lending the secret
+  ✓ the holder may authorise a user
+  ✓ a stranger may not authorise themselves
+
+  read off the compiled ABI
+  ✓ kernelStatus, kernelProved and hasVerifier are all separately askable
+  ✓ there is no setter that clears a kernel's staleness
+  ✓ and no ERC-165 id is registered for 7857
+
+  gas
+      deploy                       12,693,220
+      Ipseity                      4,427,318
+      mint()                       544,087
+      sealKernel                   120,105
+      transferFrom(address,address,uint256) 97,298
+      transferWithKernel(address,uint256,bytes) 88,894
+      setVerifier                  47,635
+      transferWithKernel           132,129
+      authorizeUsage               49,778
+
+  36 passed, 0 failed

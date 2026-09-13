@@ -1,0 +1,28 @@
+
+  IPSEITY · the Foundry suite, without Foundry
+  cheatcodes at 0x7109709ecfa91a80626ff3989d68f67f5b1dd12d
+  reused
+
+  EtchTest  test/Etch.t.sol
+  ✓ test_EtchAFormerOwnerCannotChangeTheArchive
+  ✓ test_EtchAllKindAlphabetsRefuseExecutableDelimiters
+  ✓ test_EtchEveryByteIsCheckedAgainstTheMemoBoundary
+  ✓ test_EtchExhibitionDiesOnExpiryTransferAndRoundTrip
+  ✓ test_EtchMaxSizeDataStaysInertAndRoundTrips
+  ✓ test_EtchOnlyHolderAndOwnReachCanWrite
+  ✓ test_EtchPaginationCannotOverflowOrExceedTheArchive
+  ✓ test_EtchPerEpochAndLifetimeBudgetsCannotBeErased
+  ✓ test_EtchPredictionDeduplicationDigestAndAuthorshipHold
+  ✓ test_EtchRetractionPreservesBytesAndDoesNotReviveShownMemory
+  ✓ test_EtchSealingIsPermanentAcrossTransferButNeverForUnlistedLeaf
+  ✓ test_EtchShardJoinChecksAllocationBeforeCopying
+
+  VitrineTest  test/Vitrine.t.sol
+  ✓ test_VitrineNeverServesHolderProgramsAsHtml
+  ✓ test_VitrinePaginationHandlesHugeOffsetsWithoutOverflow
+  ✓ test_VitrineRejectsMalformedMissingAndOverflowingPaths
+  ✓ test_VitrineRetractionIsGoneButKeepsProvenance
+  ✓ test_VitrineServesNotesByteExactlyWithInertHeaders
+  ✓ test_VitrineWriterPageUsesImmutableArchiveAndExplicitConfirmation
+
+  18 passed, 0 failed

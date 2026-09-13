@@ -1,0 +1,310 @@
+
+  every page route reads a getter the Premises actually declares
+  ✓ Premises declares P_DOOR() for pDoor
+  ✓ Premises declares P_TOKEN() for pToken
+  ✓ Premises declares P_MARKET() for pMarket
+  ✓ Premises declares P_POOL() for pPool
+  ✓ Premises declares P_SERVICES() for pServices
+  ✓ Premises declares P_MANIFEST() for pManifest
+  ✓ Premises declares P_TALK() for pTalk
+  ✓ Premises declares P_ROOMS() for pRooms
+  ✓ Premises declares P_TERMINAL() for pTerminal
+  ✓ Premises declares P_SWAP() for pSwap
+  ✓ Premises declares P_GALLERY() for pGallery
+  ✓ Premises declares P_LAUNCH() for pLaunch
+  ✓ Premises declares P_LOCK() for pLock
+  ✓ Premises declares P_HOOK() for pHook
+  ✓ Premises declares P_CAST() for pCast
+  ✓ Premises declares P_SEAL() for pSeal
+  ✓ Premises declares P_KEYS() for pKeys
+  ✓ Premises declares P_NAME() for pName
+  ✓ Premises declares P_ESTATE() for pEstate
+  ✓ Premises declares P_CONSOLE() for pConsole
+  ✓ Premises declares P_KEY() for pKey
+  ✓ PAGES asks for P_DOOR(), which Premises holds
+  ✓ PAGES asks for P_TOKEN(), which Premises holds
+  ✓ PAGES asks for P_MARKET(), which Premises holds
+  ✓ PAGES asks for P_POOL(), which Premises holds
+  ✓ PAGES asks for P_SERVICES(), which Premises holds
+  ✓ PAGES asks for P_MANIFEST(), which Premises holds
+  ✓ PAGES asks for P_TALK(), which Premises holds
+  ✓ PAGES asks for P_ROOMS(), which Premises holds
+  ✓ PAGES asks for P_TERMINAL(), which Premises holds
+  ✓ PAGES asks for P_SWAP(), which Premises holds
+  ✓ PAGES asks for P_GALLERY(), which Premises holds
+  ✓ PAGES asks for P_LAUNCH(), which Premises holds
+  ✓ PAGES asks for P_LOCK(), which Premises holds
+  ✓ PAGES asks for P_HOOK(), which Premises holds
+  ✓ PAGES asks for P_CAST(), which Premises holds
+  ✓ PAGES asks for P_SEAL(), which Premises holds
+  ✓ PAGES asks for P_KEYS(), which Premises holds
+  ✓ PAGES asks for P_NAME(), which Premises holds
+  ✓ PAGES asks for P_ESTATE(), which Premises holds
+  ✓ PAGES asks for P_CONSOLE(), which Premises holds
+  ✓ PAGES asks for P_KEY(), which Premises holds
+
+  every desk route reads a getter its source contract actually declares
+  ✓ pDoor maps to a source file
+  ✓ pSeal maps to a source file
+  ✓ pKeys maps to a source file
+  ✓ pRooms maps to a source file
+  ✓ pTerminal maps to a source file
+  ✓ pTerminal maps to a source file
+  ✓ pTerminal maps to a source file
+  ✓ pSwap maps to a source file
+  ✓ pLaunch maps to a source file
+  ✓ pSwap maps to a source file
+  ✓ pLaunch maps to a source file
+  ✓ pEstate maps to a source file
+  ✓ pTalk maps to a source file
+  ✓ deskTalk maps to a source file
+  ✓ deskTerm maps to a source file
+  ✓ pLaunch maps to a source file
+  ✓ pLaunch maps to a source file
+  ✓ deskTerm maps to a source file
+  ✓ pLock maps to a source file
+  ✓ deskTerm maps to a source file
+  ✓ pName maps to a source file
+  ✓ pCast maps to a source file
+  ✓ pRooms maps to a source file
+  ✓ deskTerm maps to a source file
+  ✓ pSwap maps to a source file
+  ✓ pGallery maps to a source file
+  ✓ pEstate maps to a source file
+  ✓ pEstate maps to a source file
+  ✓ pGallery maps to a source file
+  ✓ pManifest maps to a source file
+  ✓ pConsole maps to a source file
+  ✓ pConsole maps to a source file
+  ✓ pConsole maps to a source file
+
+  the check itself refuses the table that was actually shipped
+  ✓ the historical deskSeal route is rejected
+  ✓ and it names both keys that collided
+  ✓ a table with no collision passes
+
+  no two record keys drink from one well
+  ✓ the shipped table has no shared wells
+  ✓ desk        <- pDoor.DESK() is not shared
+  ✓ desk        <- pSeal.DESK() is not shared
+  ✓ desk        <- pKeys.DESK() is not shared
+  ✓ deskTalk    <- pRooms.TALK() is not shared
+  ✓ deskTerm    <- pTerminal.TERM() is not shared
+  ✓ deskRooms   <- pTerminal.ROOMS() is not shared
+  ✓ deskWill    <- pTerminal.WILL() is not shared
+  ✓ deskU       <- pSwap.DESKU() is not shared
+  ✓ deskU       <- pLaunch.DESKU() is not shared
+  ✓ deskT       <- pSwap.DESKT() is not shared
+  ✓ deskL       <- pLaunch.DESKL() is not shared
+  ✓ deskEstate  <- pEstate.ESTATE() is not shared
+  ✓ deskSeal    <- pTalk.SEAL() is not shared
+  ✓ roster      <- deskTalk.ROSTER() is not shared
+  ✓ roster      <- deskTerm.ROSTER() is not shared
+  ✓ venue       <- pLaunch.VENUE() is not shared
+  ✓ kiln        <- pLaunch.KILN() is not shared
+  ✓ kiln        <- deskTerm.KILN() is not shared
+  ✓ locker      <- pLock.LOCKER() is not shared
+  ✓ locker      <- deskTerm.LOCKER() is not shared
+  ✓ nameplate   <- pName.PLATE() is not shared
+  ✓ sigil       <- pCast.SIGIL() is not shared
+  ✓ parley      <- pRooms.PARLEY() is not shared
+  ✓ parley      <- deskTerm.PARLEY() is not shared
+  ✓ pool        <- pSwap.POOL() is not shared
+  ✓ pool        <- pGallery.POOL() is not shared
+  ✓ succession  <- pEstate.SUCC() is not shared
+  ✓ consign     <- pEstate.CONS() is not shared
+  ✓ lease       <- pGallery.LEASE() is not shared
+  ✓ lease       <- pManifest.LEASE() is not shared
+  ✓ consoleRead <- pConsole.READ() is not shared
+  ✓ consoleSkin <- pConsole.SKIN() is not shared
+  ✓ consoleCore <- pConsole.CORE() is not shared
+
+  no route reads from a contract the walk has not found yet
+  ✓ pDoor is known before desk needs it
+  ✓ pSeal is known before desk needs it
+  ✓ pKeys is known before desk needs it
+  ✓ pRooms is known before deskTalk needs it
+  ✓ pTerminal is known before deskTerm needs it
+  ✓ pTerminal is known before deskRooms needs it
+  ✓ pTerminal is known before deskWill needs it
+  ✓ pSwap is known before deskU needs it
+  ✓ pLaunch is known before deskU needs it
+  ✓ pSwap is known before deskT needs it
+  ✓ pLaunch is known before deskL needs it
+  ✓ pEstate is known before deskEstate needs it
+  ✓ pTalk is known before deskSeal needs it
+  ✓ deskTalk is known before roster needs it
+  ✓ deskTerm is known before roster needs it
+  ✓ pLaunch is known before venue needs it
+  ✓ pLaunch is known before kiln needs it
+  ✓ deskTerm is known before kiln needs it
+  ✓ pLock is known before locker needs it
+  ✓ deskTerm is known before locker needs it
+  ✓ pName is known before nameplate needs it
+  ✓ pCast is known before sigil needs it
+  ✓ pRooms is known before parley needs it
+  ✓ deskTerm is known before parley needs it
+  ✓ pSwap is known before pool needs it
+  ✓ pGallery is known before pool needs it
+  ✓ pEstate is known before succession needs it
+  ✓ pEstate is known before consign needs it
+  ✓ pGallery is known before lease needs it
+  ✓ pManifest is known before lease needs it
+  ✓ pConsole is known before consoleRead needs it
+  ✓ pConsole is known before consoleSkin needs it
+  ✓ pConsole is known before consoleCore needs it
+
+  the expected key set matches what a deployment actually produces
+  ✓ deploySite's return statement is readable
+  ✓ deploySite returns chrome, and EXPECTED knows it
+  ✓ deploySite returns parley, and EXPECTED knows it
+  ✓ deploySite returns roster, and EXPECTED knows it
+  ✓ deploySite returns deskRooms, and EXPECTED knows it
+  ✓ deploySite returns kiln, and EXPECTED knows it
+  ✓ deploySite returns locker, and EXPECTED knows it
+  ✓ deploySite returns venue, and EXPECTED knows it
+  ✓ deploySite returns nameplate, and EXPECTED knows it
+  ✓ deploySite returns deskU, and EXPECTED knows it
+  ✓ deploySite returns deskT, and EXPECTED knows it
+  ✓ deploySite returns deskL, and EXPECTED knows it
+  ✓ deploySite returns deskSeal, and EXPECTED knows it
+  ✓ deploySite returns pSwap, and EXPECTED knows it
+  ✓ deploySite returns desk, and EXPECTED knows it
+  ✓ deploySite returns deskTalk, and EXPECTED knows it
+  ✓ deploySite returns deskTerm, and EXPECTED knows it
+  ✓ deploySite returns pDoor, and EXPECTED knows it
+  ✓ deploySite returns pToken, and EXPECTED knows it
+  ✓ deploySite returns pMarket, and EXPECTED knows it
+  ✓ deploySite returns pPool, and EXPECTED knows it
+  ✓ deploySite returns pServices, and EXPECTED knows it
+  ✓ deploySite returns pManifest, and EXPECTED knows it
+  ✓ deploySite returns pTalk, and EXPECTED knows it
+  ✓ deploySite returns pRooms, and EXPECTED knows it
+  ✓ deploySite returns pTerminal, and EXPECTED knows it
+  ✓ deploySite returns pGallery, and EXPECTED knows it
+  ✓ deploySite returns pLaunch, and EXPECTED knows it
+  ✓ deploySite returns pLock, and EXPECTED knows it
+  ✓ deploySite returns pHook, and EXPECTED knows it
+  ✓ deploySite returns pCast, and EXPECTED knows it
+  ✓ deploySite returns pSeal, and EXPECTED knows it
+  ✓ deploySite returns pKeys, and EXPECTED knows it
+  ✓ deploySite returns pName, and EXPECTED knows it
+  ✓ deploySite returns succession, and EXPECTED knows it
+  ✓ deploySite returns consign, and EXPECTED knows it
+  ✓ deploySite returns deskEstate, and EXPECTED knows it
+  ✓ deploySite returns deskWill, and EXPECTED knows it
+  ✓ deploySite returns pEstate, and EXPECTED knows it
+  ✓ deploySite returns consoleSkin, and EXPECTED knows it
+  ✓ deploySite returns consoleCore, and EXPECTED knows it
+  ✓ deploySite returns consoleRead, and EXPECTED knows it
+  ✓ deploySite returns pConsole, and EXPECTED knows it
+  ✓ deploySite returns pKey, and EXPECTED knows it
+  ✓ deploySite returns premises, and EXPECTED knows it
+  ✓ EXPECTED lists engine, which something deploys
+  ✓ EXPECTED lists sigil, which something deploys
+  ✓ EXPECTED lists renderer, which something deploys
+  ✓ EXPECTED lists reach, which something deploys
+  ✓ EXPECTED lists grip, which something deploys
+  ✓ EXPECTED lists ipseity, which something deploys
+  ✓ EXPECTED lists pool, which something deploys
+  ✓ EXPECTED lists lease, which something deploys
+  ✓ EXPECTED lists chrome, which something deploys
+  ✓ EXPECTED lists parley, which something deploys
+  ✓ EXPECTED lists roster, which something deploys
+  ✓ EXPECTED lists deskRooms, which something deploys
+  ✓ EXPECTED lists kiln, which something deploys
+  ✓ EXPECTED lists locker, which something deploys
+  ✓ EXPECTED lists venue, which something deploys
+  ✓ EXPECTED lists nameplate, which something deploys
+  ✓ EXPECTED lists deskU, which something deploys
+  ✓ EXPECTED lists deskT, which something deploys
+  ✓ EXPECTED lists deskL, which something deploys
+  ✓ EXPECTED lists deskSeal, which something deploys
+  ✓ EXPECTED lists pSwap, which something deploys
+  ✓ EXPECTED lists desk, which something deploys
+  ✓ EXPECTED lists deskTalk, which something deploys
+  ✓ EXPECTED lists deskTerm, which something deploys
+  ✓ EXPECTED lists pDoor, which something deploys
+  ✓ EXPECTED lists pToken, which something deploys
+  ✓ EXPECTED lists pMarket, which something deploys
+  ✓ EXPECTED lists pPool, which something deploys
+  ✓ EXPECTED lists pServices, which something deploys
+  ✓ EXPECTED lists pManifest, which something deploys
+  ✓ EXPECTED lists pTalk, which something deploys
+  ✓ EXPECTED lists pRooms, which something deploys
+  ✓ EXPECTED lists pTerminal, which something deploys
+  ✓ EXPECTED lists pGallery, which something deploys
+  ✓ EXPECTED lists pLaunch, which something deploys
+  ✓ EXPECTED lists pLock, which something deploys
+  ✓ EXPECTED lists pHook, which something deploys
+  ✓ EXPECTED lists pCast, which something deploys
+  ✓ EXPECTED lists pSeal, which something deploys
+  ✓ EXPECTED lists pKeys, which something deploys
+  ✓ EXPECTED lists pName, which something deploys
+  ✓ EXPECTED lists succession, which something deploys
+  ✓ EXPECTED lists consign, which something deploys
+  ✓ EXPECTED lists deskEstate, which something deploys
+  ✓ EXPECTED lists deskWill, which something deploys
+  ✓ EXPECTED lists pEstate, which something deploys
+  ✓ EXPECTED lists consoleSkin, which something deploys
+  ✓ EXPECTED lists consoleCore, which something deploys
+  ✓ EXPECTED lists consoleRead, which something deploys
+  ✓ EXPECTED lists pConsole, which something deploys
+  ✓ EXPECTED lists pKey, which something deploys
+  ✓ EXPECTED lists premises, which something deploys
+
+  every expected key has a way of being found
+  ✓ engine is reachable by some route
+  ✓ sigil is reachable by some route
+  ✓ renderer is reachable by some route
+  ✓ reach is reachable by some route
+  ✓ grip is reachable by some route
+  ✓ ipseity is reachable by some route
+  ✓ pool is reachable by some route
+  ✓ lease is reachable by some route
+  ✓ chrome is reachable by some route
+  ✓ parley is reachable by some route
+  ✓ roster is reachable by some route
+  ✓ deskRooms is reachable by some route
+  ✓ kiln is reachable by some route
+  ✓ locker is reachable by some route
+  ✓ venue is reachable by some route
+  ✓ nameplate is reachable by some route
+  ✓ deskU is reachable by some route
+  ✓ deskT is reachable by some route
+  ✓ deskL is reachable by some route
+  ✓ deskSeal is reachable by some route
+  ✓ pSwap is reachable by some route
+  ✓ desk is reachable by some route
+  ✓ deskTalk is reachable by some route
+  ✓ deskTerm is reachable by some route
+  ✓ pDoor is reachable by some route
+  ✓ pToken is reachable by some route
+  ✓ pMarket is reachable by some route
+  ✓ pPool is reachable by some route
+  ✓ pServices is reachable by some route
+  ✓ pManifest is reachable by some route
+  ✓ pTalk is reachable by some route
+  ✓ pRooms is reachable by some route
+  ✓ pTerminal is reachable by some route
+  ✓ pGallery is reachable by some route
+  ✓ pLaunch is reachable by some route
+  ✓ pLock is reachable by some route
+  ✓ pHook is reachable by some route
+  ✓ pCast is reachable by some route
+  ✓ pSeal is reachable by some route
+  ✓ pKeys is reachable by some route
+  ✓ pName is reachable by some route
+  ✓ succession is reachable by some route
+  ✓ consign is reachable by some route
+  ✓ deskEstate is reachable by some route
+  ✓ deskWill is reachable by some route
+  ✓ pEstate is reachable by some route
+  ✓ consoleSkin is reachable by some route
+  ✓ consoleCore is reachable by some route
+  ✓ consoleRead is reachable by some route
+  ✓ pConsole is reachable by some route
+  ✓ pKey is reachable by some route
+  ✓ premises is reachable by some route
+
+  294 passed, 0 failed

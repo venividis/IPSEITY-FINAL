@@ -1,0 +1,55 @@
+
+  deploy
+  ✓ deployed
+      router   0xbd54730ae1aa90f185f2e53811ba2a5b3fc224b2
+      pages    token 0xabdd5cba  market 0xf9920b0c  services 0x6690e526  manifest 0xc13697ce
+
+  the index answers HTTP, from a contract
+  ✓ 200
+  ✓ Content-Type
+  ✓ Cache-Control
+  ✓ the root is the instrument, not a page about it
+  ✓ the flat page answers at /door
+  ✓ it is a document
+  ✓ it names the collection
+  ✓ it counts what has been issued
+  ✓ and lists the most recent
+      1413 bytes at the root, 56300 at the door
+
+  a token's page
+  ✓ 200
+  ✓ it names the token
+  ✓ it reports the hands
+  ✓ and the kernel
+
+  what the page hands you is the token's own bytes
+  ✓ the page does not inline the artwork
+  ✓ it links to the instrument on a real origin
+  ✓ and to the URI itself, to check
+  ✓ /raw returns the URI itself
+  ✓ as text/plain
+
+  the instrument, on an origin a wallet will talk to
+  ✓ 200
+  ✓ served as html, not as a URI in a page
+  ✓ the body is a document, not a data: URI
+  ✓ and they are exactly what tokenURI base64s
+      same document, one step earlier — a real origin instead of
+      an opaque one, which is the difference between look and use
+
+  a request for nonsense is a 404, never a revert
+  ✓ a token that does not exist
+  ✓ a path that is not a number
+  ✓ a number too long to be an id
+  ✓ a route nobody defined
+  ✓ token with nothing after it
+  ✓ an empty segment
+
+  read off the compiled ABI and the deployed code
+  ✓ there is no state-changing function at all
+  ✓ nothing that could hold or move an asset
+  ✓ it holds none of the artwork's bytes
+      the tokens render identically whether this contract exists,
+      is abandoned, or is replaced by something else entirely
+
+  32 passed, 0 failed
