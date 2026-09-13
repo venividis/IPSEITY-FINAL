@@ -100,6 +100,7 @@ contract Succession {
     error TooLong();
     error StillSpeaking(uint64 until);
     error NotCalled();
+    error AlreadyCalled();
     error NotYet(uint64 until);
     error Moved();
 
@@ -230,6 +231,9 @@ contract Succession {
         Plan storage p = _plan[id];
         if (p.from == address(0)) revert NoPlan();
         if (p.from != HUB.ownerOf(id)) revert Moved();
+        // A public bell must not let a passer-by restart the notice. Only
+        // the owner's stillHere/arrange/revoke paths may cancel a knock.
+        if (p.called != 0) revert AlreadyCalled();
         uint64 when = knockableAt(id);
         if (block.timestamp < when) revert StillSpeaking(when);
         p.called = uint64(block.timestamp);

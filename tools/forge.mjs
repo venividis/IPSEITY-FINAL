@@ -57,6 +57,7 @@
     node tools/forge.mjs
     node tools/forge.mjs --runs 64 --seed 3      fuzz depth
     node tools/forge.mjs --match seal            only matching names
+    node tools/forge.mjs --file test/Parley.t.sol --match Unfounded
     FORGE_TRACE=1 node tools/forge.mjs           message-level trace
 ───────────────────────────────────────────────────────────────────────────*/
 import fs from "node:fs";
@@ -76,8 +77,11 @@ const arg = (n, d) => {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d;
 };
 const RUNS = Number(arg("runs", 24));
+if (!Number.isSafeInteger(RUNS) || RUNS < 1)
+  throw new Error("--runs must be a positive safe integer");
 const SEED = BigInt(arg("seed", "20260727"));
 const MATCH = arg("match", "");
+const FILE = arg("file", "");
 
 let s0 = SEED ^ 0x9e3779b97f4a7c15n, s1 = SEED * 0xbf58476d1ce4e5b9n + 1n;
 const M64 = (1n << 64n) - 1n;
@@ -247,12 +251,30 @@ const CHEATS = {
   [sel("assume(bool)")]: "assume"
 };
 
+/*  bytes4 means a selector prefix; bytes means the complete payload.
+    Treating the latter as "any revert" used to let a different failure
+    satisfy a test about the exact error and its arguments.             */
+const matchesExpected = (expected, got) => expected.any ||
+  (expected.exact ? got === expected.data : got.startsWith(expected.data));
+
+const expectationProblem = state => state.expectationFailure ||
+  (state.expect ? "expected a revert, but no matching revert occurred" : null);
+
 /*═══════════════════ the runner ═══════════════════*/
 console.log("\n  \x1b[1mIPSEITY · the Foundry suite, without Foundry\x1b[0m");
 console.log(`  \x1b[2mcheatcodes at ${VM_ADDR}\x1b[0m`);
 console.log(`  \x1b[2m${provisionStd()}\x1b[0m`);
 
-const out = compile({ quiet: true, dirs: ["src", "test", "lib/forge-std/src"] });
+const files = fs.readdirSync(path.join(ROOT, "test"))
+  .filter((f) => f.endsWith(".t.sol")).map((f) => "test/" + f);
+if (FILE && !files.includes(FILE)) throw new Error("--file must name an existing test/*.t.sol file");
+/*  An explicitly selected file compiles together with all of its imports,
+    at the same settings as the full suite. The selection is a caller's
+    choice, not a heuristic that could silently miss inherited tests.   */
+const out = compile({ quiet: true,
+  dirs: FILE ? [] : ["src", "test", "lib/forge-std/src"],
+  files: FILE ? [FILE] : []
+});
 const common = new Common({ chain: Mainnet, hardfork: Hardfork.Cancun });
 
 const GENESIS = 1_733_000_000n;
@@ -267,7 +289,7 @@ async function freshWorld() {
   const state = {
     prank: null, prankPersistent: false, prankUsed: false,
     expect: null, expectSatisfied: false, assumeFailed: false,
-    unknownCheat: null
+    unknownCheat: null, expectationFailure: null
   };
 
   const block = createBlock(
@@ -289,6 +311,9 @@ async function freshWorld() {
       const name = CHEATS[s];
       const done = { executionGasUsed: 0n, returnValue: new Uint8Array() };
 
+      if (/^expectRevert/.test(name || "") && state.expect)
+        state.expectationFailure ||= "a new revert expectation replaced one that was never satisfied";
+
       switch (name) {
         case "prank":
           state.prank = "0x" + word(0).slice(-40); state.prankPersistent = false;
@@ -301,8 +326,13 @@ async function freshWorld() {
           state.expect = { any: true }; state.expectSatisfied = false; return done;
         case "expectRevert4":
           state.expect = { data: word(0).slice(0, 10) }; state.expectSatisfied = false; return done;
-        case "expectRevertBytes":
-          state.expect = { any: true }; state.expectSatisfied = false; return done;
+        case "expectRevertBytes": {
+          const off = Number(BigInt(word(0))) * 2 + 10;
+          const len = Number(BigInt("0x" + data.slice(off, off + 64)));
+          state.expect = { exact: true, data: "0x" + data.slice(off + 64, off + 64 + len * 2) };
+          state.expectSatisfied = false;
+          return done;
+        }
         case "warp":
           block.header.timestamp = BigInt(word(0)); return done;
         /*  The same unfrozen header the clock moves in. A protocol whose
@@ -400,15 +430,23 @@ async function freshWorld() {
       block of zeroes for this; so does this. A zero word decodes as 0 for
       any static type, and as offset 0 / length 0 for any dynamic one.  */
   const DUMMY = new Uint8Array(8192);
-  const depths = [];
-  vm.evm.events.on("beforeMessage", (msg) => { depths.push(msg.depth); });
+  const frames = [];
+  vm.evm.events.on("beforeMessage", (msg) => {
+    frames.push({ depth: msg.depth, to: msg.to?.toString().toLowerCase() });
+  });
   vm.evm.events.on("afterMessage", (res) => {
-    const d = depths.pop();
+    const frame = frames.pop();
     if (!state.expect || !res.execResult) return;
-    if (d !== 1) return;
-    if (!res.execResult.exceptionError) return;
+    if (frame?.depth !== 1 || frame.to === VM_ADDR.toLowerCase()) return;
+    if (!res.execResult.exceptionError) {
+      state.expectationFailure ||= "expected the next call to revert, but it succeeded";
+      return;
+    }
     const got = bytesToHex(res.execResult.returnValue || new Uint8Array());
-    if (state.expect.data && !got.startsWith(state.expect.data)) return;
+    if (!matchesExpected(state.expect, got)) {
+      state.expectationFailure ||= "the next call reverted with different data than expected";
+      return;
+    }
     res.execResult.exceptionError = undefined;
     res.execResult.returnValue = DUMMY;
     state.expect = null;
@@ -580,9 +618,9 @@ const STOPPER  = "0x60016000f3";                     // runtime: STOP (one byte,
 async function selfCheck() {
   const bad = [];
   const { vm, block, state } = await freshWorld();
-  const call = (to, data = "0x") => vm.evm.runCall({
+  const call = (to, data = "0x", depth = 0) => vm.evm.runCall({
     to, caller: DEPLOYER, origin: DEPLOYER, data: hexToBytes(data),
-    gasLimit: 100_000_000n, value: 0n, block
+    gasLimit: 100_000_000n, value: 0n, block, depth
   });
 
   await vm.stateManager.putAccount(DEPLOYER, new Account(0n, 10n ** 24n));
@@ -628,6 +666,42 @@ async function selfCheck() {
 
   await call(createAddressFromString(VM_ADDR), sel("assume(bool)") + W(0));
   if (!state.assumeFailed) bad.push("vm.assume(false) did not mark the run discarded");
+
+  /*  Negative controls must themselves fail. A STOP after expectRevert
+      used to earn a green test, and bytes arguments were ignored. Drive
+      the same precompile and message hooks the Solidity suite uses.    */
+  const resetExpected = () => {
+    state.expect = null; state.expectationFailure = null; state.expectSatisfied = false;
+  };
+  await call(createAddressFromString(VM_ADDR), sel("expectRevert()"));
+  if (!expectationProblem(state)) bad.push("an unconsumed revert expectation is accepted");
+  await call(stop, "0x", 1);
+  if (!state.expectationFailure) bad.push("expectRevert followed by a successful call is accepted");
+  resetExpected();
+
+  const expectBytes = hex => sel("expectRevert(bytes)") + W(32) +
+    W(hex.length / 2) + hex.padEnd(Math.ceil(hex.length / 64) * 64, "0");
+  await call(createAddressFromString(VM_ADDR), expectBytes("deadbeef"));
+  if (!state.expect?.exact || state.expect.data !== "0xdeadbeef")
+    bad.push("expectRevert(bytes) discarded its exact payload");
+  await call(rev, "0x", 1);
+  if (!state.expectationFailure) bad.push("an empty revert satisfies a different exact error");
+  resetExpected();
+
+  const errorAt = createAddressFromString("0x" + "bc".repeat(20));
+  await vm.stateManager.putAccount(errorAt, new Account());
+  await vm.stateManager.putCode(errorAt, hexToBytes("0x63deadbeef6000526004601cfd"));
+  await call(createAddressFromString(VM_ADDR), expectBytes("deadbeef"));
+  await call(errorAt, "0x", 1);
+  if (!state.expectSatisfied || expectationProblem(state))
+    bad.push("a matching exact revert is refused");
+  resetExpected();
+
+  await call(createAddressFromString(VM_ADDR), sel("expectRevert(bytes4)") + "deadbeef".padEnd(64, "0"));
+  await call(errorAt, "0x", 1);
+  if (!state.expectSatisfied || expectationProblem(state))
+    bad.push("a matching selector revert is refused");
+  resetExpected();
 
   /*  The generator, checked against the two ways it was silently wrong.
 
@@ -675,10 +749,7 @@ async function selfCheck() {
 await selfCheck();
 
 /*══════════════ run every test contract ══════════════*/
-const files = fs.readdirSync(path.join(ROOT, "test"))
-  .filter((f) => f.endsWith(".t.sol")).map((f) => "test/" + f);
-
-for (const file of files) {
+for (const file of FILE ? [FILE] : files) {
   const contracts = out.contracts[file] || {};
   for (const [cname, c] of Object.entries(contracts)) {
     const abi = c.abi || [];
@@ -729,7 +800,7 @@ for (const file of files) {
 
         const sig = t.name + "(" + t.inputs.map((i) => i.type).join(",") + ")";
         const args = isFuzz ? fuzzArgs(t.inputs) : "";
-        if (args === null) { failed = "SKIP: dynamic fuzz argument"; break; }
+        if (args === null) { failed = "unsupported fuzz argument type; this test was not executed"; break; }
 
         const res = await vm.evm.runCall({
           to: addr, caller: DEPLOYER, origin: DEPLOYER,
@@ -740,6 +811,7 @@ for (const file of files) {
           failed = "unimplemented cheatcode " + state.unknownCheat; break;
         }
         if (state.assumeFailed) { ran--; continue; }   // forge discards the run
+        if (state.expectationFailure) { failed = state.expectationFailure; break; }
         if (res.execResult.exceptionError) {
           const got = bytesToHex(res.execResult.returnValue || new Uint8Array());
 
@@ -757,7 +829,7 @@ for (const file of files) {
               was right, the code was right, and the report said otherwise.
               So an outstanding expectation is also matched against the
               test's own revert.                                          */
-          if (state.expect && (!state.expect.data || got.startsWith(state.expect.data))) {
+          if (state.expect && matchesExpected(state.expect, got)) {
             state.expect = null;
             state.expectSatisfied = true;
             continue;
@@ -766,12 +838,11 @@ for (const file of files) {
           if (isFuzz) failed += `  (run ${r + 1}, seed ${SEED})`;
           break;
         }
+        if (expectationProblem(state)) { failed = expectationProblem(state); break; }
       }
 
-      if (failed && failed.startsWith("SKIP")) {
-        console.log(`  \x1b[33m—\x1b[0m ${t.name}  \x1b[2m${failed.slice(6)}\x1b[0m`);
-        continue;
-      }
+      if (!failed && ran === 0) failed = "no accepted executions; every fuzz input was discarded";
+
       if (failed) {
         FAIL++; failures.push({ cname, name: t.name, why: failed });
         console.log(`  \x1b[31m✗\x1b[0m ${t.name}\n      \x1b[31m${failed}\x1b[0m`);
@@ -783,6 +854,10 @@ for (const file of files) {
   }
 }
 
+if (PASS + FAIL === 0) {
+  console.error("no test functions matched; refusing to report a passing suite");
+  process.exit(2);
+}
 console.log(`\n  ${FAIL === 0 ? "\x1b[32m" : "\x1b[31m"}${PASS} passed, ${FAIL} failed\x1b[0m`);
 if (FAIL) {
   console.log("  \x1b[2mthis runner is not forge: no invariant campaigns, no coverage");

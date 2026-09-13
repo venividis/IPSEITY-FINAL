@@ -1,0 +1,57 @@
+
+  the routing table
+  ✓ a short name resolves to its chain id
+  ✓ and the address comes off the front
+  ✓ a numeric id works as well as a name
+  ✓ a domain with many labels still routes
+  ✓ an unknown chain is reported as unknown rather than guessed
+  ✓ a host with no address in it is refused outright
+  ✓ and so is one whose first label only looks like an address
+  ✓ a port on the host does not confuse it
+  ✓ case does not matter
+  ✓ chain 1 (eth) is one this door opens onto
+  ✓ chain 8453 (base) is one this door opens onto
+  ✓ chain 56 (bnb) is one this door opens onto
+  ✓ chain 4663 (rhc) is one this door opens onto
+
+  it serves what the contract said, and nothing of its own
+  ✓ a route answers with the contract's own status
+  ✓ and the contract's own content type
+  ✓ the body parses as what it claims to be
+  ✓ a path the contract does not know is the contract's 404, not the door's
+  ✓ a substantial page answers 200
+  ✓ with the contract's own bytes and none added
+  ✓ and it is HTML because the contract said so, not because the door assumed
+
+  only headers that cannot hurt a shared origin cross
+  ✓ set-cookie cannot be set by a contract
+  ✓ access-control-allow-origin cannot be set by a contract
+  ✓ location cannot be set by a contract
+  ✓ strict-transport-security cannot be set by a contract
+  ✓ content-security-policy cannot be set by a contract
+  ✓ and a header carrying a newline is dropped rather than written
+  ✓ the door carries no signing key and no code that could use one
+  ✓ and it writes nothing to the chain
+
+  the door opens onto every chain the collection means to use
+  ✓ chain 1 is served, as eth
+  ✓ chain 56 is served, as bnb
+  ✓ chain 130 is served, as unichain
+  ✓ chain 4663 is served, as rhc
+  ✓ chain 8453 is served, as base
+  ✓ a chain answers to its number
+  ✓ and to its short name
+
+  every chain that mints has a LayerZero endpoint on record
+  ✓ chain 1 has an endpoint and an eid
+  ✓ chain 8453 has an endpoint and an eid
+  ✓ chain 56 has an endpoint and an eid
+  ✓ chain 130 has an endpoint and an eid
+  ✓ chain 4663 has an endpoint and an eid
+  ✓ every endpoint is one of the two canonical addresses
+  ✓ Unichain is on the later endpoint, not the earlier one
+  ✓ and so is Robinhood
+  ✓ no two chains share an eid
+  ✓ a chain with no endpoint answers null, never a guess
+
+  45 passed, 0 failed

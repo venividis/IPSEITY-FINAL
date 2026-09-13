@@ -1,0 +1,27 @@
+  PASS a chain switch after review cannot broadcast
+  PASS an account switch after review cannot broadcast
+  PASS a failed chain read refuses to sign
+  PASS replacing the provider requires another review
+  PASS an account event cancels the open slab
+  PASS both identity labels reset for another wallet
+  PASS holder controls disappear when another account takes over
+  PASS disconnect restores a read-only account
+  PASS connecting the holder rebuilds its controls without navigation
+  PASS one review cannot broadcast twice
+  PASS the send pins the reviewed sender and chain
+  PASS the transaction preserves its target and calldata
+  PASS the key door refuses to read a grant on another chain
+  PASS the key door rechecks the chain after its review opens
+  PASS the key door sends one transaction with the expected chain
+  PASS the session transaction uses the configured key and execution function
+  PASS the terminal roster crosses empty windows to later chain bands
+  PASS the terminal checks all sixteen bounded windows
+  PASS an unanswered roster never becomes an empty room
+  PASS the room page finds a member after empty windows
+  PASS the room page finds pending invitations at the edition end
+  PASS the room page checks both answers in every bounded window
+  PASS the nested frame declares scripts without same-origin permission
+  PASS the door declares the same sandbox boundary
+  PASS closing removes srcdoc before sending the inner frame to blank
+
+25 deterministic DOM assertions passed. Browser layout and sandbox enforcement were not exercised.

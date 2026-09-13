@@ -1,0 +1,80 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> ipseity@1.0.0 selftest
+> node tools/selftest.mjs
+
+
+  keccak-256 — the Ethereum padding, not SHA-3's
+  ✓ keccak256('')
+  ✓ keccak256('abc')
+  ✓ keccak256('The quick brown fox jumps over the lazy dog')
+  ✓ keccak256(136×'a')
+  ✓ keccak256(200×'z') is 32 bytes
+
+  function selectors — against selectors the whole chain agrees on
+  ✓ transfer(address,uint256)
+  ✓ balanceOf(address)
+  ✓ ownerOf(uint256)
+  ✓ transferFrom(address,address,uint256)
+  ✓ approve(address,uint256)
+  ✓ tokenURI(uint256)
+  ✓ totalSupply()
+  ✓ supportsInterface(bytes4)
+  ✓ safeTransferFrom(address,address,uint256,bytes)
+
+  EIP-55 checksums
+  ✓ all caps
+  ✓ all lower
+  ✓ normal 1
+  ✓ normal 2
+  ✓ normal 3
+
+  ABI encoding
+  ✓ transfer(address,uint256) calldata
+  ✓ bool true
+  ✓ bool false
+  ✓ negative int256
+  ✓ dynamic string offset+len+body
+  ✓ static then dynamic
+  ✓ uint256[] array
+  ✓ address[] and bytes4[] together, as grantSession needs them
+  ✓ a fixed-size bytesN is left-aligned, unlike everything else
+  ✓ grantSession's selector
+  ✓ signature is canonicalised before hashing
+  ✓ wrong argument count is refused
+  ✓ a malformed address is refused
+
+  decoding
+  ✓ uint
+  ✓ address
+  ✓ string
+  ✓ bytes32-style name()
+
+  units
+  ✓ 1 ether
+  ✓ 1.5 ether
+  ✓ dust is never shown as zero
+  ✓ exact zero is zero
+  ✓ toUnits round trip
+  ✓ 6-decimal token
+  ✓ too many decimals is refused
+
+  EIP-712 — the vector from the EIP itself
+  ✓ typeHash(Mail)
+  ✓ domainSeparator
+  ✓ hashStruct(Mail)
+  ✓ final digest
+
+  ERC-6551 — the account derived, not asked for
+  ✓ is an address
+  ✓ is checksummed
+  ✓ deterministic
+
+  the section word — one uint256 carries the whole orientation
+  ✓ form survives
+  ✓ hue survives
+  ✓ w survives to 1/65535
+  ✓ angles survive to 1/65536 turn
+  ✓ word fits in 128 bits
+
+  55 passed, 0 failed

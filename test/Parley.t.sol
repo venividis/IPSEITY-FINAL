@@ -193,8 +193,9 @@ contract ParleyTest is Test {
     }
 
     function test_anUnfoundedRoomIsNotARoom() public {
+        uint256 key = parley.groupKey(7);
         vm.expectRevert(Parley.NoSuchRoom.selector);
-        parley.speak(parley.groupKey(7), 1, 0, "hello?");
+        parley.speak(key, 1, 0, "hello?");
     }
 
     function test_aGroupIsClosedUntilItIsOpened() public {

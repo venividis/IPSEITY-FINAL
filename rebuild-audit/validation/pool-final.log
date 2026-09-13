@@ -1,0 +1,116 @@
+
+  deploy
+  ✓ contracts deployed
+      Pool 0x59af421cb35fc23ab6c8ee42743e6176040031f4
+      deposit cap 1000000.0000 per side
+
+  token #1 opens a market
+  ✓ base reserve
+  ✓ quote reserve
+  ✓ fee
+  ✓ market is open
+      spot: 1 WETH = 3000.0000 USDC
+      concentration: 0 bps (section unturned)
+
+  anyone may trade against it
+      quote: 1 WETH -> 2961.4741 USDC
+  ✓ a quote is under the spot price (the curve charges for size)
+  ✓ the trader was paid exactly what was quoted
+  ✓ the trade counter moved
+
+  the invariant never falls
+  ✓ k never decreased across 200 random trades
+      k grew to 100.0% of final
+
+  a round trip always loses money
+      in 0.0010 WETH -> out 0.0009 WETH  loss
+      in 0.1000 WETH -> out 0.0994 WETH  loss
+      in 1.0000 WETH -> out 0.9940 WETH  loss
+      in 3.0000 WETH -> out 2.9820 WETH  loss
+  ✓ no round trip ever came back with more than it started
+
+  rotating the solid re-prices the market
+  ✓ the market has not moved yet — the curve is a copy
+      unturned  concentration     0 bps   1 WETH -> 35.2255 USDC
+      edge on   concentration 44862 bps   1 WETH -> 35.2566 USDC
+  ✓ turning through w raised the concentration
+  ✓ and that changed the price a trader is quoted
+  ✓ a concentrated curve gives a better price for the same size
+
+  what it refuses
+  ✓ a trade below the trader's minimum
+  ✓ a trade past its deadline
+  ✓ a trade larger than half the reserve
+  ✓ a stranger withdrawing the inventory
+  ✓ a stranger opening a market on someone else's token
+  ✓ a fee above the cap
+  ✓ a deposit past the cap
+  ✓ closing a market that still holds inventory
+
+  tokens that break naive pools
+  ✓ a token that returns nothing from transfer is accepted
+  ✓ a token that takes a cut is credited only what arrived
+
+  selling the token sells the market
+  ✓ the token moved
+  ✓ the reserves went with it
+  ✓ the old owner can no longer touch the inventory
+  ✓ and the new owner can
+
+  a renter operates the artwork but never the money
+  ✓ bob is the renter
+  ✓ the renter can turn the solid — that is what renting the artwork means
+  ✓ but the market did not move with it
+  ✓ the pool reports the drift instead of acting on it
+      market holds 73411 bps, artwork now shows 0 bps
+  ✓ the renter cannot sync the curve either
+  ✓ the holder syncing is what moves the market
+  ✓ and the renter still cannot withdraw a penny
+
+  the bond — a promise a buyer can check
+  ✓ unbonded to begin with
+  ✓ bonded now
+  ✓ the date is readable by anyone
+  ✓ withdrawing while bonded
+  ✓ closing the market while bonded
+  ✓ re-pricing the fee while bonded
+  ✓ re-shaping the curve while bonded
+  ✓ shortening the bond
+  ✓ a bond longer than anyone can outlive
+  ✓ depositing into a bonded market still works
+  ✓ and so does trading against it
+  ✓ the bond extends
+  ✓ the bond survives the sale
+  ✓ and binds the new owner too
+
+  the pause halts trade, never custody
+  ✓ trading while paused
+  ✓ depositing while paused
+  ✓ but withdrawal still works — a pause that traps money is a slower theft
+
+  markets open only on blessed tokens
+  ✓ a market on an unblessed token
+  ✓ and works once both sides are blessed
+
+  what the admin cannot do
+  ✓ a stranger pausing the market
+  ✓ a stranger blessing a token
+  ✓ there are exactly five admin entry points
+  ✓ and not one of them takes a token id or an amount
+  ✓ so no admin call can name an asset to move
+
+  admin handover takes two steps
+  ✓ the admin has not moved yet
+  ✓ a third party accepting
+  ✓ and moves once the recipient answers
+
+  gas
+      Pool                   2.568M
+      commit(uint256,uint256) 0.046M
+      openMarket             0.234M
+      deposit                0.143M
+      commit (re-price)      0.046M
+      openMarket(uint256,address,address,uint16) 0.876M
+      deposit(uint256,uint256,uint256) 0.491M
+
+  62 passed, 0 failed

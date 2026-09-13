@@ -1,0 +1,78 @@
+
+  claim 1 · a bonded market can be drained through its own curve
+      bonded with 1000000 / 1000000, offsets 6368600 / 6368600
+      after 3 cycles: reserves 1513644 / 524347
+      the accomplice is -513644 base, 475652 quote
+  ○ refuted     a bonded market can be drained through the curve
+      the accomplice ended -513644 base / 475652 quote — profit on both sides is what the claim needs and it did not happen
+  ○ refuted     deposit re-anchors the curve while bonded
+      the offsets did not move
+
+  claim 2 · the whole supply can be minted for free once a verifier exists
+      supply 2 → 2; the contract took 1 × the mint price for 1 tokens
+  ○ refuted     cloneWithKernel issues supply without payment
+      no clone succeeded
+
+  claim 3 · a session key that nobody can ever revoke
+  ○ refuted     a session may be granted an expiry nobody can outlive
+      grantSession refused 2^64-1; the expiry is capped like every other promise here
+      the token now owned by its own Reach: false
+  ○ refuted     a session key outlives every way of revoking it
+      the token could not be moved into its own account
+
+  claim 4 · a guarded token that sets bit 255 escapes the seal
+      execute(address,uint256,bytes,uint8) reverted: revert data=0x620a8bcf000000000000000000000
+  ○ refuted     a token setting bit 255 walks out of a sealed vault
+      the seal refused the call
+
+  claim 5 · an asset unreadable at snapshot is exempt from its own drain
+      execute(address,uint256,bytes,uint8) reverted: revert data=0xbba4bf62f2d5d56b0000000000000
+      unmeasurable() reported 1 asset(s) before the call
+  ○ refuted     blind at snapshot means exempt for the whole call
+      the seal refused it
+
+  claim 6 · a token hook re-anchors the curve inside somebody else's swap
+      quoted 97073, received 97073
+      offsets 3184300/3184300 → 3184300/3184300
+  ○ refuted     a trade moved the curve it was trading against
+      the offsets did not move
+
+  claim 7 · a revoked key remembers everything it was ever allowed
+      revert
+  ○ refuted     a re-granted key resurrects every permission it ever had
+      the old allowlist did not survive the revoke
+
+  claim 8 · a sealed vault swaps a valuable NFT for a worthless one
+      control (count only, no identity list): swap SUCCEEDED
+      execute(address,uint256,bytes,uint8) reverted: revert data=0x2c69273100000000000
+      the vault's count is still 1; token #1 owner 0x512e8a17 → 0x512e8a17
+  ○ refuted     the seal protects how many NFTs, not which
+      the control swapped freely with only the collection guarded, and this one was refused with the piece guarded — so a count is blind to identity and the identity list is what sees it
+
+  claim 9 · the anchored offsets truncate at uint112
+      rBase 2116069768159922759309664, MAX_RESERVE/8 649037107316853453566312041152511
+      offsets should be 16928558145279382074477312, are 13476401925503284084939526
+  ○ refuted     the anchored offsets truncate silently at uint112
+      the reserve could not be driven high enough, or the cast held
+
+  claim 10 · standing custody granted under a selector nobody listed
+      execute(address,uint256,bytes,uint8) reverted: revert data=0xbba4bf6287517c45000
+  ○ refuted     an approval under an unlisted selector goes through a seal
+      the unlisted word was refused too
+
+  claim 11 · a guarded token can shut a sealed vault for the length of its seal
+      benign calls: 0/3 before arming, 0/3 after; escapes: 0
+  ○ refuted     a guarded token can shut the account and leave no way out
+      an escape was available:
+
+  claim 12 · an attestation signature is replayable forever
+      attestationDigest(purpose:string, payload:bytes32, deadline:uint64)
+  ○ refuted     an attestation carries no nonce and no expiry
+      the struct is purpose:string, payload:bytes32, deadline:uint64
+
+  claim 13 · trading past the cap locks the holder out of their own market
+      rBase 1000000010000000000000000000 vs cap 1000000000000000000000000000; quote-only deposit accepted
+  ○ refuted     trading past maxDeposit locks the holder out of deposit entirely
+      deposit still worked
+
+  none of the 15 claims reproduced

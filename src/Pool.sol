@@ -354,7 +354,7 @@ contract Pool {
     /*═══════════════════ the market ═══════════════════*/
 
     function openMarket(uint256 id, address base, address quote, uint16 feeBps)
-        external onlyHolder(id)
+        external onlyHolder(id) nonReentrant
     {
         Market storage m = marketOf[id];
         if (m.open) revert MarketAlreadyOpen();
@@ -381,7 +381,11 @@ contract Pool {
     ///         out first; this will not do it for you, because a function
     ///         that both closes and pays out is a function that can fail
     ///         halfway.
-    function closeMarket(uint256 id) external onlyHolder(id) {
+    /*  Every mutation of a market shares the liquidity lock. An ERC-20
+        callback can also be its NFT's holder; holder authorization alone
+        does not prevent it replacing the Market storage a deposit is in
+        the middle of crediting, or changing terms inside a swap. */
+    function closeMarket(uint256 id) external onlyHolder(id) nonReentrant {
         Market storage m = marketOf[id];
         if (!m.open) revert MarketNotOpen();
         _unbonded(m);
@@ -391,7 +395,7 @@ contract Pool {
         emit MarketClosed(id);
     }
 
-    function setFee(uint256 id, uint16 feeBps) external onlyHolder(id) {
+    function setFee(uint256 id, uint16 feeBps) external onlyHolder(id) nonReentrant {
         if (feeBps > MAX_FEE_BPS) revert FeeTooHigh();
         Market storage m = marketOf[id];
         if (!m.open) revert MarketNotOpen();
@@ -404,7 +408,7 @@ contract Pool {
     /// @dev    Ratchet-only and permanent in the direction it moves. It
     ///         survives transfer, because it is a promise to whoever reads
     ///         it and not to whoever made it.
-    function bond(uint256 id, uint64 until) external onlyHolder(id) {
+    function bond(uint256 id, uint64 until) external onlyHolder(id) nonReentrant {
         Market storage m = marketOf[id];
         if (!m.open) revert MarketNotOpen();
         if (until <= block.timestamp) revert RatchetOnly();
@@ -599,7 +603,7 @@ contract Pool {
     /// @notice Bring the market's curve up to date with the artwork.
     /// @dev    Holder only, and deliberately not automatic — see the note at
     ///         the top about renters.
-    function syncCurve(uint256 id) external onlyHolder(id) {
+    function syncCurve(uint256 id) external onlyHolder(id) nonReentrant {
         Market storage m = marketOf[id];
         if (!m.open) revert MarketNotOpen();
         // a bond that let its maker re-price would promise the inventory and

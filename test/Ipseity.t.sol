@@ -375,6 +375,28 @@ contract IpseityTest is Test {
         assertTrue(made.code.length > 0);
     }
 
+    function test_aMissingRegistryCannotHideTheArtworkOrChangeItsHands() public {
+        uint256 id = _mint(alice);
+        address registry = address(token.REGISTRY());
+        address canonicalReach = ERC6551Registry(registry).account(
+            token.ACCOUNT_IMPL(), token.REACH_SALT(), block.chainid, address(token), id);
+        address canonicalGrip = ERC6551Registry(registry).account(
+            token.GRIP_IMPL(), token.GRIP_SALT(), block.chainid, address(token), id);
+        bytes32 beforeView = keccak256(abi.encode(token.viewOf(id)));
+        bytes32 beforeURI = keccak256(bytes(token.tokenURI(id)));
+        bytes memory registryCode = registry.code;
+
+        vm.etch(registry, hex"");
+        assertEq(token.account(id), canonicalReach, "the Reach changed without a registry");
+        assertEq(token.grip(id), canonicalGrip, "the Grip changed without a registry");
+        assertEq(keccak256(abi.encode(token.viewOf(id))), beforeView, "the view depends on registry code");
+        assertEq(keccak256(bytes(token.tokenURI(id))), beforeURI, "the artwork depends on registry code");
+
+        vm.etch(registry, registryCode);
+        assertEq(token.embody(id), canonicalReach, "the registry created a different Reach");
+        assertEq(token.embodyGrip(id), canonicalGrip, "the registry created a different Grip");
+    }
+
     /*═════════════════ the sealed kernel ═════════════════*/
 
     function test_kernelTransferNeedsAProofAboutThisPayload() public {

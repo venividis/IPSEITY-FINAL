@@ -1,0 +1,38 @@
+
+  deploy
+  ✓ deployed
+  ✓ the delay is seven days
+  ✓ queued operations expire after a fortnight
+
+  a queued operation waits
+  ✓ executing something never queued
+  ✓ the eta is a week out
+  ✓ not ready yet
+  ✓ executing before the delay is up
+  ✓ re-queueing to move the eta underneath a watcher
+
+  and then it lands
+  ✓ ready once the week has passed
+  ✓ the handover is proposed, not done
+  ✓ the collection is now administered by the delay
+  ✓ and the queued change took effect
+  ✓ the queue slot is cleared
+  ✓ replaying the same operation
+
+  a forgotten operation dies
+  ✓ no longer ready
+  ✓ executing a year-old proposal
+  ✓ the collection was not changed
+
+  the admin cannot slip out from under the delay
+  ✓ a stranger queueing
+  ✓ a stranger cancelling
+  ✓ the admin rotating itself directly
+  ✓ rotation lands, seven days later
+  ✓ and the old admin is finished
+
+  a proposal can be pulled
+  ✓ queued
+  ✓ and cancelled
+
+  24 passed, 0 failed

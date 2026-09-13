@@ -1,0 +1,6 @@
+chain 1: minted ids 1, 2 resolve and enumerate correctly
+chain 8453: minted ids 1025, 1026 resolve and enumerate correctly
+chain 130: minted ids 2049, 2050 resolve and enumerate correctly
+chain 56: minted ids 3073, 3074 resolve and enumerate correctly
+chain 4663: minted ids 3585, 3586 resolve and enumerate correctly
+104 identity band assertions passed

@@ -1,0 +1,67 @@
+
+  deploy two chains' worth
+  ✓ both ports deployed, each naming the other
+  ✓ and the near port carries the far one as its only peer
+
+  the verifier set is frozen in the constructor
+  ✓ the port set its own delegate to nobody, at construction
+  ✓ and carries no function that could change it later
+  ✓ a port that pinned nothing wrote no config — it floats, and says so
+
+  the pin: config written once, from the constructor, or never
+  ✓ the send library the constructor chose is on the endpoint
+  ✓ and the receive library
+  ✓ and the config entry went through, exactly once
+  ✓ and the pinned port's delegate is still nobody
+
+  the port speaks the protocol's ABI, not its mock's
+  ✓ lzReceive takes Origin as a static tuple — selector 0x13137d65
+  ✓ and that signature hashes to the selector the endpoint dispatches
+  ✓ the mock's old dialect is gone
+  ✓ allowInitializePath answers the lane-initialization handshake — 0xff7bd03d
+  ✓ nextNonce answers the executor's ordering question — 0x7d25a05e
+  ✓ a lane from the built peer may initialize
+  ✓ a lane from an eid nobody named may not
+  ✓ nor one from the right eid but the wrong sender
+  ✓ and the ordering promise is none — nextNonce is zero
+
+  only the commons crosses
+  ✓ there is no function that federates a group or a pair
+  ✓ and the room it carries is room 0
+
+  an unwired lane refuses at quote time
+  ✓ quoting a lane nobody configured reverts
+  ✓ rather than accepting a message that would never arrive
+      the endpoint's own words: "Please set your OApp's DVNs and/or Executor"
+
+  with the lane wired, speech crosses
+  ✓ the port quotes a price before it commits
+  ✓ empty options became the default, because the wire refuses nothing-at-all
+  ✓ a token you do not hold cannot speak for you
+  ✓ and neither can an underpaid call
+  ✓ overpayment comes back rather than being kept
+  ✓ the far endpoint is holding one message
+
+  delivery needs no privilege, and lands as foreign
+  ✓ a stranger delivered the message
+  ✓ the far port emitted it
+  ✓ tagged with the chain it came from
+  ✓ and with the token that said it
+  ✓ the far port counted it
+
+  the back-link is rewritten into this chain's numbering
+  ✓ the first echo recorded this chain's block
+  ✓ and the second points back at the first, in local blocks
+  ✓ which is a block number, not one carried across from elsewhere
+
+  a peer nobody named cannot be heard — on either side of the border
+  ✓ the endpoint's handshake refuses a lane the port was not built with
+  ✓ and an endpoint that skipped the handshake meets the port's own check
+  ✓ a message whose body claims a different origin than its envelope is refused
+  ✓ and only the endpoint may call the receive path at all
+
+  the local commons never needed any of this
+  ✓ speak still works, free and local
+  ✓ and Parley has no knowledge of the port whatsoever
+
+  42 passed, 0 failed

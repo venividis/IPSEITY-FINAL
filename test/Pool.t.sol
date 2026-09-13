@@ -13,6 +13,7 @@ import {IpseityAccount} from "../src/IpseityAccount.sol";
 import {GripVault} from "../src/GripVault.sol";
 import {ERC6551Registry} from "./mocks/ERC6551Registry.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
+import {PoolReenter} from "./mocks/PoolReenter.sol";
 
 /*───────────────────────────────────────────────────────────────────────────
   The market.
@@ -88,6 +89,26 @@ contract PoolTest is Test {
     function _k() internal view returns (uint256) {
         (, , uint112 rb, uint112 rq, , , , , uint128 vb, uint128 vq) = pool.marketOf(1);
         return (uint256(rb) + vb) * (uint256(rq) + vq);
+    }
+
+    function test_aDepositCallbackCannotCloseItsMarketBeforeCredit() public {
+        PoolReenter callbackToken = new PoolReenter();
+        vm.deal(address(this), 1 ether);
+        uint256 id = token.mintTo{value: 0.01 ether}(address(callbackToken));
+        callbackToken.wire(address(pool), id);
+        callbackToken.step1_open(address(callbackToken), address(usdc));
+
+        vm.expectRevert(Pool.TransferFailed.selector);
+        callbackToken.step2_depositAndClose(100 * WAD);
+
+        (address base, address quote, uint112 rb, uint112 rq, , bool open, , , , ) = pool.marketOf(id);
+        assertTrue(open, "the callback changed market membership");
+        assertEq(base, address(callbackToken), "the callback replaced the base");
+        assertEq(quote, address(usdc), "the callback replaced the quote");
+        assertEq(uint256(rb), 0, "a failed deposit credited a reserve");
+        assertEq(uint256(rq), 0, "a failed deposit credited the other reserve");
+        assertEq(callbackToken.balanceOf(address(pool)), 0, "the failed transfer persisted");
+        assertEq(pool.openCount(), 2, "a callback corrupted the market directory");
     }
 
     /*═════════ the three that matter ═════════*/

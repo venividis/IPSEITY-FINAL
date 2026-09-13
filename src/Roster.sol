@@ -13,6 +13,7 @@ interface IParleyRead {
 }
 
 interface IHubRead {
+    function FIRST_ID() external view returns (uint256);
     function totalSupply() external view returns (uint256);
     function ownerOf(uint256 id) external view returns (address);
 }
@@ -28,7 +29,7 @@ interface IHubRead {
   needs an indexer and an indexer is a server.
 
   So the answer is asked the other way round. The collection is finite and
-  its tokens are numbered from one, so a reader can simply ask about a
+  its tokens occupy a contiguous minted band, so a reader can ask about a
   window of them at once: two hundred and fifty-six memberships come back
   packed into a single word, from a single `eth_call`, over state that was
   already public. Nothing is stored here, nothing is written here, and
@@ -100,14 +101,18 @@ contract Roster {
     /// @dev    The client shifts; the chain counts. Reading 256 tokens costs
     ///         one call and roughly 256 cold storage reads — about 550k gas
     ///         of `eth_call`, which is free to the reader and never mined.
+    ///         Supply is a count, not an id ceiling: the first Base token
+    ///         is 1025 when supply is one. Every window clips against the
+    ///         hub's own minted band before asking about membership.
     function inWindow(uint256 room, uint256 from)
         external view returns (uint256 bits)
     {
+        uint256 first = HUB.FIRST_ID();
         uint256 supply = HUB.totalSupply();
         uint8 k = kindOf(room);
         for (uint256 i; i < WINDOW; ++i) {
             uint256 id = from + i;
-            if (id == 0 || id > supply) continue;
+            if (id < first || id - first >= supply) continue;
             if (_in(room, k, id)) bits |= (1 << i);
         }
     }
@@ -118,11 +123,12 @@ contract Roster {
     function invitedInWindow(uint256 room, uint256 from)
         external view returns (uint256 bits)
     {
+        uint256 first = HUB.FIRST_ID();
         uint256 supply = HUB.totalSupply();
         uint8 k = kindOf(room);
         for (uint256 i; i < WINDOW; ++i) {
             uint256 id = from + i;
-            if (id == 0 || id > supply) continue;
+            if (id < first || id - first >= supply) continue;
             if (!_in(room, k, id) && PARLEY.invited(room, id)) bits |= (1 << i);
         }
     }
@@ -132,13 +138,14 @@ contract Roster {
     function membersOf(uint256 room, uint256 from)
         external view returns (uint256[] memory ids)
     {
+        uint256 first = HUB.FIRST_ID();
         uint256 supply = HUB.totalSupply();
         uint8 k = kindOf(room);
         uint256[] memory buf = new uint256[](WINDOW);
         uint256 n;
         for (uint256 i; i < WINDOW; ++i) {
             uint256 id = from + i;
-            if (id == 0 || id > supply) continue;
+            if (id < first || id - first >= supply) continue;
             if (_in(room, k, id)) { buf[n] = id; unchecked { ++n; } }
         }
         ids = new uint256[](n);

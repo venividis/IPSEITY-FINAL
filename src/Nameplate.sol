@@ -21,6 +21,7 @@ interface INameWrapperLike {
 }
 
 interface IHubNames {
+    function FIRST_ID() external view returns (uint256);
     function ownerOf(uint256 id) external view returns (address);
     function account(uint256 id) external view returns (address);
     function grip(uint256 id) external view returns (address);
@@ -562,7 +563,14 @@ contract Nameplate {
     function _reachable(uint256 id) internal view returns (bool) {
         uint256 chain = _chainOfToken(id);
         if (chain == 0) return false;
-        if (chain == block.chainid) return id <= HUB.totalSupply();
+        if (chain == block.chainid) {
+            /*  Supply counts mints; it is not the highest token id. A
+                Base hub's first mint is 1025 while its supply is one.
+                Subtract the band's start before comparing so every local
+                band answers for exactly the tokens already issued.    */
+            uint256 first = HUB.FIRST_ID();
+            return id >= first && id - first < HUB.totalSupply();
+        }
         return stationOf[chain].premises != address(0);
     }
 

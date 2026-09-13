@@ -9,6 +9,18 @@ import {IHub} from "./interfaces/Site.sol";
 import {ConsoleRead} from "./ConsoleRead.sol";
 import {ConsoleSkin} from "./ConsoleSkin.sol";
 
+/*  The one question the console asks Parley at render time. Declared here,
+    minimal, the way every peripheral declares its own view of a neighbour —
+    and asked rather than answered locally on purpose: the topic hash is
+    derived from the event signature string, that string lives in Parley,
+    and a second copy of it here would be the two-tables failure this
+    console was built to end.                                            */
+interface IParleyTopics {
+    function topics()
+        external pure
+        returns (bytes32 said, bytes32 founded, bytes32 entered, bytes32 departed, bytes32 announced);
+}
+
 /*═══════════════════════════════════════════════════════════════════════════
 
   THE CONSOLE — one route, one document, seven things you can do
@@ -73,12 +85,23 @@ contract PageConsole {
         thing to keep correct for no gain. One holds the stylesheet, one
         holds the script; neither knows what it is holding.            */
     ConsoleSkin public immutable CORE;
+    /*  The archive, for the SPEAK lane. The console never writes here at
+        render time; it asks `topics()` once per document so the client can
+        filter logs without shipping a hash function.                    */
+    IParleyTopics public immutable PARLEY;
+    /*  The commons' LayerZero port — the second, federated archive. Zero on
+        a chain that does not federate, and that absence is a fact about
+        the chain, not a failure.                                        */
+    address public immutable PORT;
 
-    constructor(IHub hub, ConsoleRead read_, ConsoleSkin skin, ConsoleSkin core) {
+    constructor(IHub hub, ConsoleRead read_, ConsoleSkin skin, ConsoleSkin core,
+                IParleyTopics parley, address port) {
         HUB = hub;
         READ = read_;
         SKIN = skin;
         CORE = core;
+        PARLEY = parley;
+        PORT = port;
     }
 
     /*═══════════════════ the seven ═══════════════════*/
@@ -411,8 +434,55 @@ contract PageConsole {
                 the quietest kind of broken: no error, no warning, a key
                 that simply does nothing.                                */
             ",verb:", uint256(verb).str(),
+            _seedTrade(c),
+            _seedTalk(),
+            _seedPort(),
             _sels()
         );
+    }
+
+    /*  The market half of the seed — and only the keys whose contracts
+        ANSWERED. An absent key is "no answer"; a present key is a fact; the
+        client is built to tell them apart, and a seed that wrote zeros for
+        a pool that never spoke would collapse the two facts this whole
+        codebase keeps separate. The lease's lending state rides here too:
+        FOR AN AFTERNOON needs the current user without a round trip.    */
+    function _seedTrade(ConsoleRead.Clocks memory c) private view returns (string memory) {
+        string memory out;
+        address pool = address(READ.POOL());
+        if (pool != address(0)) {
+            out = string.concat(",pool:\"", LibNum.hexAddr(pool), "\"");
+        }
+        if ((c.reported & 0x02) != 0) {
+            out = string.concat(out,
+                ",mkt:{open:", c.marketOpen ? "1" : "0",
+                ",fee:", uint256(c.feeBps).str(),
+                ",base:\"", LibNum.hexAddr(c.base),
+                "\",quote:\"", LibNum.hexAddr(c.quote), "\"}");
+        }
+        if ((c.reported & 0x10) != 0) {
+            out = string.concat(out,
+                ",user:\"", LibNum.hexAddr(c.user),
+                "\",userX:", uint256(c.userExpires).str());
+        }
+        return out;
+    }
+
+    /*  The archive's address and its topic filter. The topic is derived
+        from the event signature string, and that string lives in Parley —
+        asked at render time, never copied here, because a hash spelled in
+        two places is a hash that will differ in one of them. The size
+        check comes before the try: `try` alone does not survive a
+        codeless address, which is the lesson ConsoleRead already wears. */
+    function _seedTalk() private view returns (string memory) {
+        address p = address(PARLEY);
+        if (p.code.length == 0) return "";
+        try PARLEY.topics() returns (bytes32 said, bytes32, bytes32, bytes32, bytes32) {
+            return string.concat(
+                ",parley:\"", LibNum.hexAddr(p), "\",said:\"", _hex32(said), "\"");
+        } catch {
+            return "";
+        }
     }
 
     /*  Every selector the client needs, derived HERE. Solidity has keccak;
@@ -424,32 +494,53 @@ contract PageConsole {
         it, this many expressions in one concat is past what the EVM stack
         holds and solc reports it as "too deep in the stack by 1 slots",
         which names the symptom and not the cause.                       */
-    function _sels() private pure returns (string memory) {
+    /*  The table itself moved to ConsoleRead when the lanes' second tranche
+        grew it to twenty-seven entries and 98% of this contract's ceiling —
+        the exact squeeze CONSOLE.md §H.2 planned satellites for. The rule
+        it enforces did not move: every four-byte selector is derived by a
+        contract from the signature string, and the browser ships no
+        keccak.                                                          */
+    function _sels() private view returns (string memory) {
+        return READ.sels();
+    }
+
+    /*  The federated half of the archive. The port cannot be asked for its
+        topic the way Parley is asked `topics()`: it is sealed at its
+        nonce-0 CREATE address on every chain — redeploying it to add a
+        view would break same-address-everywhere — so the event signature
+        is spelled HERE, once, and `verify-console` holds this string equal
+        to the `Echoed` event the compiled port actually declares. The eid
+        names ride along because the client labels every foreign voice
+        with the chain it came from, and a bare number is a label only an
+        engineer can read; the map is held in lockstep with `LAYERZERO` /
+        `LAYERZERO_TESTNETS` in tools/site.mjs by the same verifier.     */
+    function _seedPort() private view returns (string memory) {
+        address p = PORT;
+        if (p == address(0) || p.code.length == 0) return "";
         return string.concat(
-            ",sel:{commit:\"", _sel("commit(uint256,uint256)"),
-            "\",embody:\"", _sel("embody(uint256)"),
-            "\",embodyGrip:\"", _sel("embodyGrip(uint256)"),
-            "\",xfer:\"", _sel("transferFrom(address,address,uint256)"),
-            "\",mint:\"", _sel("mint()"),
-            /*  So the mint lane can read the price and ATTACH it: a payable
-                mint proposed at zero value reverts, and "the wallet reads
-                the price" is not a thing any injected wallet does.       */
-            "\",price:\"", _sel("price()"),
-            "\"}"
+            ",port:\"", LibNum.hexAddr(p),
+            "\",echoed:\"",
+            _hex32(keccak256("Echoed(uint32,uint256,uint64,uint64,uint8,bytes)")),
+            "\",eids:", _eidNames()
         );
     }
 
-    /*  The four bytes a client sends, and nothing about how they were
-        arrived at. A signature spelled in two places is a signature that
-        will differ in one of them.                                      */
-    function _sel(string memory sig) private pure returns (string memory) {
-        bytes4 s = bytes4(keccak256(bytes(sig)));
+    function _eidNames() private pure returns (string memory) {
+        return "{\"30101\":\"Ethereum\",\"30111\":\"Optimism\",\"30102\":\"BNB\","
+               "\"30320\":\"Unichain\",\"30416\":\"Robinhood\",\"30184\":\"Base\","
+               "\"30110\":\"Arbitrum\",\"40161\":\"Ethereum Sepolia\","
+               "\"40245\":\"Base Sepolia\",\"40451\":\"Robinhood Testnet\"}";
+    }
+
+    /*  A full word, for the one thing in the seed that is 32 bytes: the
+        Said topic. Same table, same shape as `_sel`, different width.   */
+    function _hex32(bytes32 v) private pure returns (string memory) {
         bytes memory hexd = "0123456789abcdef";
-        bytes memory o = new bytes(10);
+        bytes memory o = new bytes(66);
         o[0] = "0"; o[1] = "x";
-        for (uint256 k; k < 4; ++k) {
-            o[2 + k * 2] = hexd[uint8(s[k]) >> 4];
-            o[3 + k * 2] = hexd[uint8(s[k]) & 0x0f];
+        for (uint256 k; k < 32; ++k) {
+            o[2 + k * 2] = hexd[uint8(v[k]) >> 4];
+            o[3 + k * 2] = hexd[uint8(v[k]) & 0x0f];
         }
         return string(o);
     }

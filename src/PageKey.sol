@@ -173,11 +173,12 @@ contract PageKey {
         the browser ships no keccak, and a signature spelled in two places
         is a signature that will differ in one of them.                  */
     function _config(uint256 id, address reach, address k)
-        private pure returns (string memory)
+        private view returns (string memory)
     {
         return string.concat(
             "<script type=\"application/json\" id=\"KEY\">{"
             "\"id\":", id.str(),
+            ",\"chain\":", block.chainid.str(),
             ",\"reach\":\"", LibNum.hexAddr(reach),
             "\",\"key\":\"", LibNum.hexAddr(k),
             "\",\"sel\":{"
@@ -216,9 +217,13 @@ contract PageKey {
         "var say=function(t){var s=document.getElementById('s');if(s)s.textContent=t};"
         "var pad=function(h){return h.replace(/^0x/,'').padStart(64,'0')};"
         "var pv=function(){return window.ethereum||null};"
+        "var chain=function(p){return p.request({method:'eth_chainId'}).then(function(h){"
+        "if(BigInt(h)!==BigInt(K.chain))throw new Error('this key belongs to chain '+K.chain);"
+        "return h})};"
         "var call=function(to,data){var p=pv();"
         "if(!p)return Promise.reject(new Error('no wallet in this browser'));"
-        "return p.request({method:'eth_call',params:[{to:to,data:data},'latest']})};"
+        "return chain(p).then(function(){return p.request({method:'eth_call',"
+        "params:[{to:to,data:data},'latest']})})};"
         "var allows=function(to,sel4){"
         "return call(K.reach,K.sel.allows+pad(K.key)+pad(to)+"
         "sel4.replace(/^0x/,'').padEnd(64,'0'))"
@@ -249,19 +254,22 @@ contract PageKey {
         "var line=function(k2,v2){var p=document.createElement('p');p.className='e';"
         "p.textContent=k2+': '+v2;slab.appendChild(p)};"
         "line('The account will call',to);"
+        "line('Chain',K.chain);"
         "line('Carrying',v+' wei');"
         "line('Function',sel4);"
         "var b=document.createElement('button');b.textContent='Sign and send';"
         "b.addEventListener('click',function(){"
+        "if(b.disabled)return;"
         "var p=pv();if(!p)return say('no wallet in this browser');"
+        "b.disabled=true;"
         "p.request({method:'eth_requestAccounts'}).then(function(a){"
         "if(!a||!a[0])throw new Error('the wallet refused');"
         "if(a[0].toLowerCase()!==K.key.toLowerCase())"
         "throw new Error('that wallet is '+a[0].slice(0,8)+'\\u2026, not this key');"
-        "return p.request({method:'eth_sendTransaction',params:[{from:a[0],"
-        "to:K.reach,data:K.sel.exec+body}]})})"
+        "return chain(p).then(function(h){return p.request({method:'eth_sendTransaction',"
+        "params:[{from:a[0],chainId:h,to:K.reach,data:K.sel.exec+body}]})})})"
         ".then(function(h){say('sent \\u00b7 '+h.slice(0,10)+'\\u2026')})"
-        ".catch(function(e){say(String(e&&e.message||e))})});"
+        ".catch(function(e){b.disabled=false;say(String(e&&e.message||e))})});"
         "slab.appendChild(b)})"
         ".catch(function(e){say(String(e&&e.message||e))})});"
         "})();";

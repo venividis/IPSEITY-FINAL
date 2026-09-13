@@ -1,0 +1,9 @@
+
+  IPSEITY · the Foundry suite, without Foundry
+  cheatcodes at 0x7109709ecfa91a80626ff3989d68f67f5b1dd12d
+  reused
+
+  ParleyTest  test/Parley.t.sol
+  ✓ test_anUnfoundedRoomIsNotARoom
+
+  1 passed, 0 failed

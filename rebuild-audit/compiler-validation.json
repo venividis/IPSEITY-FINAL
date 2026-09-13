@@ -1,0 +1,548 @@
+{
+  "compileSeconds": 318.453,
+  "compilerInputDirectories": [
+    "src",
+    "test/mocks"
+  ],
+  "runtimeSizeLimit": 24576,
+  "productionArtifacts": 72,
+  "allFit": true,
+  "artifactSha256": "0319a4d7d266ac4cc5c553f25fd48d989f8cdf32a728faffcb5c4c9bd34717f9",
+  "sourcesAtValidation": {
+    "src/Chrome.sol": "4a1639caf093a8d1aaea870717cdd0427b9c5baea8fe4d465e74a468aebb6e37",
+    "src/Consign.sol": "e6f6d67ce0b48cd53fa9723bdc9efaed6cad1ee07a9df325f3bd4647a653eb94",
+    "src/ConsoleRead.sol": "7fc0799b395795d4e8457195d98b48a35cf610cfa5fbc2a04edbb81ea54d99c3",
+    "src/ConsoleSkin.sol": "70fb661391ff877fe995debf0a4dabc924d7e828ddaf74c7251594e8e4359660",
+    "src/Desk.sol": "e9332eb60b0ffddd6f4244562e8afbe41b17aa2a4bb2b7e400fa16161dcd6a69",
+    "src/DeskEstate.sol": "5e4871f9fb971e84275db2f43fe441a9aca1e78d851aedadbb998f068a27a898",
+    "src/DeskEtch.sol": "dbfbef09c3570e1fc357777fd155ec1a88eec3f9da8da37c616a2b08bc9b1d42",
+    "src/DeskLaunch.sol": "712435f448cf830769800d8d7fb6d468addbf548e9a6114dfd37d2aae852d66b",
+    "src/DeskRooms.sol": "842327f8de682ea3564e112c52fae68de5c7f12f216df7548c760f1bfdc9aaf8",
+    "src/DeskSeal.sol": "0350cd0dc8f72000e8dee2f359800bbd1199b5865037424375d1717e5d3d0b7d",
+    "src/DeskTalk.sol": "2aaf60472cf49dd862ceee834a75d172f4aa98f1d53cea9ccef323638ed00e67",
+    "src/DeskTerm.sol": "2dc3d1a361f61fd15dfe78b07b66ac9ace29401d183625c5ff134307f27c88df",
+    "src/DeskTrade.sol": "fccdef188b6af34ac24993b6ab8df3d6c4da4688aaa999c9ec347633d5b31c98",
+    "src/DeskUni.sol": "9e5cd387e2af09985a864b58092bde128486ee338364822c3de73d58f676b13e",
+    "src/DeskWill.sol": "b4e6ea60a0ed7894e8e768f28d7221061a5808a69871ac29d66806e8b0da3679",
+    "src/Engine.sol": "d6031c0c6f70017c21ded00736f3fced799d446301c0d122c29552f0ea220e2d",
+    "src/Etch.sol": "f652f7be4b514a5f0908226b7a7f7a4b7189d395dbbb56f818dca31a849bee20",
+    "src/Facet.sol": "f0a1a9044090589fa1704bb92808f6320fb7e1929d9e1441d56e190b933b6c39",
+    "src/GripVault.sol": "808ca2e234bcd8cfa18aff161f19804168fb46082fafca8e07aa6d820c401472",
+    "src/Ipseity.sol": "238a982109c9f12b601fc6115ac275989603cbb14d8cc47cd4c04834e712cbf1",
+    "src/IpseityAccount.sol": "4f03b5760de38d1c8d8c1f8d5cf072ede7a7e8f27b52040358e56da6cca14700",
+    "src/Kiln.sol": "90cca082c61576fcff58f47e7c7290e9084aa6b5553f9968ca608a88eabbf789",
+    "src/Lease.sol": "fd26bb1478ed0065985d7c2d8fcd9aada827acafbc4cf57510a9b047395dc558",
+    "src/Locker.sol": "989aac757ff7a5cb9a9def908a52816b045af3b613fe8eb0408f68986d969c84",
+    "src/Nameplate.sol": "1e9101aba6cc0be4635ef8183040e5a35c93b4dba98921ca03f9568f5ebaef5c",
+    "src/PageCast.sol": "d60ddfafc0bddab412e16844511ccb6b16aa79234d9b8b9a65a4325da8fcd4f3",
+    "src/PageConsole.sol": "480c54ffac6e9842e254a37c5a9e79aea3346e51af23b7e3437e8115cc81f3f8",
+    "src/PageDoor.sol": "190c697eeac9b5bef15f710702c335f191fba4d063218b22632568edb72a6b83",
+    "src/PageEstate.sol": "58fbcec6f7622a85e32b458761062f3d6f6c854198cf54c0668c6b7c38340554",
+    "src/PageEtch.sol": "361255329188c694e14e2ed62563d28db8193d416e98359a81048e58ecdaea23",
+    "src/PageGallery.sol": "b39faa304dcc967a6a581f576f6db751737584abedaacb5d94b76d322fd79ac3",
+    "src/PageHook.sol": "f123ff33261af2ac08071ec07fffce2cd7407c49e9fa6d9ecfab4cc66aae32c7",
+    "src/PageKey.sol": "6edf2263f1e365647e519b5c9bdc05a5fb30d3095c1f137ba3c39d66685da620",
+    "src/PageKeys.sol": "9f6f72d189c1b44a0987ae3b2304415d412d02925a284a95754fcb545bc2c8e7",
+    "src/PageLaunch.sol": "772b07453fd5c9c470b60a11493cc94161e3a4076d0a368845d41b6a91c2f733",
+    "src/PageLock.sol": "439d11d925f05137f925c4f2e48b051af98b6d7857b11f89a38a552706ea665e",
+    "src/PageManifest.sol": "0e765f70a0f6ff4a292c151af219b86722c761ce125fe4252f3ccdf38221abce",
+    "src/PageMarket.sol": "31a3c0eeae832dba6c87b22904c454be83d5533aaa79778f061eb03ff93bd7ec",
+    "src/PageName.sol": "1143d1ec58544bde2c7b0398cf16179aac8e1367a92c0e1a3fcb2d33d5cb25e0",
+    "src/PagePool.sol": "85df3c6fed73be0cfe3bf53195fe34b9fd40c4f260440e1fcaaf2aed3e70d67d",
+    "src/PageRooms.sol": "cfee01c1688f9c0bf6162a7c12e698ac9561da8e26a62c1b648b504fc7b1bde9",
+    "src/PageSeal.sol": "bd17fa5d6d9751c6b125950c7f724ccda1088d8f9ec173661f4a3f5ff365fba7",
+    "src/PageServices.sol": "b8dbad4aca0b8ea7fb454ddfd4fa8a8e645db3432e6191cf36efcebba4088fef",
+    "src/PageSwap.sol": "553ac6d4b36c692a841299de74b5f7de512c42e659c450d61a969907099699f9",
+    "src/PageTalk.sol": "0958187ae77e13d2fb80f35bba5f49d50c449d71144a29714a2365e87a141e73",
+    "src/PageTerminal.sol": "904b6290d07a1e2443cc2feea94ae61d9a4a2d92f8276147d8e87c04f00ba926",
+    "src/PageToken.sol": "d819f759914f22d9fd535e137bafe9b86898044ca2e16b8241cdca4db39001b1",
+    "src/Parley.sol": "e4cbbae40f67e57bf8f72cc81901c10a1572d82ea8b3b8734962224a3c538d02",
+    "src/ParleyPort.sol": "12ec92e44e55240e07c6e2f37bf8cb37ff7e47e9ef98300a52b976936ddf42bb",
+    "src/Pool.sol": "2d88d9fd6c5ebac6a479451e37ccf7f1ad143b747223a11a615746b927a222a7",
+    "src/Premises.sol": "9a73a3ecb945bc25e90305201be01e1d226d480a91b19ec260d65d7843380f42",
+    "src/Renderer.sol": "f14a9695dd372ed85dce973a921620855b557a7cd0d66a7afe4bfbda8268faf8",
+    "src/Roster.sol": "2bd8e8b32b044017c34a45b51689d9bdd1948cd502e4f2b230407874e0e90d9e",
+    "src/Sigil.sol": "96195e00b68e5be8f192d4589dc35db730e85c2c19767948f4aeb09fcde3bac5",
+    "src/Succession.sol": "9b548f37b3e03b41a7987e537c1a4535f3b366367e2a8eb75f6fdcb3d9c4c631",
+    "src/Venue.sol": "8fdb4018b121b366907538ccb84005f7dcb4d1c1f1b23ce9a61cfeddb35f5d0d",
+    "src/Vitrine.sol": "c4e33df9830e907eb0278cc86c14bd1d2b0608965f03b159a69940fdfbf6517e",
+    "src/interfaces/Site.sol": "324e4bd26f4429e209abe42951ea8c606d191588fe3450e029afd55d6cc4568e",
+    "src/interfaces/Standards.sol": "cbd55626187efda6bbcc33df3a4a2014d0f5547f5bc7122cf2d9a3dd8adc878c",
+    "src/lib/Assets.sol": "bd45c7c6eaa26c129348d225f30286e0bc7e925e17dffafe0c69a47397016bae",
+    "src/lib/Base64.sol": "464428c17e7b561f92e731f71b3dc9784e157c23d64b4dbef6739dd7031b8293",
+    "src/lib/Curve.sol": "388a2420f5de1164fcacd9970294c2d0ed7ee1975e9db158d067895e43898bef",
+    "src/lib/Hook.sol": "3c468e58d254fa9a7a99c729fb2ab6e18abfacbc9251b2ccd94cf82f5dc67130",
+    "src/lib/LibNum.sol": "db185e94efe64fabb4e6e12325157707fc74f0aed8c342f40706c0a33d3f5e56",
+    "src/lib/Mul.sol": "c4b0c2fdb6851fff6c1e39498c71fcfd4f61b508829825e47631e26d191c6a6d",
+    "src/lib/SSTORE2.sol": "454c50350d9ca84b6640d225a24eefce45418438b73fa6da58e55e7687876b18",
+    "src/lib/Shard.sol": "ce9c24bba5f6e2d0116bd1914aa45936a5ef47290f2b5613674d6cd6f9c27974",
+    "src/lib/Tick.sol": "1f1cc30ca95ef474b5aa93610e7fd2d71a2a9b6793bb25075f76417954d580cc",
+    "src/lib/Timelock.sol": "ca10faf3ce122044a057df09a21ae9709eb1a0df2aa03b212de1e306e3edc604",
+    "src/lib/Trig.sol": "d2b4e6dc989c192ebb7b3441a4cc73d950f29125c563e437c8e77e9a87f79cda",
+    "src/lib/Types.sol": "5d57e084ebdc4356b30299e5d8555675b8249e69550dfb0594a94f569dd346ab",
+    "src/lib/Web.sol": "bd429884344c02a866ca22964d966eafca1c1d03d42d32808508ef7e647b2835",
+    "test/mocks/Breakable.sol": "654941e9cd6a4fdfe948807eb4ce684fd21b47f6a69321699b75c8d96974784e",
+    "test/mocks/Broker.sol": "7a81d6c107063cb55b0a50c71aa4dd13abfb307ac7b9efd54be5bde3a51439ee",
+    "test/mocks/CurveProbe.sol": "c1e7e1add36974a875089b9e3c379642fdc40df60cca0fb6b04ecb1ef425aa0f",
+    "test/mocks/Drainer.sol": "f4fd232e0e5f6f241bb5fba0d2ac355451ba5746e1ceb6a9dba824f989d56b73",
+    "test/mocks/ERC6551Registry.sol": "27d51036f049d74724a03ac883d755d3386a48b1679e536fcb0be722f456e3a3",
+    "test/mocks/HighBit.sol": "df8ba5c040673b48041c99b6d4aa00009f04872003d4968a046331f929848287",
+    "test/mocks/Hooked.sol": "4ee15ae4dbc20d21cf747478d17290acdbbcff3661b6e8efa97151842bb65ea6",
+    "test/mocks/LzStub.sol": "6501c7f0aeb37133fa2e5a4a0854cac464b9ff59defcb12adf46853446eef45c",
+    "test/mocks/MineProbe.sol": "7717c627f79e950cdb293dd6a11bde35e49c0481c9546698dd23c6a05a8593de",
+    "test/mocks/MockAccount.sol": "ff85fb986b6596cbddbcdf6a55e2830bc1d2e50dc1bd6d5bac84c3cc4e482240",
+    "test/mocks/MockENS.sol": "c6b129575208375c9e48af80a0f845e4fdefa2f6f07cd47bedc8bf1f1d8f4f43",
+    "test/mocks/MockERC20.sol": "8cff667cbffe662efcbf57225840768f409e2b12332d10d8591d599b6ec4c789",
+    "test/mocks/MockERC721.sol": "1bac6bb1c0178827cb8a8432c2af03ff96cfd3df419873a32aa2b3a8506a005d",
+    "test/mocks/MockEndpoint.sol": "071a54fa4369ee891e892f813991247e9b836a03d067379e6f4020f81a39091e",
+    "test/mocks/MockHub.sol": "9cd050fff756852711d03cbe9e6762044be8fa3dcb4676684ae08676c55ed395",
+    "test/mocks/MockPoolManager.sol": "b9390d6c782e9bf4b7604d891b104c248b7712cd2cbca85b355b433bf109e415",
+    "test/mocks/MockReceiver.sol": "d3b61342b052143ebcefb19cea6bb1e6f8c5d19807fdf998efdd40446b822af7",
+    "test/mocks/MockRegistrar.sol": "8c03cc28793155142e69f0eca874c47c853c6aeac58ae160c956c5b8c426a628",
+    "test/mocks/MockVerifier.sol": "c0a23a34a052af2938455067c2737d7b9ccdba006b32752e64433629c73b5c61",
+    "test/mocks/Nasty.sol": "c97bf59bccf966b9954c6ad1a5a7d1bf545a97d434af709f04b0cb9ee380389c",
+    "test/mocks/Permit2ish.sol": "c0d125763f2c515138916294cef05db68dfb1ea49247cb3eef2d92549b44c07c",
+    "test/mocks/PoolReenter.sol": "36dcc62e85891e003f3a9efb18315700852b71b6e4a391fe2a12d2f8f0e1ba6d",
+    "test/mocks/Probe.sol": "e6c813ded4dd2e7420a54dbf9a0c09315e71cf9ec867dd8d6ec6c0c9568868a6",
+    "test/mocks/RendererQuoteProbe.sol": "dc13716271f7ec1d641c66681ec916b38c4ebd3c44f4fcebcebdb3c0e70fbfc2",
+    "test/mocks/SealBreaker.sol": "0da4737cde64951cb9abb0bcc4a088979be430d3ef0cea80e00da102c7f951f3",
+    "test/mocks/Trap.sol": "1a0750b536697a9890eb58383fd2874a8cd911ba0b8e7ce293fabc159784672c",
+    "test/mocks/UniV3.sol": "abf32c2861b4aee5a707e7188463bfc9aaab7844d019b510c0fb049683e04b75",
+    "test/mocks/Winker.sol": "5f86445b18d04e1abf4e1f31a2426a5bb6959f5dde62feec3c6ca4df188a5a53",
+    "test/mocks/XSettle.sol": "d5d97cf048d7799a474fbc2ba9c94e500e0d9e3379ae770d976918a3f10efc93"
+  },
+  "runtimeSizes": [
+    {
+      "file": "src/DeskTerm.sol",
+      "contract": "DeskTerm",
+      "runtimeBytes": 23908,
+      "headroomBytes": 668
+    },
+    {
+      "file": "src/PageLaunch.sol",
+      "contract": "PageLaunch",
+      "runtimeBytes": 23319,
+      "headroomBytes": 1257
+    },
+    {
+      "file": "src/Chrome.sol",
+      "contract": "Chrome",
+      "runtimeBytes": 23299,
+      "headroomBytes": 1277
+    },
+    {
+      "file": "src/Desk.sol",
+      "contract": "Desk",
+      "runtimeBytes": 23284,
+      "headroomBytes": 1292
+    },
+    {
+      "file": "src/PageManifest.sol",
+      "contract": "PageManifest",
+      "runtimeBytes": 22544,
+      "headroomBytes": 2032
+    },
+    {
+      "file": "src/PageName.sol",
+      "contract": "PageName",
+      "runtimeBytes": 21377,
+      "headroomBytes": 3199
+    },
+    {
+      "file": "src/PageConsole.sol",
+      "contract": "PageConsole",
+      "runtimeBytes": 20927,
+      "headroomBytes": 3649
+    },
+    {
+      "file": "src/Renderer.sol",
+      "contract": "Renderer",
+      "runtimeBytes": 20672,
+      "headroomBytes": 3904
+    },
+    {
+      "file": "src/DeskTalk.sol",
+      "contract": "DeskTalk",
+      "runtimeBytes": 20446,
+      "headroomBytes": 4130
+    },
+    {
+      "file": "src/Ipseity.sol",
+      "contract": "Ipseity",
+      "runtimeBytes": 19632,
+      "headroomBytes": 4944
+    },
+    {
+      "file": "src/PageKeys.sol",
+      "contract": "PageKeys",
+      "runtimeBytes": 18868,
+      "headroomBytes": 5708
+    },
+    {
+      "file": "src/PageMarket.sol",
+      "contract": "PageMarket",
+      "runtimeBytes": 18373,
+      "headroomBytes": 6203
+    },
+    {
+      "file": "src/PageServices.sol",
+      "contract": "PageServices",
+      "runtimeBytes": 17789,
+      "headroomBytes": 6787
+    },
+    {
+      "file": "src/PageDoor.sol",
+      "contract": "PageDoor",
+      "runtimeBytes": 17663,
+      "headroomBytes": 6913
+    },
+    {
+      "file": "src/PageSwap.sol",
+      "contract": "PageSwap",
+      "runtimeBytes": 17523,
+      "headroomBytes": 7053
+    },
+    {
+      "file": "src/DeskUni.sol",
+      "contract": "DeskUni",
+      "runtimeBytes": 17250,
+      "headroomBytes": 7326
+    },
+    {
+      "file": "src/PageToken.sol",
+      "contract": "PageToken",
+      "runtimeBytes": 16273,
+      "headroomBytes": 8303
+    },
+    {
+      "file": "src/PageLock.sol",
+      "contract": "PageLock",
+      "runtimeBytes": 15541,
+      "headroomBytes": 9035
+    },
+    {
+      "file": "src/Premises.sol",
+      "contract": "Premises",
+      "runtimeBytes": 15366,
+      "headroomBytes": 9210
+    },
+    {
+      "file": "src/PageEstate.sol",
+      "contract": "PageEstate",
+      "runtimeBytes": 14982,
+      "headroomBytes": 9594
+    },
+    {
+      "file": "src/Sigil.sol",
+      "contract": "Sigil",
+      "runtimeBytes": 14477,
+      "headroomBytes": 10099
+    },
+    {
+      "file": "src/Kiln.sol",
+      "contract": "Kiln",
+      "runtimeBytes": 13373,
+      "headroomBytes": 11203
+    },
+    {
+      "file": "src/IpseityAccount.sol",
+      "contract": "IpseityAccount",
+      "runtimeBytes": 13314,
+      "headroomBytes": 11262
+    },
+    {
+      "file": "src/DeskLaunch.sol",
+      "contract": "DeskLaunch",
+      "runtimeBytes": 13051,
+      "headroomBytes": 11525
+    },
+    {
+      "file": "src/PagePool.sol",
+      "contract": "PagePool",
+      "runtimeBytes": 11961,
+      "headroomBytes": 12615
+    },
+    {
+      "file": "src/PageKey.sol",
+      "contract": "PageKey",
+      "runtimeBytes": 11730,
+      "headroomBytes": 12846
+    },
+    {
+      "file": "src/DeskEstate.sol",
+      "contract": "DeskEstate",
+      "runtimeBytes": 11686,
+      "headroomBytes": 12890
+    },
+    {
+      "file": "src/Pool.sol",
+      "contract": "Pool",
+      "runtimeBytes": 11391,
+      "headroomBytes": 13185
+    },
+    {
+      "file": "src/PageSeal.sol",
+      "contract": "PageSeal",
+      "runtimeBytes": 11324,
+      "headroomBytes": 13252
+    },
+    {
+      "file": "src/Vitrine.sol",
+      "contract": "Vitrine",
+      "runtimeBytes": 11178,
+      "headroomBytes": 13398
+    },
+    {
+      "file": "src/DeskEtch.sol",
+      "contract": "DeskEtch",
+      "runtimeBytes": 10791,
+      "headroomBytes": 13785
+    },
+    {
+      "file": "src/PageTalk.sol",
+      "contract": "PageTalk",
+      "runtimeBytes": 10126,
+      "headroomBytes": 14450
+    },
+    {
+      "file": "src/Nameplate.sol",
+      "contract": "Nameplate",
+      "runtimeBytes": 10019,
+      "headroomBytes": 14557
+    },
+    {
+      "file": "src/DeskWill.sol",
+      "contract": "DeskWill",
+      "runtimeBytes": 9546,
+      "headroomBytes": 15030
+    },
+    {
+      "file": "src/PageRooms.sol",
+      "contract": "PageRooms",
+      "runtimeBytes": 9008,
+      "headroomBytes": 15568
+    },
+    {
+      "file": "src/Venue.sol",
+      "contract": "Venue",
+      "runtimeBytes": 8089,
+      "headroomBytes": 16487
+    },
+    {
+      "file": "src/ConsoleRead.sol",
+      "contract": "ConsoleRead",
+      "runtimeBytes": 7716,
+      "headroomBytes": 16860
+    },
+    {
+      "file": "src/DeskTrade.sol",
+      "contract": "DeskTrade",
+      "runtimeBytes": 7669,
+      "headroomBytes": 16907
+    },
+    {
+      "file": "src/PageCast.sol",
+      "contract": "PageCast",
+      "runtimeBytes": 7610,
+      "headroomBytes": 16966
+    },
+    {
+      "file": "src/Etch.sol",
+      "contract": "Etch",
+      "runtimeBytes": 6892,
+      "headroomBytes": 17684
+    },
+    {
+      "file": "src/Lease.sol",
+      "contract": "Lease",
+      "runtimeBytes": 6764,
+      "headroomBytes": 17812
+    },
+    {
+      "file": "src/PageEtch.sol",
+      "contract": "PageEtch",
+      "runtimeBytes": 6719,
+      "headroomBytes": 17857
+    },
+    {
+      "file": "src/PageHook.sol",
+      "contract": "PageHook",
+      "runtimeBytes": 6620,
+      "headroomBytes": 17956
+    },
+    {
+      "file": "src/Succession.sol",
+      "contract": "Succession",
+      "runtimeBytes": 6457,
+      "headroomBytes": 18119
+    },
+    {
+      "file": "src/Parley.sol",
+      "contract": "Parley",
+      "runtimeBytes": 6069,
+      "headroomBytes": 18507
+    },
+    {
+      "file": "src/Consign.sol",
+      "contract": "Consign",
+      "runtimeBytes": 5770,
+      "headroomBytes": 18806
+    },
+    {
+      "file": "src/DeskSeal.sol",
+      "contract": "DeskSeal",
+      "runtimeBytes": 5407,
+      "headroomBytes": 19169
+    },
+    {
+      "file": "src/PageGallery.sol",
+      "contract": "PageGallery",
+      "runtimeBytes": 4854,
+      "headroomBytes": 19722
+    },
+    {
+      "file": "src/ParleyPort.sol",
+      "contract": "ParleyPort",
+      "runtimeBytes": 4246,
+      "headroomBytes": 20330
+    },
+    {
+      "file": "src/Roster.sol",
+      "contract": "Roster",
+      "runtimeBytes": 3594,
+      "headroomBytes": 20982
+    },
+    {
+      "file": "src/Facet.sol",
+      "contract": "Facet",
+      "runtimeBytes": 3516,
+      "headroomBytes": 21060
+    },
+    {
+      "file": "src/PageTerminal.sol",
+      "contract": "PageTerminal",
+      "runtimeBytes": 3252,
+      "headroomBytes": 21324
+    },
+    {
+      "file": "src/Locker.sol",
+      "contract": "Locker",
+      "runtimeBytes": 2748,
+      "headroomBytes": 21828
+    },
+    {
+      "file": "src/Engine.sol",
+      "contract": "Engine",
+      "runtimeBytes": 2724,
+      "headroomBytes": 21852
+    },
+    {
+      "file": "src/DeskRooms.sol",
+      "contract": "DeskRooms",
+      "runtimeBytes": 2092,
+      "headroomBytes": 22484
+    },
+    {
+      "file": "src/GripVault.sol",
+      "contract": "GripVault",
+      "runtimeBytes": 1933,
+      "headroomBytes": 22643
+    },
+    {
+      "file": "src/ConsoleSkin.sol",
+      "contract": "ConsoleSkin",
+      "runtimeBytes": 1807,
+      "headroomBytes": 22769
+    },
+    {
+      "file": "src/lib/Timelock.sol",
+      "contract": "Timelock",
+      "runtimeBytes": 1675,
+      "headroomBytes": 22901
+    },
+    {
+      "file": "src/Kiln.sol",
+      "contract": "Coin",
+      "runtimeBytes": 1492,
+      "headroomBytes": 23084
+    },
+    {
+      "file": "src/Kiln.sol",
+      "contract": "Gate",
+      "runtimeBytes": 1008,
+      "headroomBytes": 23568
+    },
+    {
+      "file": "src/lib/Assets.sol",
+      "contract": "Assets",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Base64.sol",
+      "contract": "Base64",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Curve.sol",
+      "contract": "Curve",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Hook.sol",
+      "contract": "Hook",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/LibNum.sol",
+      "contract": "LibNum",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Mul.sol",
+      "contract": "Mul",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/SSTORE2.sol",
+      "contract": "SSTORE2",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Shard.sol",
+      "contract": "Shard",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Tick.sol",
+      "contract": "Tick",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Trig.sol",
+      "contract": "Trig",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Types.sol",
+      "contract": "Section",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    },
+    {
+      "file": "src/lib/Web.sol",
+      "contract": "Web",
+      "runtimeBytes": 57,
+      "headroomBytes": 24519
+    }
+  ]
+}

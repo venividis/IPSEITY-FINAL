@@ -144,15 +144,26 @@ contract Renderer {
     ///      the fixed template above plus hex and digits, but the closing
     ///      tag still has to be broken so the outer parser does not eat it.
     function _quote(bytes memory s) internal pure returns (bytes memory out) {
-        out = "\"";
+        // Allocate once. Re-concatenating the entire prefix for every byte
+        // makes a larger state document quadratic in copying and memory.
+        // Four bytes is the longest escape below; shrink to the bytes used.
+        out = new bytes(4 * s.length + 2);
+        uint256 cursor;
+        out[cursor++] = '"';
         for (uint256 i; i < s.length; ++i) {
             bytes1 c = s[i];
-            if (c == '"') out = abi.encodePacked(out, "\\\"");
-            else if (c == "\\") out = abi.encodePacked(out, "\\\\");
-            else if (c == "<") out = abi.encodePacked(out, "\\x3c");
-            else out = abi.encodePacked(out, c);
+            if (c == '"' || c == "\\") {
+                out[cursor++] = "\\";
+                out[cursor++] = c;
+            } else if (c == "<") {
+                out[cursor++] = "\\";
+                out[cursor++] = "x";
+                out[cursor++] = "3";
+                out[cursor++] = "c";
+            } else out[cursor++] = c;
         }
-        out = abi.encodePacked(out, "\"");
+        out[cursor++] = '"';
+        assembly ("memory-safe") { mstore(out, cursor) }
     }
 
     function _instrument(TokenView memory v) internal view returns (string memory) {

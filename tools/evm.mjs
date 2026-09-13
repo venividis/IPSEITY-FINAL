@@ -32,6 +32,16 @@ const mkBlock = (number, timestamp) => createBlock(
 
 export const GENESIS_TIME = 1_733_000_000n;
 
+/*  Actors share one state manager, whose checkpoints are a stack. Two
+    overlapping simulations must not pop each other's checkpoints, nor
+    may a transaction land inside a simulation that will be discarded. */
+const VM_QUEUES = new WeakMap();
+const withVmLock = (vm, work) => {
+  const pending = (VM_QUEUES.get(vm) || Promise.resolve()).then(work);
+  VM_QUEUES.set(vm, pending.catch(() => {}));
+  return pending;
+};
+
 /* A block header is frozen once built, so moving time means building a new
    one. `export let` is a live binding, so importers that reach through the
    module namespace see the change without re-importing. */
@@ -204,6 +214,7 @@ export class Chain {
   ///         it is a claim about the test.
   async as(keyHex, wei = 10n ** 22n) {
     const other = new Chain(this.vm, hexToBytes(keyHex));
+    other.common = this.common;
     other.gas = this.gas;
     other.log = this.log;
     await this.fund(other.from.toString(), wei);
@@ -223,6 +234,7 @@ export class Chain {
   }
 
   async send({ to = null, data = "0x", value = 0n, label = "", gasLimit = 400_000_000n }) {
+    return withVmLock(this.vm, async () => {
     // read the nonce back from state rather than tracking it: a tx that
     // reverts still consumes one, and a tx rejected at validation does not
     const sender = await this.vm.stateManager.getAccount(this.from);
@@ -262,6 +274,7 @@ export class Chain {
       ret: bytesToHex(res.execResult.returnValue || new Uint8Array()),
       logs: res.execResult.logs || []
     };
+    });
   }
 
   /*  A log ledger.
@@ -318,9 +331,15 @@ export class Chain {
     return r.address;
   }
 
-  /// @dev A read. Runs as a call so state is untouched and gas is free.
+  /// @dev eth_call may execute state-writing code while simulating, but
+  ///      discards every write afterwards. runCall alone commits a
+  ///      successful execution to the state manager, so wrap it in an
+  ///      outer checkpoint even when the called selector is view-shaped.
   async call(to, data, from) {
-    const res = await this.vm.evm.runCall({
+    return withVmLock(this.vm, async () => {
+    await this.vm.stateManager.checkpoint();
+    try {
+      const res = await this.vm.evm.runCall({
       to: createAddressFromString(to),
       caller: createAddressFromString(from || this.from.toString()),
       origin: createAddressFromString(from || this.from.toString()),
@@ -328,13 +347,17 @@ export class Chain {
       gasLimit: 3_000_000_000n,
       value: 0n,
       block: BLOCK
-    });
-    if (res.execResult.exceptionError) {
-      const ret = bytesToHex(res.execResult.returnValue || new Uint8Array());
-      throw new Error(`call reverted: ${res.execResult.exceptionError.error} ${ret.slice(0, 138)}`);
+      });
+      if (res.execResult.exceptionError) {
+        const ret = bytesToHex(res.execResult.returnValue || new Uint8Array());
+        throw new Error(`call reverted: ${res.execResult.exceptionError.error} ${ret.slice(0, 138)}`);
+      }
+      this.lastGas = res.execResult.executionGasUsed;
+      return bytesToHex(res.execResult.returnValue);
+    } finally {
+      await this.vm.stateManager.revert();
     }
-    this.lastGas = res.execResult.executionGasUsed;
-    return bytesToHex(res.execResult.returnValue);
+    });
   }
 
   async read(to, sig, args = []) {

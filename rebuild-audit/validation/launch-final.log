@@ -1,0 +1,76 @@
+
+  deploy
+  ✓ a manager and a token
+
+  the fee a pool charges is read out of the artwork
+  ✓ at rest the pool charges exactly the floor
+  ✓ turning the solid raises it
+  ✓ and never past the ceiling it was built with
+  ✓ the reading agrees with the fee
+  ✓ and names the band it moves inside
+  ✓ returned to rest, it is the floor again
+
+  and the pool actually charges it
+  ✓ the placed copy reads the same token
+  ✓ a dynamic-fee pool initialised through the hook
+  ✓ the swap paid the floor, set by the hook and not by the key
+  ✓ turning the artwork changed what the next swap paid, on chain
+
+  the failure a dynamic-fee hook actually ships with
+  ✓ a pool that is not dynamic-fee is refused at initialisation
+
+  only the endpoint of the protocol may call it
+  ✓ a stranger cannot drive beforeSwap
+  ✓ nor beforeInitialize
+
+  the gate: two promises a launch makes, kept by the pool
+  ✓ the gate sits at an address carrying exactly its two permissions
+  ✓ before the opening hour the pool will not swap
+  ✓ adding liquidity is never gated — the hook does not hold that bit
+  ✓ and liquidity cannot leave while it is locked
+  ✓ once the hour comes, the pool trades
+  ✓ but the liquidity is still locked
+  ✓ and when the date arrives it comes out
+      shut, opened, still locked, released — every branch, through the manager
+
+  a hook is only consulted for the bits its address carries
+  ✓ and it really has no permission bits at all
+  ✓ the same code at a flagless address is never asked, and the key's fee stands
+
+  one mined salt, the same hook address on every chain
+  ✓ the kiln names the permissions this hook needs, rather than a caller guessing
+  ✓ a salt is found for exactly those permissions
+  ✓ and the address it predicts carries them and nothing else
+  ✓ recomputed from (deployer, salt, initCodeHash) alone, it is the same address
+  ✓ none of those three is a chain id, so one salt serves all five chains
+  ✓ the miner's assembly agrees with the plain version
+      mined in a free eth_call — the visitor's own node does the search
+
+  a dynamic-fee pool behind a gate charges nothing, for ever
+  ✓ v4 accepts a dynamic-fee pool behind a gate — nothing refuses it
+  ✓ and the first swap is charged nothing
+  ✓ and so is the next, because a gate has no fee to give
+      a pool key is immutable and only the hook may move the fee — this pool cannot be repaired
+
+  so the client refuses it, and refuses the opposite too
+  ✓ the guard asks whether the hook sets a fee
+  ✓ and no longer merely whether one was mined
+  ✓ the opposite mistake is caught as well
+  ✓ `sets` is a fact about the kind, not about the address
+  ✓ the deploy carries the kind the visitor chose
+  ✓ and the Facet's word is packed by the contract that unpacks it
+
+  the band a person picks is the band the hook is built with
+  ✓ the recipe declares beforeInitialize + beforeSwap
+  ✓ an address carrying exactly those two permissions exists
+  ✓ nothing lives there before the deploy
+  ✓ and the kiln built it at exactly the address the miner named
+  ✓ the token that went in is the token it prices
+  ✓ the floor survived the packing
+  ✓ and so did the ceiling
+  ✓ the page's preview equals what the hook will actually charge
+  ✓ and the concentration it quotes is the artwork's own
+  ✓ a band that runs backwards is refused before anything is mined
+  ✓ and one past 100% likewise
+
+  49 passed, 0 failed

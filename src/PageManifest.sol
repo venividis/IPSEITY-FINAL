@@ -284,13 +284,16 @@ contract PageManifest {
     ///         offer. Paged for the same reason the directory page is.
     function index(uint256 page) external view returns (string memory) {
         uint256 supply = HUB.totalSupply();
-        uint256 from = page * PAGE + 1;
+        uint256 firstId = HUB.FIRST_ID();
+        uint256 lastIssued = firstId + supply - 1;
+        uint256 from = firstId + page * PAGE;
         uint256 to = from + PAGE - 1;
-        if (to > supply) to = supply;
+        if (to > lastIssued) to = lastIssued;
 
         string memory rows;
         bool first = true;
-        for (uint256 id = from; id <= to && id <= supply; ++id) {
+        // The window and every offering use token ids, never mint counts.
+        for (uint256 id = from; id <= to; ++id) {
             bool marketOpen;
             bool rentable;
             if (address(POOL) != address(0)) (,,,,, marketOpen,,,,,,) = POOL.market(id);
@@ -310,7 +313,7 @@ contract PageManifest {
             _collection(supply),
             ",\"window\":{\"from\":", from.str(), ",\"to\":", to.str(),
             ",\"pageSize\":", PAGE.str(), ",\"page\":", page.str(),
-            ",\"more\":", to < supply ? "true" : "false",
+            ",\"more\":", to < lastIssued ? "true" : "false",
             ",\"next\":\"/services.json/", (page + 1).str(), "\"}",
             ",\"offering\":[", rows, "]}"
         );
