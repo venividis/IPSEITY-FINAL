@@ -102,12 +102,21 @@ contract PageMarket {
         if (total == 0) return "";
         uint256[] memory ids = POOL.openIds(0, PICK);
         string memory opts;
+        bool currentListed;
         for (uint256 i; i < ids.length; ++i) {
             (address b, address q,,,,,,,,,,) = POOL.market(ids[i]);
+            if (ids[i] == id) currentListed = true;
             opts = string.concat(
                 opts, "<option value=\"", ids[i].str(), "\"",
                 ids[i] == id ? " selected" : "", ">#", ids[i].str(), " \xc2\xb7 ",
                 Web.symbolOf(b), " / ", Web.symbolOf(q), "</option>"
+            );
+        }
+        if (!currentListed) {
+            (address b, address q, , , , bool open, , , , , , ) = POOL.market(id);
+            if (open) opts = string.concat(
+                opts, "<option value=\"", id.str(), "\" selected>#", id.str(),
+                " \xc2\xb7 ", Web.symbolOf(b), " / ", Web.symbolOf(q), "</option>"
             );
         }
         return string.concat(
@@ -117,7 +126,8 @@ contract PageMarket {
             "<select id=mkt>", opts, "</select>",
             total > PICK
                 ? string.concat("<p class=e style=\"margin:.5rem 0 0\">Showing ",
-                    PICK.str(), " of ", total.str(),
+                    "the first ", PICK.str(), " of ", total.str(),
+                    currentListed ? "" : ", plus this market",
                     ". <a href=\"/open\">The directory has all of them</a> &mdash; and "
                     "unlike a hosted token list, everything in it can actually be "
                     "traded, because it was read from the pool that would execute "
@@ -220,14 +230,14 @@ contract PageMarket {
     function _caution() private pure returns (string memory) {
         return
             "<h2>before you trade</h2>"
-            "<p class=e>The holder sets the fee and can reshape the curve. A market "
+            "<p class=\"e w\">The holder sets the fee and can reshape the curve. A market "
             "whose owner can move it is not a price feed and nothing here should be "
             "read as one. What the contract does guarantee is narrower and worth more: "
             "no single trade may take more than half the reserve it is paid out of, the "
             "virtual offsets are written only when liquidity or the curve changes and "
             "never by a trade, and a bonded market cannot pay anything out or move any "
             "term until the bond expires.</p>"
-            "<p class=e>The first trade in a given direction takes two transactions: one "
+            "<p class=\"e w\">The first trade in a given direction takes two transactions: one "
             "approving the pool to move the token you are sending, one to swap. The "
             "button says which it is about to send, because a person who does not know "
             "that will think the first one failed. Nothing here has been audited.</p>";

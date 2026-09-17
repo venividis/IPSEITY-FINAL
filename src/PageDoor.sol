@@ -148,7 +148,7 @@ contract PageDoor {
             "<h2 id=ways-h>ways in</h2><ul id=ways class=r>"
             "<li><a data-w=see href=\"/gallery\">SEE THEM</a> &mdash; every token issued "
             "on this chain, drawn by the chain itself.</li>"
-            "<li><a data-w=console href=\"", supply == 0 ? "/door" : "/c/1",
+            "<li><a data-w=console href=\"", supply == 0 ? "/door" : "/c",
             "\">OPEN A CONSOLE</a> &mdash; one plain control room per token: turn it, "
             "hold, trade, hand on, speak, make, look. Yours once you connect; anyone "
             "may read.</li>"
@@ -332,14 +332,15 @@ contract PageDoor {
         if (supply == 0) return "<p class=e>None issued yet.</p>";
         uint256 from = supply > 12 ? supply - 11 : 1;
         out = "<h2>most recent</h2><ul class=r>";
-        for (uint256 id = supply; id >= from; --id) {
+        for (uint256 ordinal = supply; ordinal >= from; --ordinal) {
+            uint256 id = HUB.tokenByIndex(ordinal - 1);
             out = string.concat(
                 out,
                 "<li><a href=\"/token/", id.str(), "\">#", id.str(), "</a> ",
                 "<span class=m>", _form(HUB.sectionOf(id).form()), "</span> ",
                 "<a class=b href=\"/dm/", id.str(), "\">message</a></li>"
             );
-            if (id == 1) break;
+            if (ordinal == 1) break;
         }
         return string.concat(out, "</ul>");
     }

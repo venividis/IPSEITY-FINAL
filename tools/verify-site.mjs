@@ -183,6 +183,35 @@ const buyer = await c.as("0x" + "33".repeat(32));
 for (let i = 0; i < 3; i++) await c.exec(nft, "mint()", [], { value: 10n ** 16n });
 ok("three tokens issued", true);
 
+/*  totalSupply is a count, not a token id. Exercise a later chain's band so
+    every collection-wide route has to translate its ordinal through the hub
+    rather than accidentally relying on the first band beginning at one. */
+const bandNft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
+  encodeAddressArg(renderer) +
+  encodeAddressArg(await c.deploy(A("src/IpseityAccount.sol", "IpseityAccount").bytecode)) +
+  encodeAddressArg(await c.deploy(A("src/GripVault.sol", "GripVault").bytecode)) + w(1025) + w(2048));
+const bandPool = await c.deploy(A("src/Pool.sol", "Pool").bytecode,
+  encodeAddressArg(bandNft) + w(10n ** 30n) + encodeAddressArg(c.from.toString()) + w(0));
+await c.exec(bandNft, "setPool(address)", [bandPool]);
+const bandLease = await c.deploy(A("src/Lease.sol", "Lease").bytecode, encodeAddressArg(bandNft));
+const bandSite = await deploySite(c, A,
+  { hub: bandNft, pool: bandPool, lease: bandLease, sigil, uniswap: UNI });
+const GET_BAND = getter(c, bandSite.premises);
+await c.exec(bandNft, "mint()", [], { value: 10n ** 16n });
+await c.exec(bandPool, "openMarket(uint256,address,address,uint16)", [1025, weth, usdc, 30]);
+
+const bandRoot = await GET_BAND([]);
+eq("a non-first band's root renders its first token", bandRoot.status, 200);
+const bandDoor = await GET_BAND(["door"]);
+ok("its door links the issued id", bandDoor.body.includes('/token/1025">#1025'));
+const bandGallery = await GET_BAND(["gallery"]);
+eq("its gallery remains available", bandGallery.status, 200);
+ok("its gallery renders the issued id", bandGallery.body.includes('/token/1025/sigil.svg'));
+const bandIndex = await GET_BAND(["services.json"]);
+eq("its service index remains available", bandIndex.status, 200);
+ok("its service index includes the issued market",
+   JSON.parse(bandIndex.body).offering.some((row) => row.token === 1025 && row.trade));
+
 /*════════════════ 1 · the escaping ════════════════*/
 head("a token whose symbol is a script tag");
 
@@ -667,6 +696,7 @@ for (const [what, needle] of [
   ["formats them back the same way", "const fmt=(v,d,p)=>"],
   ["refuses a value that will not fit a word", "does not fit in a word"],
   ["checks the chain before it sends", "your wallet is on chain "],
+  ["chooses that same wallet before a transaction-building read", "const call=async(to,data,gas)=>{const p=await IW.choose()"],
   ["quotes live, debounced", "setTimeout(refresh,220)"],
   ["knows whether it is approving or swapping", "al<amt?('Approve "],
   ["computes the floor from a slippage tolerance", "BigInt(10000-slip)/10000n"]
@@ -730,6 +760,26 @@ head("the market picker, and the token list that is not fetched");
   ok("and from the directory",
      !dir2.body.includes(`href="/token/${far}/market"`),
      "a closed market is still being offered");
+
+  /*  The picker is intentionally bounded, but its displayed selection must
+      never disagree with the market ID used by the swap client. Fill the
+      first window, then request the next open market.                    */
+  while (Number(decUint(await c.read(nft, "totalSupply()"))) <= 40) {
+    await c.exec(nft, "mint()", [], { value: 10n ** 16n });
+  }
+  const opened = [];
+  for (let id = 2; id <= 41; ++id) {
+    const existing = await c.read(pool, "market(uint256)", [id]);
+    if (decUint(existing, 5) === 0n) {
+      await c.exec(pool, "openMarket(uint256,address,address,uint16)", [id, weth, dai, 30]);
+      opened.push(id);
+    }
+  }
+  const beyond = await GET(["token", "41", "market"]);
+  ok("a current market beyond the picker window is included and selected",
+     beyond.body.includes('<option value="41" selected>'),
+     "the picker would display a different market than the swap client uses");
+  for (const id of opened) await c.exec(pool, "closeMarket(uint256)", [id]);
 }
 
 head("the app parses as JavaScript");
@@ -1288,12 +1338,16 @@ head("the door is the map, in a person's words");
       mint, priced in its own label, running the terminal's own word.  */
   ok("the ways in are on the door, rendered by the contract",
      page.body.includes("id=ways") && page.body.includes("OPEN A CONSOLE"));
+  ok("and the console door lets the router select this chain's first token",
+     page.body.includes('data-w=console href="/c"'));
   ok("and the mint stands at the gate with its price in the label",
      /id=mint1>mint the next one/.test(page.body));
   ok("and the terminal speaks from the door itself",
      page.body.includes("id=tin") && page.body.includes("id=tout"));
   ok("and the lore folds itself behind stars, script willing",
      page.body.includes("lore"));
+  ok("while warning paragraphs are excluded from lore folding",
+     page.body.includes("querySelectorAll('p.e:not(.w)')"));
 
   mount(page.body);
   globalThis.location = { href: "/" };
@@ -2137,7 +2191,8 @@ head("driving the nameplate page");
   /*  And the same page against a resolver that does have one.        */
   const mockEns2 = await c.deploy(A("test/mocks/MockENS.sol", "MockENS").bytecode, "", "MockENS2");
   const plate2 = await c.deploy(A("src/Nameplate.sol", "Nameplate").bytecode,
-    encodeAddressArg(mockEns2) + encodeAddressArg(nft) + encodeAddressArg(site.premises),
+    encodeAddressArg(mockEns2) + encodeAddressArg(nft) + encodeAddressArg(site.premises) +
+      encodeAddressArg("0x" + "00".repeat(20)),
     "Nameplate3");
   const pName2 = await c.deploy(A("src/PageName.sol", "PageName").bytecode,
     encodeAddressArg(site.chrome) + encodeAddressArg(site.desk) +
@@ -2145,6 +2200,8 @@ head("driving the nameplate page");
 
   const body = decString(await c.read(pName2, "namePage()"));
   ok("with a registry, the page offers to bind", /bind/i.test(body));
+  ok("resolver text is escaped before it reaches the name page DOM",
+     /const ESC=/.test(body) && /ESC\(s\)/.test(body) && /&lt;/.test(body));
 
   const dnsOf = (nm) => "0x" + nm.split(".").map(
     (l) => l.length.toString(16).padStart(2, "0") +
@@ -2223,6 +2280,21 @@ head("driving the nameplate page");
      dated.includes(new Date(then * 1000).toISOString().slice(0, 10)), dated.slice(0, 160));
   ok("and still says where it cannot renew", /no renewer set/i.test(dated), dated.slice(0, 160));
   console.log("      the expiry is read from the registrar the registry names");
+
+  /*  Claiming the wildcard changes only the wildcard card. The clock is
+      not conditional on that claim: indeed a renewer cannot be configured
+      until the claim exists, so a fresh configured page must still carry
+      the warning and its controls.                                    */
+  const controller2 = await c.deploy(A("test/mocks/MockRegistrar.sol", "MockController").bytecode,
+    BigInt(10n ** 16n).toString(16).padStart(64, "0"), "Controller3");
+  await c.exec(plate2, "claimParent(bytes32)", [node]);
+  await c.exec(plate2, "setRenewer(address)", [controller2]);
+  const claimedBody = decString(await c.read(pName2, "namePage()"));
+  ok("a claimed parent removes only the one-shot claim control",
+     /parent node/i.test(claimedBody) && !/id=npgo/.test(claimedBody));
+  ok("and a fresh page keeps the expiry warning once renewal is configured",
+     /<h2>the clock<\/h2>/i.test(claimedBody) && /id=nrn/.test(claimedBody) &&
+       /id=nrgo/.test(claimedBody));
 }
 
 head("driving the launchpad");
@@ -2287,8 +2359,21 @@ let gateAt = null;
   ok("`where would it land` answered from the kiln, nothing sent",
      !!landed, $("cpre").innerHTML.slice(0, 120));
 
+  $("cs").value = "</b><svg onload=alert(1)>";
+  await $("cchk").fire("click");
+  await nap(60);
+  ok("the launch preview renders a hostile symbol as text",
+     !$("cpre").innerHTML.includes("<svg") &&
+       $("cpre").innerHTML.includes("&lt;/b&gt;&lt;svg onload=alert(1)&gt;"),
+     $("cpre").innerHTML.slice(0, 180));
+  $("cs").value = "LNCH";
+  await $("cchk").fire("click");
+  await nap(60);
+
   /*──── the dynamic-fee guard, before any hook exists ────*/
   $("pq").value = usdc.toLowerCase();
+  await $("pq").fire("change");
+  await nap(60);
   $("pp").value = "1";
   $("pfd").checked = true;
   await $("pfd").fire("change");
@@ -2567,7 +2652,8 @@ head("the nameplate answers for the collection");
   /*  And one wired to a registry, for the full conversation. */
   const mockEns = await c.deploy(A("test/mocks/MockENS.sol", "MockENS").bytecode, "", "MockENS");
   const plate = await c.deploy(A("src/Nameplate.sol", "Nameplate").bytecode,
-    encodeAddressArg(mockEns) + encodeAddressArg(nft) + encodeAddressArg(site.premises),
+    encodeAddressArg(mockEns) + encodeAddressArg(nft) + encodeAddressArg(site.premises) +
+      encodeAddressArg("0x" + "00".repeat(20)),
     "Nameplate2");
 
   const label = (t) => "0x" + Buffer.from(keccak256(Buffer.from(t, "utf8"))).toString("hex");
@@ -2651,9 +2737,9 @@ head("two tokens whisper through a sealed room");
   await nap(200);
   const $ = (i) => byId.get(i);
   ok("the DM page grew a seal bar", !!$("sealbar"));
-  ok("and the page itself warns that a key belongs to a wallet, not a token",
-     /changed hands|belongs to the wallet/.test(page.body),
-     "the contract-rendered page makes no mention of the gap");
+  ok("and the page itself says a sold token's key is invalidated",
+     /changes hands|returns to plaintext/.test(page.body),
+     "the contract-rendered page makes no mention of invalidation");
   {
     const sel = $("as");
     sel.value = String(tokA);
@@ -2699,23 +2785,11 @@ head("two tokens whisper through a sealed room");
     const claim = byId.get("sealst").textContent;
     ok("with both points on chain, the room arms itself", /^sealed/.test(claim), claim);
 
-    /*  The banner used to say "only #a and #b can read what is said here"
-        after checking nothing but the sender's own key. The private half is
-        derived from a wallet signature, so a token sold after publishing
-        leaves a key its previous holder can still derive — and a message
-        sealed to it is readable by the person who left. These two tokens
-        have never moved, so the honest claim is available and made; what
-        must never appear is the old promise about the other end.       */
-    /*  The claim must agree with the chain rather than with a hope: a token
-        that has never moved may be called settled, and one that has moved
-        must say how many times. Asserting the count rather than a case is
-        what makes this a test of the banner and not of the fixture.    */
-    const farMoved = decUint(await c.read(nft, "statsOf(uint256)", [tokB]), 1);
-    ok("and its claim agrees with what the chain says about that token",
-       farMoved === 0n
-         ? /never|since it was minted/.test(claim)
-         : new RegExp("changed hands " + farMoved + "\\b").test(claim),
-       `chain says ${farMoved} transfers; bar says: ${claim}`);
+    /*  Parley returns a point only while its publisher still owns the
+        token. Reaching the sealed state therefore proves both published
+        points belong to the current holders, regardless of transfer count. */
+    ok("and its claim agrees with the ownership-bound keys on chain",
+       /current holders/.test(claim), claim);
     ok("rather than promising something about the far end it never checked",
        !/only #\d+ and #\d+ can read/.test(claim), claim);
     byId.get("say").value = "the quiet part, out loud to exactly one token";
@@ -2793,12 +2867,12 @@ head("two tokens whisper through a sealed room");
       said = String(byId.get("sealst").textContent || "");
       if (/changed hands/.test(said)) break;
     }
-    ok("a key published before a sale is called out, not sealed over in silence",
-       /changed hands/.test(said), said);
-    ok("and the bar says so as a warning rather than as reassurance",
-       /det only w|\bw\b/.test(String(byId.get("sealbar").className || "")),
+    ok("a sale invalidates the departed holder's published key",
+       /has not published a key/.test(said), said);
+    ok("and the room falls back to plaintext until the buyer publishes",
+       !/\bw\b/.test(String(byId.get("sealbar").className || "")),
        String(byId.get("sealbar").className));
-    console.log("      a sold token keeps its published key \u2014 and the page says whose it is");
+    console.log("      a sold token's old key cannot receive new sealed messages");
   }
   console.log("      derived from a signature, sealed with WebCrypto, bytes to everyone else");
 }

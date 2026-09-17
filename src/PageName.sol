@@ -124,7 +124,7 @@ contract PageName {
 
     function _card() private view returns (string memory) {
         if (PLATE.ENS() == address(0)) return _absent();
-        return string.concat(_terms(), _bind(), _parent());
+        return string.concat(_terms(), _bind(), _parent(), _clock());
     }
 
     /*  A chain with no registry. The resolver is here anyway, at the address
@@ -217,8 +217,13 @@ contract PageName {
             "<input id=npn placeholder=\"yourname.eth\">"
             "<div class=det id=npdet></div>"
             "<button class=go id=npgo>Claim it, once</button>"
-            "</div>"
+            "</div>";
+    }
 
+    /*  Expiry does not depend on whether the wildcard has been claimed.
+        Keep its warning and control outside that mutually exclusive card. */
+    function _clock() private pure returns (string memory) {
+        return
             "<h2>the clock</h2>"
             "<p class=w>A <code>.eth</code> name is rented. Sealing one in a "
             "token&#39;s grip means nobody can take it out &mdash; and means nothing "
@@ -255,6 +260,13 @@ contract PageName {
         "(()=>{const I=window.IP;if(!I)return;const $=I.$;"
         "const E=document.getElementById('N');if(!E)return;"
         "const N=JSON.parse(E.textContent),S=N.sel;"
+        /*  Resolver text is not trusted. In particular, contentcontract is
+            controlled by whoever controls the ENS resolver and is rendered
+            below with innerHTML on the same origin as wallet-enabled pages.
+            Escape at that boundary rather than relying on a resolver to be
+            polite.                                                       */
+        "const ESC=v=>String(v==null?'':v).replace(/[&<>\"']/g,c=>"
+        "({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));"
         /*  No registry, no controls, nothing to bind listeners to. */
         "if(!N.here)return;"
         /*  A slider and a box telling each other the truth. The box is
@@ -333,7 +345,7 @@ contract PageName {
         "o+='<div><span>addr \\u2014 ETH sent to the name lands here</span><b>'"
         "+a+'</b></div>'}"
         "if(tx){const s=I.STR(tx);if(s)"
-        "o+='<div><span>contentcontract</span><b>'+s+'</b></div>'}"
+        "o+='<div><span>contentcontract</span><b>'+ESC(s)+'</b></div>'}"
         "if(ow){const a=A20(ow);"
         "o+='<div><span>the registry says the name is</span><b>'"
         "+(a===ZA?'unregistered \\u2014 nothing to bind':a)+'</b></div>';"

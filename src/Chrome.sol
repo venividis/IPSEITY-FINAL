@@ -266,11 +266,13 @@ contract Chrome {
     ///         which one speaks for them; taking the first announcement
     ///         defeats the standard — Phantom and Keplr race to announce,
     ///         and MetaMask loses the sprint on every page load. Every
-    ///         announcer is kept, keyed by rdns; reads may use any of them,
-    ///         because a read is just RPC; the signing identity is chosen —
-    ///         by the stored choice, by being the only wallet, or by the
-    ///         person, from a picker. Clicking your own address clears the
-    ///         choice and asks again.
+    ///         announcer is kept, keyed by rdns. A passive read may use any
+    ///         provider, but Desk chooses one before a read can determine a
+    ///         transaction: otherwise one wallet could supply the terms and
+    ///         another could be asked to sign them. The signing identity is
+    ///         chosen by the stored choice, by being the only wallet, or by
+    ///         the person, from a picker. Clicking your own address clears
+    ///         the choice and asks again.
     function wallet() external pure returns (string memory) {
         return string.concat("<script>", WALLET_JS, "</script>");
     }
@@ -398,10 +400,10 @@ contract Chrome {
             "<code>data-call</code> came out of a contract, not out of this page's "
             "JavaScript, and you can check it against the ABI yourself.</p>"
             "<div id=s></div>"
-            /*  Every p.e on the page folds behind a star. Hover reads it, a
-                click pins it. With scripts off, nothing hides — the chips
+            /*  Explanatory p.e paragraphs fold behind a star, but warnings
+                remain visible. With scripts off, nothing hides — the chips
                 simply never appear, and the page reads as written.       */
-            "<script>(()=>{const l=document.querySelectorAll('p.e');"
+            "<script>(()=>{const l=document.querySelectorAll('p.e:not(.w)');"
             "const ps=l&&l.forEach?l:[];"
             "ps.forEach(p=>{if(!p.parentNode||!p.classList)return;"
             "const c=document.createElement('button');c.className='lore';"
