@@ -283,6 +283,25 @@ RPC_URL=… PRIVATE_KEY=… node tools/port.mjs echo --port 0x… --from 1 --tex
 RPC_URL=… node tools/port.mjs walk --port 0x…
 ```
 
+### Mint three across the live testnet collections
+
+The manual **Mint three IPSEITY NFTs across testnets** Actions workflow uses
+the committed deployment records and mints two tokens on Base Sepolia and one
+on Ethereum Sepolia to the burner-key signer. Configure
+`TESTNET_DEPLOYER_PRIVATE_KEY`; optional `BASE_SEPOLIA_RPC_URL` and
+`ETH_SEPOLIA_RPC_URL` secrets override the public endpoints. Always run the
+`preflight` operation first. A `mint` run is deliberately non-rerunnable and
+retains its output plus per-chain receipt journals as an Actions artifact.
+
+The equivalent command in an environment with unrestricted RPC egress is:
+
+```bash
+BASE_SEPOLIA_RPC_URL=https://sepolia.base.org \
+ETH_SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com \
+PRIVATE_KEY="$TESTNET_DEPLOYER_PRIVATE_KEY" \
+node tools/mint-omnichain-testnets.mjs --preflight
+```
+
 This runbook has now been run, and the lane is live. The owner funded a
 fresh key generated in this container (0.02 / 0.01 testnet ETH), and the
 nonce-0 deploys landed the port at

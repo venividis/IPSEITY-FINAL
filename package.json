@@ -14,6 +14,7 @@
     "gallery": "node tools/gallery.mjs && node tools/gallery-page.mjs",
     "shots": "node tools/shots.mjs",
     "testnet": "node tools/testnet.mjs",
+    "mint:testnets": "node tools/mint-omnichain-testnets.mjs",
     "gateway": "node tools/gateway.mjs",
     "testnet:drive": "node tools/testnet-drive.mjs",
     "exercise": "node tools/exercise.mjs",
