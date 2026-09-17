@@ -65,17 +65,18 @@ interface IKiln {
   needs a token this contract did not make — the pool step takes any address,
   so nothing here prevents it. It just will not carry this name.
 
-  ── and what it cannot do ──
+  ── the ABI seam ──
 
-  Seed a v4 pool with liquidity. Creating one is reachable: `PoolKey` is five
-  static fields, so `initialize` is six flat words. Adding liquidity goes
-  through `modifyLiquidities(bytes,uint256)`, whose argument is a dynamic
-  array of dynamic bytes with a decoder that rejects non-canonical encoding
-  — and this client has no ABI coder. The page routes v4 liquidity nowhere
-  rather than somewhere plausible, and says which step it stopped at.
+  The browser still has no ABI coder. `v4MintCalldata` is the deliberately
+  narrow seam for the one nested call it cannot make: Solidity produces the
+  canonical `bytes` + `bytes[]` action plan, returns the complete
+  `modifyLiquidities` calldata under eth_call, and the browser forwards those
+  bytes unchanged to the configured v4 PositionManager.
 ───────────────────────────────────────────────────────────────────────────*/
 contract PageLaunch {
     using LibNum for uint256;
+
+    address private constant PERMIT2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
 
     IChrome    public immutable CHROME;
     IDesk      public immutable DESK;
@@ -83,12 +84,13 @@ contract PageLaunch {
     IDeskLaunch public immutable DESKL;
     IVenue     public immutable VENUE;
     IKiln      public immutable KILN;
+    address    public immutable V4_POSITIONS;
 
     uint256 public constant PAGE = 20;
 
     constructor(
         IChrome chrome, IDesk desk, IDeskUni deskU,
-        IDeskLaunch deskL, IVenue venue, IKiln kiln
+        IDeskLaunch deskL, IVenue venue, IKiln kiln, address v4Positions
     ) {
         CHROME = chrome;
         DESK = desk;
@@ -96,6 +98,7 @@ contract PageLaunch {
         DESKL = deskL;
         VENUE = venue;
         KILN = kiln;
+        V4_POSITIONS = v4Positions;
     }
 
     /*═══════════════════ /launch ═══════════════════*/
@@ -124,6 +127,9 @@ contract PageLaunch {
             "<script type=\"application/json\" id=\"K\">{",
             "\"kiln\":\"", LibNum.hexAddr(address(KILN)),
             "\",\"manager\":\"", LibNum.hexAddr(VENUE.POOL_MANAGER()),
+            "\",\"v4Positions\":\"", LibNum.hexAddr(V4_POSITIONS),
+            "\",\"permit2\":\"", LibNum.hexAddr(PERMIT2),
+            "\",\"page\":\"", LibNum.hexAddr(address(DESKL)),
             "\",\"v4\":", VENUE.hasV4() ? "true" : "false",
             ",\"wrapped\":\"", LibNum.hexAddr(VENUE.WRAPPED()),
             "\",\"dynamicFee\":", uint256(Hook.DYNAMIC_FEE).str(),
@@ -145,6 +151,9 @@ contract PageLaunch {
             // six flat words: the five PoolKey fields then the price
             "\",\"initV4\":\"",
                 _sel("initialize((address,address,uint24,int24,address),uint160)"),
+            "\",\"v4Mint\":\"",
+                _sel("v4MintCalldata((address,address,uint24,int24,address),int24,int24,uint256,uint128,uint128,address,uint256)"),
+            "\",\"permitApprove\":\"", _sel("approve(address,address,uint160,uint48)"),
             "\"}}</script>"
         );
     }
@@ -349,29 +358,25 @@ contract PageLaunch {
 
     function _step3Prose() private view returns (string memory) {
         return string.concat(
-            "<p class=e>v4 lets you choose the tick spacing, which v3 does not &mdash; "
-            "there the four fee tiers each come with a fixed one. Narrow spacing lets "
-            "liquidity sit closer to the price and makes every position more precise; "
-            "wide spacing is cheaper to cross. It is a real choice and there is no "
-            "default that is right for every pair.</p>"
-            "<p class=e>A fee of <code>", uint256(Hook.DYNAMIC_FEE).str(),
-            "</code> marks the pool dynamic-fee: the key fixes no fee and the hook sets "
-            "one per swap. Choosing it <em>without</em> a hook that returns a fee "
-            "creates a pool nothing can ever price &mdash; the page will not let you, "
-            "but it is worth knowing why.</p>"
+            "<p class=e>v4 makes tick spacing a pool choice. A fee of <code>",
+            uint256(Hook.DYNAMIC_FEE).str(),
+            "</code> means the hook sets each swap's fee; this page refuses that key "
+            "unless the selected hook actually sets one.</p>"
             "<h2>4 &middot; the liquidity</h2>"
-            "<p class=w>This is the step this page stops at, for v4. Adding liquidity "
-            "goes through <code>modifyLiquidities(bytes,uint256)</code>, whose argument "
-            "is a dynamic array of dynamic bytes behind a decoder that rejects any "
-            "non-canonical encoding &mdash; and this client has no ABI coder. It could "
-            "be built: the page contract has <code>abi.encode</code> and could hand the "
-            "browser finished calldata to forward. It is not built yet, and until it is "
-            "the page routes v4 liquidity nowhere rather than somewhere plausible.</p>"
-            "<p class=e>So every launch finishes its liquidity on an interface you "
-            "already trust with your positions &mdash; this site deliberately stopped "
-            "carrying one. The pool exists either way, the hook is on it either way, "
-            "and nothing about where the liquidity arrives from changes what the gate "
-            "enforces.</p>"
+            "<p class=e>The page contract ABI-encodes the nested v4 action plan under "
+            "<code>eth_call</code>; the browser forwards the returned bytes unchanged. "
+            "Amounts are maxima, not targets: the position spends only what its range "
+            "needs, and reverts rather than exceeding either one.</p>"
+            "<div class=app><div class=hd><b>Mint the first position</b></div>"
+            "<div class=two><div><label>lower tick</label><input id=pl placeholder=\"-60000\"></div>"
+            "<div><label>upper tick</label><input id=pu placeholder=\"60000\"></div></div>"
+            "<label>liquidity units</label><input id=pli placeholder=\"1000000000000\">"
+            "<div class=two><div><label>maximum token 0</label><input id=pa0 placeholder=\"0\"></div>"
+            "<div><label>maximum token 1</label><input id=pa1 placeholder=\"0\"></div></div>"
+            "<p class=m>Each approval button makes the ERC-20 approval and the bounded "
+            "Permit2 approval to this PositionManager. A native-currency side needs no approval.</p>"
+            "<button id=p0ap>Approve token 0</button><button id=p1ap>Approve token 1</button>"
+            "<button class=go id=plgo>Add liquidity</button><div id=s></div></div>"
         );
     }
 

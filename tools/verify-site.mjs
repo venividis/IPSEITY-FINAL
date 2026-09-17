@@ -58,6 +58,7 @@ const eq = (n, g, w) => ok(n, String(g) === String(w), `got ${g}\n      want ${w
 const head = (s) => console.log(`\n  \x1b[1m${s}\x1b[0m`);
 const w = (n) => BigInt(n).toString(16).padStart(64, "0");
 const REGISTRY = "0x000000006551c19487814612e58FE06813775758";
+const PERMIT2 = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 const WAD = 10n ** 18n;
 
 process.on("unhandledRejection", (e) => console.log("  UNHANDLED:", String(e && e.stack || e).slice(0, 300)));
@@ -159,6 +160,11 @@ const uniPositions = await c.deploy(A("test/mocks/UniV3.sol", "MockPositions").b
     by a word.                                                            */
 const uniManager = await c.deploy(A("test/mocks/UniV3.sol", "MockManager").bytecode,
   "", "PoolManager");
+const uniV4Positions = await c.deploy(
+  A("test/mocks/UniV3.sol", "MockV4PositionManager").bytecode, "", "v4 PositionManager");
+const tmpPermit2 = await c.deploy(A("test/mocks/UniV3.sol", "MockPermit2").bytecode);
+await c.vm.stateManager.putCode(createAddressFromString(PERMIT2),
+  await c.vm.stateManager.getCode(createAddressFromString(tmpPermit2)));
 
 const UNI = {
   name: "the test chain", factory: uniFactory, quoter: uniQuoter,
@@ -169,7 +175,7 @@ const UNI = {
       and the only one this site still describes.                       */
   governor: "0x0000000000000000000000000000000000000000",
   govToken: "0x0000000000000000000000000000000000000000",
-  poolManager: uniManager
+  poolManager: uniManager, v4Positions: uniV4Positions
 };
 
 const site = await deploySite(c, A, { hub: nft, pool, lease, sigil, uniswap: UNI });
@@ -2468,6 +2474,39 @@ let gateAt = null;
   const sq = decUint(await c.call(site.venue, evm.sel("sqrtAt(int24)") + w2c(snapped)));
   eq("and the price is the venue's own sqrt of the snapped tick", decUint(seen, 6), sq);
   console.log("      six flat words: currencies sorted, fee, spacing, the mined hook, the price");
+
+  /* The browser has no general ABI coder. PageLaunch must produce the
+     canonical nested bytes[] and the browser must forward it untouched. */
+  $("pl").value = "-60000";
+  $("pu").value = "60000";
+  $("pli").value = "123456789";
+  $("pa0").value = "7000000000000000000";
+  $("pa1").value = "8000000";
+  await $("p0ap").fire("click");
+  await nap(200);
+  eq("the token approves Permit2, not an intermediary",
+     decUint(await c.read(lo, "allowance(address,address)", [c.from.toString(), PERMIT2])), (1n << 256n) - 1n);
+  eq("Permit2 approval names the configured v4 PositionManager",
+     decAddr(await c.read(PERMIT2, "spender()")).toLowerCase(), uniV4Positions.toLowerCase());
+  eq("Permit2 receives its uint160 maximum without truncation",
+     decUint(await c.read(PERMIT2, "amount()")), (1n << 160n) - 1n);
+  await $("plgo").fire("click");
+  await nap(250);
+  ok("v4 liquidity reached the configured PositionManager",
+     decBool(await c.read(uniV4Positions, "minted()"), 0));
+  eq("the canonical action plan mints then settles the pair",
+     decString(await c.read(uniV4Positions, "actions()")), "\x02\x0d");
+  eq("the position currency0 survives both dynamic ABI layers",
+     decAddr(await c.read(uniV4Positions, "c0()")).toLowerCase(), lo.toLowerCase());
+  eq("and currency1 survives them", decAddr(await c.read(uniV4Positions, "c1()")).toLowerCase(), hi.toLowerCase());
+  eq("the lower tick arrives signed", BigInt.asIntN(256, decUint(await c.read(uniV4Positions, "lower()"))), -60000n);
+  eq("the upper tick arrives signed", decUint(await c.read(uniV4Positions, "upper()")), 60000n);
+  eq("liquidity is not confused with either maximum",
+     decUint(await c.read(uniV4Positions, "liquidity()")), 123456789n);
+  eq("token0 maximum arrives exactly", decUint(await c.read(uniV4Positions, "amount0Max()")), 7000000000000000000n);
+  eq("token1 maximum arrives exactly", decUint(await c.read(uniV4Positions, "amount1Max()")), 8000000n);
+  eq("the position belongs to the connected wallet",
+     decAddr(await c.read(uniV4Positions, "owner()")).toLowerCase(), c.from.toString().toLowerCase());
 }
 
 /*════════════ the hook reader ════════════*/

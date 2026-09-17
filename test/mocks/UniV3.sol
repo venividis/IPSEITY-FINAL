@@ -663,3 +663,64 @@ contract MockManager {
         return (inited, c0, c1, fee, spacing, hooks, sqrtPrice);
     }
 }
+
+/// @dev The v4 PositionManager surface used by the launch page. It decodes
+///      both nested dynamic layers and records every mint field, so a test
+///      cannot pass merely because an arbitrary byte string was accepted.
+contract MockV4PositionManager {
+    struct PoolKey {
+        address currency0;
+        address currency1;
+        uint24 fee;
+        int24 tickSpacing;
+        address hooks;
+    }
+
+    bool public minted;
+    bytes public actions;
+    address public c0;
+    address public c1;
+    uint24 public fee;
+    int24 public spacing;
+    address public hooks;
+    int24 public lower;
+    int24 public upper;
+    uint256 public liquidity;
+    uint128 public amount0Max;
+    uint128 public amount1Max;
+    address public owner;
+    uint256 public deadline;
+
+    function modifyLiquidities(bytes calldata unlockData, uint256 deadline_) external {
+        (bytes memory actions_, bytes[] memory params) = abi.decode(unlockData, (bytes, bytes[]));
+        require(keccak256(actions_) == keccak256(hex"020d") && params.length == 2, "actions");
+        bytes memory hookData;
+        PoolKey memory k;
+        (k, lower, upper, liquidity, amount0Max, amount1Max, owner, hookData) =
+            abi.decode(params[0], (PoolKey, int24, int24, uint256, uint128, uint128, address, bytes));
+        (address settle0, address settle1) = abi.decode(params[1], (address, address));
+        require(settle0 == k.currency0 && settle1 == k.currency1 && hookData.length == 0, "params");
+        minted = true;
+        actions = actions_;
+        c0 = k.currency0;
+        c1 = k.currency1;
+        fee = k.fee;
+        spacing = k.tickSpacing;
+        hooks = k.hooks;
+        deadline = deadline_;
+    }
+}
+
+contract MockPermit2 {
+    address public token;
+    address public spender;
+    uint160 public amount;
+    uint48 public expiration;
+
+    function approve(address token_, address spender_, uint160 amount_, uint48 expiration_) external {
+        token = token_;
+        spender = spender_;
+        amount = amount_;
+        expiration = expiration_;
+    }
+}
