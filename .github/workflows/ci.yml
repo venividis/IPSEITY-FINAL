@@ -37,5 +37,63 @@ jobs:
       - name: Reject production dependency vulnerabilities
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Enforce deployed contract size limits
+        run: node tools/compile.mjs
+
       - name: Run the full verification battery
         run: npm run check
+
+  modules:
+    name: Module contracts, SDK and recovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build the immutable workbench and portable SDK
+        run: npm run modules:build && npm run modules:sdk
+      - name: Verify native authority, deployment plans and complete recovery
+        run: npm run test:modules
+      - name: Retain module verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-verification
+          path: |
+            reports/
+            out/modules-local/
+            dist/modules/manifest.json
+            packages/modules/dist/build-manifest.json
+
+  modules-browser:
+    name: Native IPSEITY browser acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install the pinned Chromium browser
+        run: npx playwright install --with-deps chromium
+      - name: Build the tested workbench candidate
+        run: npm run modules:build
+      - name: Verify isolated module rendering and persistence
+        run: npm run test:modules:browser
+      - name: Exercise the real IPSEITY site, Reach, journal and cartridges
+        run: npm run test:modules:native
+      - name: Retain browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-module-browser-evidence
+          path: |
+            reports/
+            out/modules-local/
+            dist/modules/manifest.json

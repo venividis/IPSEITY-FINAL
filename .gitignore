@@ -3,6 +3,7 @@ out/
 cache/
 broadcast/
 dist/
+reports/
 .env
 
 # Foundry installs forge-std at the repo root. Anchored, or it would also

@@ -1584,3 +1584,128 @@ What is still missing relative to Foundry is stateful/invariant campaigns, a
 coverage-guided corpus, traces on failure, and every cheatcode the suite does
 not use — so this is a smaller net, not a replacement. Run the Foundry suite
 before deploying anywhere real.
+
+
+---
+
+## The immutable module companions
+
+These additions apply to the IPSEITY integration of MASTER's module protocol.
+They append to the existing record; earlier measured counts and historical
+limitations above remain descriptions of their original runs. Contract design,
+source provenance, bounds, and verification scope are in `MODULES-CONTRACTS.md`.
+
+**81. A module mutation comes through the original canonical Reach.**
+The registry checks the collection's account derivation, current-chain token
+footer, matching collection/token ID, and current owner. A forged footer, the
+Grip, a direct holder call, an ERC-721 operator, or a renter is not an alternate
+authority. `authorityType()` names the IPSEITY account schema separately from
+the compatible release/state format. Installation does not replace the NFT,
+renderer, or either account.
+→ `test/Modules.t.sol::test_modulesUseTheOriginalCanonicalReachWithoutChangingIdentity`,
+  `test_modulesRejectDirectOwnersOperatorsAndRenters`
+
+**82. Custody and catalog reviews cannot come back to life after a sale.**
+The registry compares the reviewed root and `xfers + 1` custody epoch. A transfer
+away and back still changes custody. When the existing uint32 display counter
+saturates, authority refuses rather than treating subsequent transfers as the
+same epoch. The account's per-key session nonce is a different number.
+→ `test/Modules.t.sol::test_modulesRejectStaleRootsAndCustodyAfterTransferAwayAndBack`,
+  `test_modulesFailClosedWhenTheExistingTransferStatisticSaturates`
+
+**83. A module inherits only the execution authority explicitly granted to it.**
+The existing Reach checks a session's target, selector, expiry, spending bound,
+and current custody on its normal execution path. Module publication and
+installation grant none of these. The Reach's seal remains around that path;
+there is no new spending function on the Grip.
+→ `test/Modules.t.sol::test_modulesAllowOnlyExplicitlyGrantedSessionActionsAndRetireThemOnSale`,
+  `tools/verify-vault.mjs` for the existing seal and session enforcement
+
+**84. A staged state can be found before anything is installed.**
+Staging appends to the namespace's state history and the independent
+`stateModulesOf` index. It does not silently select a release or move the active
+catalog root. Recovery therefore cannot forget a draft because it was never
+activated.
+→ `test/Modules.t.sol::test_modulesStagingIsDiscoverableBeforeAnyInstallation`
+
+**85. Disabling a module deletes none of its past and changes no other module.**
+The selected release and state head remain recorded, old snapshots remain
+readable, and another module's enabled state is independent. Only the bound
+registry can append state; no publisher or external caller can write the store
+directly.
+→ `test/Modules.t.sol::test_modulesDisableKeepsStateHistoryAndOtherModulesIndependent`,
+  `test_modulesCannotWriteStateOutsideTheRegistryOrPastTheDirectLimit`
+
+**86. A migration is an explicit compatible branch.**
+The selected release and state head change atomically. New state belongs to the
+same NFT/module namespace, has the destination schema, extends the reviewed
+active head, and was staged in the current custody. Restoring historical bytes
+creates a new branch; it does not rewrite the historical record.
+→ `test/Modules.t.sol::test_modulesUpgradeRequiresACompatibleExplicitBranch`
+
+**87. Every allowed direct-state size recovers its exact committed bytes.**
+A full 32,768-byte direct snapshot uses bounded immutable data contracts, split
+at 23,000 bytes. Empty and one-byte values, either side of that split, staging,
+active writes, hashes, and retained parents must agree. Execution plus a
+conservative intrinsic/calldata allowance and wallet headroom must fit the
+transaction gas cap; an oversized direct snapshot is refused.
+→ `test/Modules.t.sol::test_modulesFull32KiBStateRoundTripsUnderTheTransactionGasCap`,
+  `test_modulesRecoverBothSidesOfTheDirectChunkBoundaryAndEmptyState`,
+  `test_modulesCannotWriteStateOutsideTheRegistryOrPastTheDirectLimit`
+
+**88. The workbench is recoverable from immutable service links and verified bytes.**
+Its services identify the same chain, original collection, installation
+registry, releases, state store, archive, and complete document digest. The
+reader verifies the complete digest before treating recovered bytes as a
+workbench. A directory's top-level hash remains a commitment that clients must
+check; leaf hashes alone do not establish a concatenated digest.
+→ `test/Modules.t.sol::test_modulesWorkbenchRecoversItsImmutableBytesAndServices`
+  for the contract's exact bytes and service bindings;
+  `test/modules/sdk.test.mjs` · *"stored corruption and bounded decompression fail before any code is returned"*
+  for package verification after recovery
+
+**89. A cartridge follows its actual holder and parent custody.**
+Acquisition mints to the caller. A cartridge in the canonical Reach is
+controlled by the current parent NFT holder, with the parent's custody epoch;
+a sale revokes the previous controller immediately. A separately held cartridge
+uses its own holder. The legacy manifest and content tuples retain their exact
+byte commitments.
+→ `test/Modules.t.sol::test_modulesCartridge48KiBRoundTripsAndFollowsTheParentOwner`,
+  `test_modulesCartridgeOneMiBRoundTripsThroughTheExactLegacyABI`
+
+**90. A legal maximum cartridge fits a real transaction and keeps all metadata.**
+A 1 MiB payload, 64 distinct chunks, and a 16 KiB manifest are tested together.
+Immutable metadata code preserves every returned chunk address, code hash,
+length, and manifest byte without the SSTORE cost that exceeded the transaction
+cap in the initial port. SHA-256 hashes the assembled input directly. The
+publication must retain wallet gas headroom and recover the exact original
+payload and legacy manifest views.
+→ `test/Modules.t.sol::test_modulesMaximumCartridgeAndManifestFitTheGasCapAndRecoverExactly`;
+  `test/modules/chain.test.mjs` ·
+  *"64 distinct chunks, one MiB of content and a 16 KiB manifest publish with wallet headroom and recover under the read gas cap"*
+  additionally measures an actual capped transaction and a cold bounded read
+
+**91. Cartridge callbacks and changed code cannot bypass the release commitment.**
+Acquisition is non-reentrant. Stored metadata, archive, and payload chunks are
+bound to their code identities. Changed chunk code prevents content recovery,
+and publication refuses an incorrect full digest or excessive chunk counts.
+→ `test/Modules.t.sol::test_modulesCartridgeReceiverCannotReenterAcquisition`,
+  `test_modulesCartridgesRejectCorruptionAndOversizedPublications`
+
+**92. A personal journal uses explicit privacy and the same NFT's state authority.**
+The host's dedicated journal identifiers select an opaque state namespace;
+they create no contract-level privilege. Public words or an encrypted packet
+are staged only after review, under the current identity. Recovery pages check
+cursor progress and the journal schema. Historical encrypted packets remain
+local-passphrase recoverable without moving them to a different NFT.
+→ `test/modules/adapter-security.test.mjs` ·
+  *"personal journal staging preserves explicit privacy and exact bytes in the same NFT registry"*,
+  *"journal review rejects invalid packets, another custody epoch and unspecified privacy before wallet preparation"*,
+  *"bounded journal history recovers public and encrypted bytes from the NFT namespace without a server index"*,
+  *"journal history refuses malformed pagination and records under a substituted schema"*;
+  `test/modules/journal.test.mjs` for encryption and original packet compatibility
+
+The Solidity tests above execute through the repository's Foundry-shaped Node
+EVM runner. They are not native Foundry invariant campaigns, an audit, or a
+public deployment. Final pass counts and source-bound gas measurements belong
+to the final integration report, not to the mere existence of these tests.

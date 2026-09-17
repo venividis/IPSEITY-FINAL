@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "IPSEITY \u2014 a fully on-chain ERC-721 whose tokenURI emits its own 4D control surface.",
+  "description": "IPSEITY — a fully on-chain ERC-721 whose tokenURI emits its own 4D control surface.",
   "scripts": {
     "shaders": "node tools/glsl-check.mjs",
     "selftest": "node tools/selftest.mjs",
@@ -34,7 +34,18 @@
     "verify:console": "node tools/verify-console.mjs",
     "verify:plate": "node tools/verify-plate.mjs",
     "verify:thermal": "node tools/verify-thermal.mjs",
-    "verify:instrument": "node tools/verify-instrument.mjs"
+    "verify:instrument": "node tools/verify-instrument.mjs",
+    "modules:build": "node tools/modules-build-workbench.mjs",
+    "modules:sdk": "node tools/build-module-sdk.mjs",
+    "modules:local": "node tools/modules-local.mjs",
+    "modules:plan": "node tools/modules-deployment.mjs",
+    "modules:package": "node tools/modules-package.mjs",
+    "modules:plan-package": "node tools/modules-plan-package.mjs",
+    "modules:recover": "node tools/modules-recover.mjs",
+    "modules:recover-workbench": "node tools/modules-recover-workbench.mjs",
+    "test:modules": "node --test --test-concurrency=1 test/modules/*.test.mjs",
+    "test:modules:browser": "node test/browser/modules.mjs",
+    "test:modules:native": "node test/browser/modules-native.mjs"
   },
   "dependencies": {
     "@ethereumjs/common": "^10.1.2",
@@ -44,7 +55,10 @@
     "@ethereumjs/util": "^10.1.2",
     "@ethereumjs/vm": "^10.1.2",
     "@shaderfrog/glsl-parser": "^7.0.1",
+    "esbuild": "0.25.12",
     "ethereum-cryptography": "^3.2.0",
+    "ethers": "6.17.0",
+    "parse5": "7.3.0",
     "solc": "0.8.36",
     "terser": "^5.49.0"
   },
