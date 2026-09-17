@@ -51,6 +51,8 @@ contract DeskLaunch {
 
     /// @notice Complete, canonical calldata for one v4 position mint.
     /// @dev Actions are MINT_POSITION (0x02), then SETTLE_PAIR (0x0d).
+    ///      Native pools also SWEEP (0x14) any unused ETH back to `owner`;
+    ///      the browser funds the call with the native-side maximum.
     ///      The return value is intentionally the complete external call so
     ///      the browser only unwraps one ABI `bytes` result and forwards it.
     function v4MintCalldata(
@@ -63,13 +65,16 @@ contract DeskLaunch {
         address owner,
         uint256 deadline
     ) external pure returns (bytes memory) {
-        bytes[] memory params = new bytes[](2);
+        bool hasNative = key.currency0 == address(0) || key.currency1 == address(0);
+        bytes[] memory params = new bytes[](hasNative ? 3 : 2);
         params[0] = abi.encode(
             key, tickLower, tickUpper, liquidity,
             amount0Max, amount1Max, owner, bytes("")
         );
         params[1] = abi.encode(key.currency0, key.currency1);
-        bytes memory unlockData = abi.encode(hex"020d", params);
+        if (hasNative) params[2] = abi.encode(address(0), owner);
+        bytes memory actions = hasNative ? bytes(hex"020d14") : bytes(hex"020d");
+        bytes memory unlockData = abi.encode(actions, params);
         return abi.encodeWithSelector(
             bytes4(keccak256("modifyLiquidities(bytes,uint256)")),
             unlockData,
@@ -395,7 +400,11 @@ contract DeskLaunch {
         "const r=await I.call(K.page,ask),n=Number(I.word(r,1));"
         "if(!n||String(r).length<2+128+n*2)throw new Error('the page did not return liquidity calldata');"
         "const data='0x'+String(r).slice(2+128,2+128+n*2);"
-        "await I.send(K.v4Positions,data)});"
+        // A native pool is sorted with address(0) as currency0. Fund the
+        // payable PositionManager with that side's maximum; the canonical
+        // action plan sweeps any unused ETH back to the position owner.
+        "const value=BigInt(pool.lo)===0n?a0:(BigInt(pool.hi)===0n?a1:0n);"
+        "await I.send(K.v4Positions,data,value)});"
 
         /*───── reading a hook ─────*/
         "on('hxgo',()=>{const v=String($('hx').value||'').trim();"

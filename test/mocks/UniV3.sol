@@ -690,16 +690,28 @@ contract MockV4PositionManager {
     uint128 public amount1Max;
     address public owner;
     uint256 public deadline;
+    uint256 public receivedValue;
+    address public sweepCurrency;
+    address public sweepRecipient;
 
-    function modifyLiquidities(bytes calldata unlockData, uint256 deadline_) external {
+    function modifyLiquidities(bytes calldata unlockData, uint256 deadline_) external payable {
         (bytes memory actions_, bytes[] memory params) = abi.decode(unlockData, (bytes, bytes[]));
-        require(keccak256(actions_) == keccak256(hex"020d") && params.length == 2, "actions");
+        bool native = actions_.length == 3;
+        require(
+            (keccak256(actions_) == keccak256(hex"020d") && params.length == 2)
+                || (keccak256(actions_) == keccak256(hex"020d14") && params.length == 3),
+            "actions"
+        );
         bytes memory hookData;
         PoolKey memory k;
         (k, lower, upper, liquidity, amount0Max, amount1Max, owner, hookData) =
             abi.decode(params[0], (PoolKey, int24, int24, uint256, uint128, uint128, address, bytes));
         (address settle0, address settle1) = abi.decode(params[1], (address, address));
         require(settle0 == k.currency0 && settle1 == k.currency1 && hookData.length == 0, "params");
+        if (native) {
+            (sweepCurrency, sweepRecipient) = abi.decode(params[2], (address, address));
+            require(sweepCurrency == address(0), "sweep currency");
+        }
         minted = true;
         actions = actions_;
         c0 = k.currency0;
@@ -708,6 +720,7 @@ contract MockV4PositionManager {
         spacing = k.tickSpacing;
         hooks = k.hooks;
         deadline = deadline_;
+        receivedValue = msg.value;
     }
 }
 

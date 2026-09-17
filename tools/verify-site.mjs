@@ -2507,6 +2507,36 @@ let gateAt = null;
   eq("token1 maximum arrives exactly", decUint(await c.read(uniV4Positions, "amount1Max()")), 8000000n);
   eq("the position belongs to the connected wallet",
      decAddr(await c.read(uniV4Positions, "owner()")).toLowerCase(), c.from.toString().toLowerCase());
+
+  /* Native currency is address zero and therefore always currency0. The
+     maximum is attached to the payable PositionManager call, while a final
+     SWEEP action returns whatever the mint did not consume to the owner. */
+  $("pq").value = "0x0000000000000000000000000000000000000000";
+  await $("pq").fire("change");
+  $("pp").value = "1";
+  await $("pgo").fire("click");
+  await nap(250);
+  $("pl").value = "-60000";
+  $("pu").value = "60000";
+  $("pli").value = "1234";
+  $("pa0").value = "1000000000000000000";
+  $("pa1").value = "5000000";
+  const beforeNativeApproval = W.sent();
+  await $("p0ap").fire("click");
+  await nap(60);
+  eq("native currency skips both approval transactions", W.sent(), beforeNativeApproval);
+  await $("plgo").fire("click");
+  await nap(250);
+  eq("the native-side maximum funds the payable PositionManager call",
+     decUint(await c.read(uniV4Positions, "receivedValue()")), 10n ** 18n);
+  eq("the native action plan settles and then refunds excess ETH",
+     decString(await c.read(uniV4Positions, "actions()")), "\x02\x0d\x14");
+  eq("the refund sweeps native currency",
+     decAddr(await c.read(uniV4Positions, "sweepCurrency()")),
+     "0x0000000000000000000000000000000000000000");
+  eq("the refund is addressed to the position owner",
+     decAddr(await c.read(uniV4Positions, "sweepRecipient()")).toLowerCase(),
+     c.from.toString().toLowerCase());
 }
 
 /*════════════ the hook reader ════════════*/
