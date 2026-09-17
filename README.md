@@ -8,7 +8,8 @@ The [MASTER integration](MASTER-INTEGRATION.md) adds immutable tools, saved stat
 personal journals and owned game cartridges through the existing Reach. The
 original instrument, Grip, markets and conversation retain their contracts.
 Run `npm run modules:local` for the complete disposable local experience, or read
-the [companion contract rules](MODULES-CONTRACTS.md) and [module SDK guide](packages/modules/README.md).
+the [companion contract rules](MODULES-CONTRACTS.md), [module SDK guide](packages/modules/README.md),
+and [validation record](MASTER-VALIDATION.md).
 
 ---
 

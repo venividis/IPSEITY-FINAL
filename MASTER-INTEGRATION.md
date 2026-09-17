@@ -19,6 +19,20 @@ The source is [MASTER-NFT-PROJECT at `e12e0cd38ed231a0b2015d17fec302a359476de1`]
 
 IPSEITY's existing Pool, Venue, Kiln/Facet, Lease, Locker, Consign, Succession, Parley and ParleyPort retain their own contracts and rules. MASTER's alternative financial, social and account stacks do not become replacement authorities merely because their source informed this integration. The existing Nest still opens IPSEITY's own instruments; the companion workbench's Games view is the separate cartridge launcher.
 
+## Solidity, JavaScript and onchain storage
+
+The NFT and its authoritative persistent state remain Solidity contracts. Repository language statistics also count development scripts, test runners and the bundled ethers library; they do not describe where NFT ownership or saved state lives. The original IPSEITY already separates its Solidity contracts from `engine/ipseity.html` and JavaScript development tools.
+
+| Layer | Where it lives and runs |
+|---|---|
+| NFT ownership, Reach permissions, releases, installation and permanent state history | Solidity contracts execute and retain their state on the EVM. |
+| Workbench, module files and game payloads | Complete bytes are stored in immutable contract bytecode. Hash-verified recovery does not require the original website, a CDN or an application database. The workbench bundles its JavaScript dependencies. |
+| Graphics, game execution, wallet interaction and encryption | HTML/JavaScript runs in the browser. Onchain storage of a game does not mean every frame, score or game rule is computed or validated by Solidity. |
+| Browser drafts | Temporary local data until the holder reviews and confirms an onchain state transaction. Legacy game sessions do not automatically publish their progress. |
+| Packaging, compilation, tests and deployment planning | Operator/development tools. These are not a server that must remain online for the NFT to retain its published data. |
+
+The new companion deployments exercised by this integration are disposable local-chain rehearsals. Updating this repository does not itself publish those companions to a public chain or change an already deployed immutable router.
+
 ## Why the authority adapter matters
 
 The original projects do not speak the same account ABI. The adapter derives the Reach from `Ipseity.account(tokenId)`, checks its `token()` footer against the current chain, collection and token ID, and checks `Reach.owner()` against `Ipseity.ownerOf(tokenId)`. A plausible footer on another contract is insufficient: the account must equal the collection's canonical address.
