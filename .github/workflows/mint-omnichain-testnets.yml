@@ -1,0 +1,49 @@
+name: Mint three IPSEITY NFTs across testnets
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Check both chains or mint two on Base Sepolia and one on Ethereum Sepolia"
+        required: true
+        type: choice
+        default: preflight
+        options: [preflight, mint]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ipseity-omnichain-testnet-mints
+  cancel-in-progress: false
+
+jobs:
+  mint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org' }}
+      ETH_SEPOLIA_RPC_URL: ${{ secrets.ETH_SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com' }}
+      PRIVATE_KEY: ${{ secrets.TESTNET_DEPLOYER_PRIVATE_KEY }}
+      MINT_OUTPUT: out/omnichain-testnet-mints.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Require a configured burner key
+        run: test -n "$PRIVATE_KEY" || { echo 'Configure TESTNET_DEPLOYER_PRIVATE_KEY as an Actions secret.'; exit 1; }
+      - name: Read-only two-chain preflight
+        run: node tools/mint-omnichain-testnets.mjs --preflight
+      - name: Mint and verify three NFTs
+        if: inputs.operation == 'mint' && github.run_attempt == '1'
+        run: node tools/mint-omnichain-testnets.mjs
+      - name: Retain transaction records, including partial runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: omnichain-testnet-mints-${{ github.run_id }}
+          if-no-files-found: ignore
+          path: out/omnichain-testnet-mints*
