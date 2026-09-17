@@ -1,0 +1,155 @@
+name: Deploy IPSEITY and mint three on Sepolia
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Check funding or deploy the complete project and mint exactly three NFTs"
+        required: true
+        type: choice
+        default: deploy
+        options:
+          - preflight
+          - deploy
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/deploy-sepolia.yml
+      - tools/deploy-sepolia.mjs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ipseity-ethereum-sepolia-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Sepolia deployment and three recipient mints
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      MINT_RECIPIENT: "0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b"
+      DEPLOYMENT_OUTPUT: out/sepolia-deployment.json
+      DEPLOYMENT_JOURNAL: out/sepolia-deployment.jsonl
+    steps:
+      - name: Check out the reviewed source
+        uses: actions/checkout@v4
+
+      - name: Require main and a fresh manual execution
+        env:
+          REQUESTED_OPERATION: ${{ inputs.operation }}
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          node --input-type=module <<'JS'
+          if (process.env.SOURCE_REF !== 'refs/heads/main') throw Error('Deployments must use the reviewed main branch.');
+          if (process.env.EVENT_NAME === 'workflow_dispatch' && process.env.REQUESTED_OPERATION === 'deploy' && process.env.RUN_ATTEMPT !== '1') {
+            throw Error('A deployment cannot be restarted with Re-run jobs. Inspect the retained receipts first; a new run creates a new deployment.');
+          }
+          JS
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Check credential availability without exposing values
+        id: credentials
+        env:
+          RPC_URL: ${{ secrets.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com' }}
+          PRIVATE_KEY: ${{ secrets.SEPOLIA_DEPLOYER_PRIVATE_KEY }}
+          REQUESTED_OPERATION: ${{ inputs.operation }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const missing = [];
+          if (!process.env.RPC_URL) missing.push('SEPOLIA_RPC_URL');
+          if (!process.env.PRIVATE_KEY) missing.push('SEPOLIA_DEPLOYER_PRIVATE_KEY');
+          const ready = missing.length === 0;
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `ready=${ready}\n`);
+          if (!ready) {
+            const message = 'No public transactions were submitted. Configure repository Actions secrets: ' + missing.join(', ') + '.';
+            console.log(message);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, message + '\n');
+            if (process.env.EVENT_NAME === 'workflow_dispatch') process.exitCode = 1;
+          }
+          JS
+
+      - name: Verify the Sepolia connection without a signer
+        env:
+          RPC_URL: ${{ secrets.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com' }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          try {
+            const response = await fetch(process.env.RPC_URL, {
+              method: 'POST', headers: {'content-type':'application/json'},
+              body: JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_chainId',params:[]}),
+              signal: AbortSignal.timeout(20000)
+            });
+            if (!response.ok) throw Error('RPC connection failed.');
+            const result = await response.json();
+            if (result.error || BigInt(result.result) !== 11155111n) throw Error('The RPC is not Ethereum Sepolia.');
+            const message = 'Ethereum Sepolia connection verified: chain 11155111. No transaction was submitted.';
+            console.log(message);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, message + '\n');
+          } catch {
+            console.error('Sepolia RPC verification failed. Configure a working SEPOLIA_RPC_URL repository secret. No transaction was submitted.');
+            process.exitCode = 1;
+          }
+          JS
+
+      - name: Build the onchain artwork and workbench
+        if: steps.credentials.outputs.ready == 'true'
+        run: npm run build && npm run modules:build
+
+      - name: Read-only Sepolia preflight
+        if: steps.credentials.outputs.ready == 'true'
+        env:
+          RPC_URL: ${{ secrets.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com' }}
+          PRIVATE_KEY: ${{ secrets.SEPOLIA_DEPLOYER_PRIVATE_KEY }}
+        run: node tools/deploy-sepolia.mjs --preflight
+
+      - name: Deploy and mint exactly three to the authorized recipient
+        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy' && steps.credentials.outputs.ready == 'true'
+        env:
+          RPC_URL: ${{ secrets.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com' }}
+          PRIVATE_KEY: ${{ secrets.SEPOLIA_DEPLOYER_PRIVATE_KEY }}
+        run: node tools/deploy-sepolia.mjs
+
+      - name: Report verified ownership and transaction links
+        if: always()
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const file = process.env.DEPLOYMENT_OUTPUT;
+          if (fs.existsSync(file) && fs.statSync(file).size > 0) {
+            const record = JSON.parse(fs.readFileSync(file, 'utf8'));
+            const lines = [`Deployment status: **${record.status}**`, `Chain: ${record.chainId}`, `Recipient: ${record.recipient}`];
+            if (record.contracts.ipseity) lines.push(`Collection: https://sepolia.etherscan.io/address/${record.contracts.ipseity}`);
+            for (const token of record.tokens) lines.push(`Token ${token.id}: https://sepolia.etherscan.io/tx/${token.mintTransaction}`);
+            if (record.status !== 'verified') lines.push('Deployment stopped. Inspect the artifact journal and onchain receipts before any further run.');
+            else lines.push('Exactly three recipient-owned NFTs verified; receipts re-read for block inclusion.');
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n\n') + '\n');
+          }
+          JS
+
+      - name: Retain deployment records, including partial receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sepolia-deployment-${{ github.run_id }}
+          if-no-files-found: ignore
+          path: |
+            out/sepolia-deployment.json
+            out/sepolia-deployment.jsonl
+            out/sepolia-deployment-*.json
+            dist/modules/manifest.json

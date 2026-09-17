@@ -11,6 +11,9 @@ Run `npm run modules:local` for the complete disposable local experience, or rea
 the [companion contract rules](MODULES-CONTRACTS.md), [module SDK guide](packages/modules/README.md),
 and [validation record](MASTER-VALIDATION.md).
 
+For the integrated public testnet deployment and three direct recipient mints,
+use the [Ethereum Sepolia deployment guide](SEPOLIA-DEPLOYMENT.md).
+
 ---
 
 ## What it is
