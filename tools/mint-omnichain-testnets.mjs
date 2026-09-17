@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /** Mint three IPSEITY NFTs across the two live testnet deployments.
  *
- * The signer receives two Base Sepolia tokens and one Ethereum Sepolia token.
+ * The configured recipient receives two Base Sepolia tokens and one Ethereum
+ * Sepolia token. The signing key never needs to control the recipient.
  * All reads are completed on both chains before the first transaction is sent.
  * Output and per-chain journals are exclusive files so a partial run cannot be
  * mistaken for a safe retry.
@@ -26,13 +27,30 @@ export class OmnichainMintError extends Error {}
 const check = (condition, message) => {
   if (!condition) throw new OmnichainMintError(message);
 };
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function waitForOwner(chain, collection, id, expected) {
+  // Public RPC pools can return a mined receipt from one backend and briefly
+  // serve pre-transaction state from another. Verify repeatedly rather than
+  // reporting a successfully mined mint as a failed run.
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      if (decAddr(await chain.read(collection, "ownerOf(uint256)", [id])) === expected) return;
+    } catch {}
+    await sleep(1_000);
+  }
+  throw new OmnichainMintError(`${collection} token ${id} owner differs after receipt finalization.`);
+}
 
 export function config(env = process.env) {
   check(/^(?:0x)?[0-9a-fA-F]{64}$/.test(env.PRIVATE_KEY || ""),
     "PRIVATE_KEY must be a 32-byte hex signing key.");
   const key = "0x" + env.PRIVATE_KEY.replace(/^0x/, "").toLowerCase();
   check(!TEST_KEYS.has(key), "Public development keys are forbidden.");
-  const recipient = "0x" + bytesToHex(privateToAddress(hexToBytes(key))).replace(/^0x/, "");
+  const signer = "0x" + bytesToHex(privateToAddress(hexToBytes(key))).replace(/^0x/, "");
+  check(/^0x[0-9a-fA-F]{40}$/.test(env.MINT_RECIPIENT || ""),
+    "MINT_RECIPIENT must be a 20-byte hex address.");
+  const recipient = env.MINT_RECIPIENT.toLowerCase();
   const output = path.resolve(env.MINT_OUTPUT || path.join(ROOT, "out/omnichain-testnet-mints.json"));
   const networks = RUNS.map((run) => {
     const rpcUrl = env[run.rpcEnv];
@@ -49,10 +67,10 @@ export function config(env = process.env) {
   });
   check(!fs.existsSync(output) && networks.every(({ journal }) => !fs.existsSync(journal)),
     "Mint output or journal already exists; reconcile the prior run before retrying.");
-  return { key, recipient, output, networks };
+  return { key, signer, recipient, output, networks };
 }
 
-export async function preflight({ key, recipient, networks }) {
+export async function preflight({ key, signer, networks }) {
   const ready = [];
   for (const network of networks) {
     const chain = await RpcChain.open(network.rpcUrl, key);
@@ -62,7 +80,7 @@ export async function preflight({ key, recipient, networks }) {
       `${network.name} collection has no bytecode.`);
     const price = decUint(await chain.read(network.collection, "price()"));
     const supply = decUint(await chain.read(network.collection, "totalSupply()"));
-    const balance = await chain.balanceOf(recipient);
+    const balance = await chain.balanceOf(signer);
     const gasPrice = BigInt(await chain.rpc("eth_gasPrice"));
     // Mint is normally far below 1M gas. Keep a deliberately conservative
     // per-mint reserve and do not broadcast on either chain unless both pass.
@@ -99,10 +117,9 @@ export async function mintAll(settings, { preflightOnly = false } = {}) {
         `${item.name} supply changed during the run; refusing the next mint.`);
       check(decUint(await item.chain.read(item.collection, "price()")) === item.price,
         `${item.name} mint price changed during the run.`);
-      const receipt = await item.chain.exec(item.collection, "mint()", [],
+      const receipt = await item.chain.exec(item.collection, "mintTo(address)", [settings.recipient],
         { value: item.price, label: `mint:${item.name}:${expectedId}` });
-      check(decAddr(await item.chain.read(item.collection, "ownerOf(uint256)", [expectedId])) ===
-        settings.recipient.toLowerCase(), `${item.name} token ${expectedId} owner differs.`);
+      await waitForOwner(item.chain, item.collection, expectedId, settings.recipient.toLowerCase());
       record.tokens.push({ id: expectedId, owner: settings.recipient, transactionHash: receipt.hash,
         blockNumber: receipt.block });
       save();

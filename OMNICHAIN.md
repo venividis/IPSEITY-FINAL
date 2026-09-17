@@ -287,11 +287,16 @@ RPC_URL=… node tools/port.mjs walk --port 0x…
 
 The manual **Mint three IPSEITY NFTs across testnets** Actions workflow uses
 the committed deployment records and mints two tokens on Base Sepolia and one
-on Ethereum Sepolia to the burner-key signer. Configure
-`TESTNET_DEPLOYER_PRIVATE_KEY`; optional `BASE_SEPOLIA_RPC_URL` and
+on Ethereum Sepolia directly to `MINT_RECIPIENT`. Configure
+`TESTNET_DEPLOYER_PRIVATE_KEY` and the `TESTNET_MINT_RECIPIENT` repository
+variable; optional `BASE_SEPOLIA_RPC_URL` and
 `ETH_SEPOLIA_RPC_URL` secrets override the public endpoints. Always run the
 `preflight` operation first. A `mint` run is deliberately non-rerunnable and
 retains its output plus per-chain receipt journals as an Actions artifact.
+
+The 2026-09-17 run minted Base Sepolia tokens 4 and 5 and Ethereum Sepolia
+token 4 directly to `0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b`. The mined transaction and
+block identifiers are preserved in `deployments/mints-2026-09-17.json`.
 
 The equivalent command in an environment with unrestricted RPC egress is:
 
@@ -299,6 +304,7 @@ The equivalent command in an environment with unrestricted RPC egress is:
 BASE_SEPOLIA_RPC_URL=https://sepolia.base.org \
 ETH_SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com \
 PRIVATE_KEY="$TESTNET_DEPLOYER_PRIVATE_KEY" \
+MINT_RECIPIENT=0x... \
 node tools/mint-omnichain-testnets.mjs --preflight
 ```
 

@@ -1,0 +1,32 @@
+{
+  "schema": "ipseity.omnichain-testnet-mints/1",
+  "status": "verified",
+  "recipient": "0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b",
+  "completedAt": "2026-09-17",
+  "tokens": [
+    {
+      "network": "base-sepolia",
+      "chainId": 84532,
+      "collection": "0x36c49f58c6437ee994766ce80f6654c4d797b8db",
+      "tokenId": 4,
+      "transactionHash": "0x3a087ce34be40d283595a90a0e75654ec1117e6e98fe644007d5d56004093004",
+      "blockNumber": 46927334
+    },
+    {
+      "network": "base-sepolia",
+      "chainId": 84532,
+      "collection": "0x36c49f58c6437ee994766ce80f6654c4d797b8db",
+      "tokenId": 5,
+      "transactionHash": "0xbd660ffaf011dff1846b03d1c69a39eed0c8372775180c3fea28c23db5dc01e4",
+      "blockNumber": 46927355
+    },
+    {
+      "network": "eth-sepolia",
+      "chainId": 11155111,
+      "collection": "0x6ff03e23ca18d78c5264e7e5e159197cb68a0ec2",
+      "tokenId": 4,
+      "transactionHash": "0x1f77617a46b7b2361f7f63fcb6056d2a123df56a2005874c6290c63e61d55f83",
+      "blockNumber": 11721698
+    }
+  ]
+}

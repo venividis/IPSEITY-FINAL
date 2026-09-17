@@ -25,6 +25,7 @@ jobs:
       BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org' }}
       ETH_SEPOLIA_RPC_URL: ${{ secrets.ETH_SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com' }}
       PRIVATE_KEY: ${{ secrets.TESTNET_DEPLOYER_PRIVATE_KEY }}
+      MINT_RECIPIENT: ${{ vars.TESTNET_MINT_RECIPIENT }}
       MINT_OUTPUT: out/omnichain-testnet-mints.json
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +35,9 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Require a configured burner key
-        run: test -n "$PRIVATE_KEY" || { echo 'Configure TESTNET_DEPLOYER_PRIVATE_KEY as an Actions secret.'; exit 1; }
+        run: |
+          test -n "$PRIVATE_KEY" || { echo 'Configure TESTNET_DEPLOYER_PRIVATE_KEY as an Actions secret.'; exit 1; }
+          test -n "$MINT_RECIPIENT" || { echo 'Configure TESTNET_MINT_RECIPIENT as an Actions variable.'; exit 1; }
       - name: Read-only two-chain preflight
         run: node tools/mint-omnichain-testnets.mjs --preflight
       - name: Mint and verify three NFTs
