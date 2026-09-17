@@ -544,13 +544,15 @@ moving *value* between chains is a bridge's job, and this site will never
 quietly be one.
 
 The launchpad came back too, and it is the honest version of the thing the
-coin pourer was a sketch of. `/launch` walks four transactions with every
-choice on a bar or in a box: a fixed-supply token with no owner (signed by a
+coin pourer was a sketch of. `/launch` walks four stages, plus explicit token
+approvals where they are needed, with every choice on a bar or in a box: a fixed-supply token with no owner (signed by a
 token of this collection you hold), a v4 **hook** whose address is mined by
 your own node under `eth_call` — v4 puts a hook's permissions in the low
 fourteen bits of its address, so deploying one means searching CREATE2 salts,
 and a `view` function does it for free — then the pool itself, six flat
-words to the chain's real PoolManager. The shipped hook is a `Gate`: trading
+words to the chain's real PoolManager, and a first position sent to v4's
+PositionManager from canonical calldata ABI-encoded by the page contract.
+The shipped hook is a `Gate`: trading
 opens at one time, liquidity unlocks at another, both immutable, so "locked
 until" is enforced by the pool rather than promised. `/hook/<address>` reads
 any hook's powers off its address — the bits are the mechanism, not a claim

@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+struct V4PoolKey {
+    address currency0;
+    address currency1;
+    uint24 fee;
+    int24 tickSpacing;
+    address hooks;
+}
+
 /*───────────────────────────────────────────────────────────────────────────
   DeskLaunch — the launchpad's client
 
@@ -29,16 +37,49 @@ pragma solidity ^0.8.24;
   `view`, so the visitor's own node does the search and commits nothing, and
   the client just moves a window along and counts.
 
-  ── and it will not build a v4 liquidity call ──
+  ── and it delegates one nested v4 encoding ──
 
-  `modifyLiquidities` takes a dynamic array of dynamic bytes behind a
-  decoder that rejects non-canonical encoding. That is past what is written
-  above, and rather than approximate it the page sends v4 liquidity nowhere
-  and says so.
+  `modifyLiquidities` takes a dynamic array of dynamic bytes behind a strict
+  decoder. That is past what is written above. The page contract uses
+  `abi.encode` to return the complete canonical calldata under `eth_call`;
+  this client unwraps that single bytes result and forwards it unchanged.
 ───────────────────────────────────────────────────────────────────────────*/
 contract DeskLaunch {
     function launch() external pure returns (string memory) {
         return string.concat("<script>", LAUNCH_JS, "</script>");
+    }
+
+    /// @notice Complete, canonical calldata for one v4 position mint.
+    /// @dev Actions are MINT_POSITION (0x02), then SETTLE_PAIR (0x0d).
+    ///      Native pools also SWEEP (0x14) any unused ETH back to `owner`;
+    ///      the browser funds the call with the native-side maximum.
+    ///      The return value is intentionally the complete external call so
+    ///      the browser only unwraps one ABI `bytes` result and forwards it.
+    function v4MintCalldata(
+        V4PoolKey calldata key,
+        int24 tickLower,
+        int24 tickUpper,
+        uint256 liquidity,
+        uint128 amount0Max,
+        uint128 amount1Max,
+        address owner,
+        uint256 deadline
+    ) external pure returns (bytes memory) {
+        bool hasNative = key.currency0 == address(0) || key.currency1 == address(0);
+        bytes[] memory params = new bytes[](hasNative ? 3 : 2);
+        params[0] = abi.encode(
+            key, tickLower, tickUpper, liquidity,
+            amount0Max, amount1Max, owner, bytes("")
+        );
+        params[1] = abi.encode(key.currency0, key.currency1);
+        if (hasNative) params[2] = abi.encode(address(0), owner);
+        bytes memory actions = hasNative ? bytes(hex"020d14") : bytes(hex"020d");
+        bytes memory unlockData = abi.encode(actions, params);
+        return abi.encodeWithSelector(
+            bytes4(keccak256("modifyLiquidities(bytes,uint256)")),
+            unlockData,
+            deadline
+        );
     }
 
     string internal constant LAUNCH_JS =
@@ -46,7 +87,7 @@ contract DeskLaunch {
         "const E=document.getElementById('K');if(!E)return;"
         "const K=JSON.parse(E.textContent),S=K.sel;"
         "const U=(window.UNI&&window.UNI.U)||null;"
-        "let mined=null,landed=null;"
+        "let mined=null,landed=null,pool=null;"
         "const say=(m,c)=>I.say(m,c);"
 
         /*  A string argument, by hand.
@@ -320,7 +361,50 @@ contract DeskLaunch {
         "const sq=await I.call(U?U.venue:K.kiln,((U&&U.sel.vSqrtAt)||'')+I.S(snapped));"
         "await I.send(K.manager,S.initV4+I.AD(lo)+I.AD(hi)+I.W(fee)+I.S(sp)"
         "+I.AD(mined?mined.at:'0x0000000000000000000000000000000000000000')"
-        "+I.W(I.word(sq,0)))});"
+        "+I.W(I.word(sq,0)));"
+        "pool={lo:lo,hi:hi,fee:fee,spacing:sp,hook:mined?mined.at:"
+        "'0x0000000000000000000000000000000000000000'}});"
+
+        /*  v4 PositionManager settles ERC-20 deltas through Permit2. Both
+            approvals are explicit wallet transactions: token -> Permit2,
+            then Permit2 -> exactly the configured PositionManager.       */
+        "const approveV4=async(which)=>{"
+        "if(!pool)throw new Error('create the pool first');"
+        "const token=which?pool.hi:pool.lo;"
+        "if(BigInt(token)===0n){say('native currency needs no approval','ok');return}"
+        "await I.send(token,'0x095ea7b3'+I.AD(K.permit2)+I.W((1n<<256n)-1n));"
+        "await I.send(K.permit2,S.permitApprove+I.AD(token)+I.AD(K.v4Positions)"
+        "+I.W((1n<<160n)-1n)+I.W((1n<<48n)-1n))};"
+        "onc('p0ap',async()=>approveV4(0));onc('p1ap',async()=>approveV4(1));"
+
+        /*  Solidity, not this deliberately tiny client, builds the nested
+            (bytes,bytes[]) action plan. The eth_call return is itself an ABI
+            bytes value: offset, length, then the complete call. Only those
+            two fixed words are interpreted here.                        */
+        "onc('plgo',async()=>{"
+        "if(!pool)throw new Error('create the pool first');"
+        "if(!/^0x[0-9a-fA-F]{40}$/.test(K.v4Positions)||BigInt(K.v4Positions)===0n)"
+        "throw new Error('no v4 PositionManager is wired on this chain');"
+        "const lo=Number(String($('pl').value).trim()),hi=Number(String($('pu').value).trim());"
+        "if(!Number.isInteger(lo)||!Number.isInteger(hi)||lo>=hi||lo<-887272||hi>887272)"
+        "throw new Error('lower and upper ticks must be ordered v4 ticks');"
+        "if(lo%pool.spacing||hi%pool.spacing)throw new Error('both ticks must align to the pool spacing');"
+        "const li=BigInt(String($('pli').value||'0').trim()||'0');"
+        "const a0=BigInt(String($('pa0').value||'0').trim()||'0');"
+        "const a1=BigInt(String($('pa1').value||'0').trim()||'0');"
+        "const U128=(1n<<128n)-1n;if(li<=0n)throw new Error('liquidity must be above zero');"
+        "if(a0<0n||a1<0n||a0>U128||a1>U128)throw new Error('maximum amounts must fit uint128');"
+        "const who=I.acct(),deadline=BigInt(Math.floor(Date.now()/1000)+1200);"
+        "const ask=S.v4Mint+I.AD(pool.lo)+I.AD(pool.hi)+I.W(pool.fee)+I.S(pool.spacing)"
+        "+I.AD(pool.hook)+I.S(lo)+I.S(hi)+I.W(li)+I.W(a0)+I.W(a1)+I.AD(who)+I.W(deadline);"
+        "const r=await I.call(K.page,ask),n=Number(I.word(r,1));"
+        "if(!n||String(r).length<2+128+n*2)throw new Error('the page did not return liquidity calldata');"
+        "const data='0x'+String(r).slice(2+128,2+128+n*2);"
+        // A native pool is sorted with address(0) as currency0. Fund the
+        // payable PositionManager with that side's maximum; the canonical
+        // action plan sweeps any unused ETH back to the position owner.
+        "const value=BigInt(pool.lo)===0n?a0:(BigInt(pool.hi)===0n?a1:0n);"
+        "await I.send(K.v4Positions,data,value)});"
 
         /*───── reading a hook ─────*/
         "on('hxgo',()=>{const v=String($('hx').value||'').trim();"
