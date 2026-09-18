@@ -257,7 +257,11 @@ contract Chrome {
             typed                                                          */
         "input[type=range]{width:100%;accent-color:#e0c184;background:transparent;"
         "border:0;padding:0;margin:.45rem 0 .15rem;height:1.1rem}"
-        "input[type=checkbox]{width:auto}";
+        "input[type=checkbox]{width:auto}"
+        /* LUMEN: no fetched skin, only light made from contract-returned CSS. */
+        ".constellation{position:sticky;top:.5rem;z-index:9;background:#05040ddd;padding:.4rem;border-radius:1rem}.mark{color:#bffaff}.main{display:flex;flex:1;justify-content:center;gap:.8rem}.more{position:absolute;right:1rem;display:grid;background:#080611;padding:.5rem}"
+        ".oracle{text-align:center}.eyebrow{font:10px ui-monospace;letter-spacing:.3em;text-transform:uppercase;color:#75efff}.oracle p{max-width:36rem;margin:auto}"
+        "@media(max-width:42rem){.constellation .mark{display:none}}";
 
     /*═══════════════════ the wallet, chosen ═══════════════════*/
 
@@ -359,21 +363,23 @@ contract Chrome {
     ///      15 launch · 18 lock · 16 social · 22 market · 6 json.
     function navTop(uint8 here) external pure returns (string memory) {
         return string.concat(
-            "<nav>",
+            "<nav class=constellation><a class=mark href=\"/\">IPSEITY</a><div class=main>",
+            _tab("/door", "enter", here == 0),
+            _tab("/swap", "trade", here == 9),
+            _tab("/launch", "create", here == 15),
+            _tab("/lock", "time-lock", here == 18),
+            _tab("/chat", "commune", here == 16),
+            _tab("/gallery", "collect", here == 22),
+            "</div><details><summary>more +</summary><div class=more>",
             _tab("/", "instrument", here == 30),
-            _tab("/door", "door", here == 0),
             _tab("/terminal", "terminal", here == 20),
-            _tab("/swap", "swap", here == 9),
-            _tab("/launch", "launch", here == 15),
-            _tab("/lock", "lock", here == 18),
-            _tab("/chat", "social", here == 16),
-            _tab("/gallery", "market", here == 22),
             _tab("/projector", "projector", here == 17),
             _tab("/name", "name", here == 12),
             _tab("/keys", "keys", here == 13),
             _tab("/seal", "seal", here == 14),
             _tab("/estate", "estate", here == 19),
             _tab("/services.json", "manifest", here == 6),
+            "</div></details>",
             "</nav>"
         );
     }

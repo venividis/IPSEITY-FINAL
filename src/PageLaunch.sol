@@ -174,10 +174,11 @@ contract PageLaunch {
 
     function _index() private view returns (string memory) {
         return string.concat(
-            "<h1>launch</h1>"
-            "<p class=e>Four transactions, and every choice in front of them is a real "
-            "parameter of one of the four. Nothing here is chosen for you and nothing "
-            "is hidden behind a preset.</p>",
+            "<header class=oracle><span class=eyebrow>permissionless genesis</span>"
+            "<h1>kindle</h1><p>A name becomes supply; supply meets a law and a market.</p></header>"
+            "<div class=tabs><a href=#forge>forge</a><a href=#law>law</a>"
+            "<a href=#market>pool</a><a href=#seed>seed</a></div>"
+            "<p class=e>Four reviewed transactions. Nothing is bundled into a blind signature.</p>",
             _step1(), _step2(), _step3(),
             _inspector(),
             _recent(),
@@ -187,7 +188,7 @@ contract PageLaunch {
 
     function _step1() private pure returns (string memory) {
         return
-            "<h2>1 &middot; the token</h2>"
+            "<h2 id=forge>1 &middot; forge the token</h2>"
             "<div class=app>"
             "<div class=hd><b>Mint a supply</b></div>"
             "<label>launched as token # <span class=m>a token of this collection you "
@@ -221,7 +222,7 @@ contract PageLaunch {
     function _step2() private view returns (string memory) {
         if (!VENUE.hasV4()) {
             return string.concat(
-                "<h2>2 &middot; the hook</h2>"
+                "<h2 id=law>2 &middot; choose its law</h2>"
                 "<p class=w>No Uniswap v4 PoolManager is wired up on chain <code>",
                 block.chainid.str(),
                 "</code>, so there is nothing here for a hook to attach to. Hooks are a "
@@ -231,7 +232,7 @@ contract PageLaunch {
             );
         }
         return string.concat(
-            "<h2>2 &middot; the hook</h2>",
+            "<h2 id=law>2 &middot; choose its law</h2>",
             _hookProse(),
             "<div class=app>"
             "<div class=hd><b>Deploy a hook</b></div>"
@@ -322,7 +323,7 @@ contract PageLaunch {
 
     function _step3() private view returns (string memory) {
         return string.concat(
-            "<h2>3 &middot; the pool</h2>",
+            "<h2 id=market>3 &middot; open the pool</h2>",
             VENUE.hasV4()
                 ? "<p class=e>With a hook, the pool must be v4 &mdash; hooks do not "
                   "exist in v3. Creating one is <code>initialize</code> on the "
@@ -362,7 +363,7 @@ contract PageLaunch {
             uint256(Hook.DYNAMIC_FEE).str(),
             "</code> means the hook sets each swap's fee; this page refuses that key "
             "unless the selected hook actually sets one.</p>"
-            "<h2>4 &middot; the liquidity</h2>"
+            "<h2 id=seed>4 &middot; seed the world</h2>"
             "<p class=e>The page contract ABI-encodes the nested v4 action plan under "
             "<code>eth_call</code>; the browser forwards the returned bytes unchanged. "
             "Amounts are maxima, not targets: the position spends only what its range "
