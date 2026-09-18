@@ -1,0 +1,36 @@
+{
+  "schema": "ipseity.sovereign-deployment/2",
+  "chainId": 11155111,
+  "address": "0xee8f193d1deb3d1c38d75317cf36f3bcd5fb1e80",
+  "deployer": "0xc591c669162cd4da8ab9bfa2c2e68d538a312c00",
+  "recipient": "0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b",
+  "startNonce": "604",
+  "websiteSha256": "0x61950c80dcf3be6a561dcfd7f6934f558aa2fa7c9a8c0f89d4069dda15bf83eb",
+  "websiteStoredSha256": "0xfd1f6ca6f38e4ca04f6f8dc0c9ae717565a608e04935c5157321c58a407c534c",
+  "websiteBytes": 14851,
+  "websiteStoredBytes": 5699,
+  "tokens": [
+    {
+      "id": 1,
+      "owner": "0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b",
+      "transactionHash": "0x1cf50a79aadbf4230e5f42d70a1c9af0be45e8141aa7573a349e4ae778d3962f",
+      "live": "web3://0xee8f193d1deb3d1c38d75317cf36f3bcd5fb1e80:11155111/token/1/live",
+      "browserGateway": "https://0xee8f193d1deb3d1c38d75317cf36f3bcd5fb1e80.sep.w3link.io/token/1/live"
+    },
+    {
+      "id": 2,
+      "owner": "0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b",
+      "transactionHash": "0x269a864fd7903f3e88c86bfcf788aa8224cb21e2f49fc7323585e6176a1a07c6",
+      "live": "web3://0xee8f193d1deb3d1c38d75317cf36f3bcd5fb1e80:11155111/token/2/live",
+      "browserGateway": "https://0xee8f193d1deb3d1c38d75317cf36f3bcd5fb1e80.sep.w3link.io/token/2/live"
+    },
+    {
+      "id": 3,
+      "owner": "0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b",
+      "transactionHash": "0x5ceb81a9b415e16b27236f84affc34569b0c2621d92229f5d8734ba95b611c47",
+      "live": "web3://0xee8f193d1deb3d1c38d75317cf36f3bcd5fb1e80:11155111/token/3/live",
+      "browserGateway": "https://0xee8f193d1deb3d1c38d75317cf36f3bcd5fb1e80.sep.w3link.io/token/3/live"
+    }
+  ],
+  "deployedAt": "2026-09-18T20:39:00.991Z"
+}
