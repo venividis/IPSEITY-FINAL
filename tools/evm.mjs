@@ -169,9 +169,7 @@ export class Chain {
    * Defaults to mainnet, which is what every existing suite expects. It is
    * an option because `block.chainid` is an opcode and no mock can stand
    * in front of it: a contract that behaves differently per chain — and
-   * this collection's do, since the edition is partitioned across five —
-   * has branches that simply cannot be reached from a harness pinned to
-   * one. The branch that protects every testnet was the one out of reach.
+   * the Nameplate does for Ethereum and its Sepolia rehearsal.
    */
   static async open(opts = {}) {
     const chainCommon = opts.chainId === undefined

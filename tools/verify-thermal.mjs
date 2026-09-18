@@ -47,7 +47,7 @@ const head = (s) => console.log(`\n  \x1b[1m${s}\x1b[0m`);
 const DOC = process.env.DOC || "dist/ipseity.min.html";
 if (!existsSync(DOC)) { console.error("run tools/build-engine.mjs first"); process.exit(1); }
 const engine = readFileSync(DOC, "utf8");
-const STATE = `<script>window.IPSE={id:7,collection:"0x${"11".repeat(20)}",chainId:84532,` +
+const STATE = `<script>window.IPSE={id:7,collection:"0x${"11".repeat(20)}",chainId:11155111,` +
   `owner:"0x${"22".repeat(20)}",seed:"0x${"33".repeat(32)}",hue:34,form:0,` +
   `rot:[0,0,0,0,0,0],w:32768,ops:3,xfers:1,strata:2,open:0}</script>`;
 

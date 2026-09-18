@@ -426,7 +426,7 @@
   /* 6 · MAKE SOMETHING WITH IT */
   LANE[6] = function (h) {
     h.appendChild(el("div", "k", "DRAW THE NEXT ONE"));
-    note(h, "Every token is minted on the chain whose band its number falls in. This " +
+    note(h, "Every production token is minted on Ethereum. This " +
             "chain issues " + C.first + " to " + C.last + ".");
 
     /*  The price, read before the button and attached to the send. The

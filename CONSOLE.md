@@ -637,7 +637,7 @@ cannot say its chain leaves the wallet's own guard in charge. Driven by
 `verify-console`: on the wrong chain a control raises no slab and
 nothing is sent.*
 
-The five-chain partition — Ethereum 1..1024, Base 1025..2048, Unichain 2049..3072, BNB 3073..3584, Robinhood 3585..4096, **no bridge, by design** — is stated to a person for the first time here.
+The complete #1–#4096 edition lives on Ethereum, with no production copy or NFT bridge.
 
 The crest shows both chains. Every write button in every lane carries its reason **in its own label**, never in a tooltip: `Unichain only`. The standing line takes over:
 
@@ -647,7 +647,7 @@ with exactly one control, in the crest: `Move the wallet to Unichain`. **The con
 
 And when a lane needs to explain the partition:
 
-> There is no bridge between the five chains and there was never meant to be one. #2049 is a Unichain object the way a building is in a city.
+> There is no NFT bridge because the complete production edition lives on Ethereum.
 
 ### E.6 · The standing line
 
@@ -1191,7 +1191,7 @@ Each of these is refused now, with its reason, and none of them is a gap the con
 | **`executeAsSession`** | The key holder is not the holder and does not arrive from an instrument. It needs a different front door |
 | **`setApprovalForAll`** | It grants over the whole collection; this console acts on one token |
 | **Seeding a new pool with liquidity** | v4 `modifyLiquidities(bytes,uint256)` needs an ABI coder this client does not carry. `LAUNCH A COIN` names the step it stopped at, in `--warn`, and does not pretend otherwise |
-| **Cross-chain anything** | There is no bridge, by design, and `ParleyPort` is absent from both `deployments/*.json`. The console names the other four chains as places with their id bands and never sums across them |
+| **Cross-chain anything** | The production edition and its functions live on Ethereum; Sepolia is only a rehearsal. |
 | **A settings screen, a theme, a density control, sort, filter, an onboarding tour** | The one thing a holder can configure about this interface is the token's hue, and that is a transaction, in TURN IT, because it is a property of the object rather than of the viewer. Coach copy is three sentences, once, gated so a walked-into token never nags |
 | **`localStorage` of anything** | Nothing in the console is per-viewer state. The crumb stack is the history and it dies with the tab |
 

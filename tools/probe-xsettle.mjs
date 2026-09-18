@@ -20,7 +20,7 @@ const engine = await c.deploy(A("src/Engine.sol", "Engine").bytecode, "0".repeat
 const sigil = await c.deploy(A("src/Sigil.sol", "Sigil").bytecode);
 const rend = await c.deploy(A("src/Renderer.sol", "Renderer").bytecode, encodeAddressArg(engine) + encodeAddressArg(sigil));
 const nft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
-  encodeAddressArg(rend) + encodeAddressArg(impl) + encodeAddressArg(grip) + w(1) + w(4096));
+  encodeAddressArg(rend) + encodeAddressArg(impl) + encodeAddressArg(grip));
 const cons = await c.deploy(A("src/Consign.sol", "Consign").bytecode, encodeAddressArg(nft));
 const home = await c.deploy(A("test/mocks/XSettle.sol", "HomeEscrow").bytecode, encodeAddressArg(me));
 const away = await c.deploy(A("test/mocks/XSettle.sol", "AwayEscrow").bytecode);

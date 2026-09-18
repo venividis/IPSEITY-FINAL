@@ -7,8 +7,7 @@ exactly three IPSEITY NFTs directly to
 
 The public chain is **Ethereum Sepolia, chain ID 11155111**. The recipient is
 fixed for this authorized deployment. This does not deploy to Ethereum mainnet
-or Base Sepolia, and it does not alter the historical deployments recorded in
-`deployments/eth-sepolia.json` or `deployments/base-sepolia.json`.
+and it does not alter the deployment recorded in `deployments/eth-sepolia.json`.
 
 ## Signing configuration
 

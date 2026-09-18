@@ -29,7 +29,7 @@ import { fileURLToPath } from "node:url";
 import { compile, artifact } from "./compile.mjs";
 import { enc, sel, decUint, decAddr, decBool, decString, encodeAddressArg } from "./evm.mjs";
 import { RpcChain, DEV_KEYS } from "./rpc.mjs";
-import { deploySite, getter, UNISWAP, bandArgs, bandOrWhole, bandFor } from "./site.mjs";
+import { deploySite, getter, UNISWAP,  bandOrWhole, bandFor } from "./site.mjs";
 import { keccak256 } from "ethereum-cryptography/keccak.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -129,17 +129,17 @@ const grip = await c.deploy(A("src/GripVault.sol", "GripVault").bytecode, "", "G
     rehearsal is to exercise every id and no token on it is ever the
     token it is pretending to be.                                      */
 const band = bandOrWhole(chainId);
-console.log(`      band  ${band.name} · #${band.first}–#${band.last} ` +
+console.log(`      edition  ${band.name} · #${band.first}–#${band.last} ` +
             `(${band.last - band.first + 1} of 4096)` +
             (bandFor(chainId) ? "" : "  \x1b[2m— rehearsal, not part of the edition\x1b[0m"));
 const nft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
   encodeAddressArg(renderer) + encodeAddressArg(reach) + encodeAddressArg(grip) +
-  bandArgs(chainId), "Ipseity");
+  "", "Ipseity");
 {
   const f = decUint(await c.read(nft, "FIRST_ID()")), l = decUint(await c.read(nft, "LAST_ID()"));
   if (f !== BigInt(band.first) || l !== BigInt(band.last))
-    throw new Error(`the hub took band ${f}..${l}, not the ${band.first}..${band.last} it was given`);
-  ok(`the hub issues #${band.first}–#${band.last} and refuses past it`, true);
+    throw new Error(`the hub took range ${f}..${l}, not the ${band.first}..${band.last} it was given`);
+  ok(`the rehearsal issues #${band.first}–#${band.last} and refuses past it`, true);
 }
 const pool = await c.deploy(A("src/Pool.sol", "Pool").bytecode,
   encodeAddressArg(nft) + w(10n ** 27n) + encodeAddressArg(c.from.toString()) + w(0), "Pool");

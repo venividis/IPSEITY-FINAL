@@ -387,11 +387,7 @@ contract PageManifest {
         name it cannot lose.                                             */
     string internal constant EDITION =
         "["
-        "{\"chainId\":1,\"name\":\"Ethereum\",\"first\":1,\"last\":1024},"
-        "{\"chainId\":8453,\"name\":\"Base\",\"first\":1025,\"last\":2048},"
-        "{\"chainId\":130,\"name\":\"Unichain\",\"first\":2049,\"last\":3072},"
-        "{\"chainId\":56,\"name\":\"BNB\",\"first\":3073,\"last\":3584},"
-        "{\"chainId\":4663,\"name\":\"Robinhood\",\"first\":3585,\"last\":4096}"
+        "{\"chainId\":1,\"name\":\"Ethereum\",\"first\":1,\"last\":4096}"
         "]";
 
     string internal constant ROUTES =

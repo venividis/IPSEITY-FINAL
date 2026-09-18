@@ -40,7 +40,7 @@ contract ParleyTest is Test {
         engine.freeze();
 
         token = new Ipseity(IRenderer(address(renderer)),
-            address(new IpseityAccount()), address(new GripVault()), 1, 4096);
+            address(new IpseityAccount()), address(new GripVault()));
         parley = new Parley(ISpeaker(address(token)));
 
         vm.deal(holder, 10 ether);

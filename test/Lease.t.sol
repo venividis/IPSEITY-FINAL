@@ -45,7 +45,7 @@ contract LeaseTest is Test {
         engine.freeze();
 
         token = new Ipseity(IRenderer(address(renderer)),
-            address(new IpseityAccount()), address(new GripVault()), 1, 4096);
+            address(new IpseityAccount()), address(new GripVault()));
         lease = new Lease(IIpseityLease(address(token)));
 
         vm.deal(holder, 100 ether);

@@ -9,7 +9,7 @@
   the same block, because the artwork was always the collection's, not the
   page's.
 
-    node tools/redeploy-engine.mjs deployments/base-sepolia.json
+    node tools/redeploy-engine.mjs deployments/eth-sepolia.json
 ───────────────────────────────────────────────────────────────────────────*/
 import fs from "node:fs";
 import path from "node:path";
@@ -18,7 +18,7 @@ import { RpcChain } from "./rpc.mjs";
 import { compile, artifact } from "./compile.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const recPath = process.argv[2] || "deployments/base-sepolia.json";
+const recPath = process.argv[2] || "deployments/eth-sepolia.json";
 const rec = JSON.parse(fs.readFileSync(path.join(ROOT, recPath), "utf8"));
 const plan = JSON.parse(fs.readFileSync(path.join(ROOT, "dist/shards.json"), "utf8"));
 

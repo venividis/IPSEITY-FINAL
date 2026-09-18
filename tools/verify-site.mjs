@@ -86,7 +86,7 @@ const renderer = await c.deploy(A("src/Renderer.sol", "Renderer").bytecode,
 const nft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
   encodeAddressArg(renderer) +
   encodeAddressArg(await c.deploy(A("src/IpseityAccount.sol", "IpseityAccount").bytecode)) +
-  encodeAddressArg(await c.deploy(A("src/GripVault.sol", "GripVault").bytecode)) + (1).toString(16).padStart(64, "0") + (4096).toString(16).padStart(64, "0"));
+  encodeAddressArg(await c.deploy(A("src/GripVault.sol", "GripVault").bytecode)));
 
 /* a small real document, so tokenURI returns something whole */
 const { gzipSync } = await import("node:zlib");
@@ -189,34 +189,8 @@ const buyer = await c.as("0x" + "33".repeat(32));
 for (let i = 0; i < 3; i++) await c.exec(nft, "mint()", [], { value: 10n ** 16n });
 ok("three tokens issued", true);
 
-/*  totalSupply is a count, not a token id. Exercise a later chain's band so
-    every collection-wide route has to translate its ordinal through the hub
-    rather than accidentally relying on the first band beginning at one. */
-const bandNft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
-  encodeAddressArg(renderer) +
-  encodeAddressArg(await c.deploy(A("src/IpseityAccount.sol", "IpseityAccount").bytecode)) +
-  encodeAddressArg(await c.deploy(A("src/GripVault.sol", "GripVault").bytecode)) + w(1025) + w(2048));
-const bandPool = await c.deploy(A("src/Pool.sol", "Pool").bytecode,
-  encodeAddressArg(bandNft) + w(10n ** 30n) + encodeAddressArg(c.from.toString()) + w(0));
-await c.exec(bandNft, "setPool(address)", [bandPool]);
-const bandLease = await c.deploy(A("src/Lease.sol", "Lease").bytecode, encodeAddressArg(bandNft));
-const bandSite = await deploySite(c, A,
-  { hub: bandNft, pool: bandPool, lease: bandLease, sigil, uniswap: UNI });
-const GET_BAND = getter(c, bandSite.premises);
-await c.exec(bandNft, "mint()", [], { value: 10n ** 16n });
-await c.exec(bandPool, "openMarket(uint256,address,address,uint16)", [1025, weth, usdc, 30]);
-
-const bandRoot = await GET_BAND([]);
-eq("a non-first band's root renders its first token", bandRoot.status, 200);
-const bandDoor = await GET_BAND(["door"]);
-ok("its door links the issued id", bandDoor.body.includes('/token/1025">#1025'));
-const bandGallery = await GET_BAND(["gallery"]);
-eq("its gallery remains available", bandGallery.status, 200);
-ok("its gallery renders the issued id", bandGallery.body.includes('/token/1025/sigil.svg'));
-const bandIndex = await GET_BAND(["services.json"]);
-eq("its service index remains available", bandIndex.status, 200);
-ok("its service index includes the issued market",
-   JSON.parse(bandIndex.body).offering.some((row) => row.token === 1025 && row.trade));
+/* The Ethereum edition starts at #1 and collection-wide routes use the hub's
+   enumerable token ids rather than inventing a second numbering source. */
 
 /*════════════════ 1 · the escaping ════════════════*/
 head("a token whose symbol is a script tag");
@@ -453,19 +427,10 @@ head("and it describes the collection-wide surface too");
 {
   const m = JSON.parse((await GET(["services.json"])).body);
 
-  /*════════════ the partition, from both ends ════════════
-
-    The edition is one run of 4096 split into five contiguous bands, one
-    per chain, fixed in each hub's constructor. Nothing crosses and nothing
-    is trusted: two chains cannot issue the same number because neither can
-    issue outside its own band.
-
-    That promise is written down twice — in `tools/site.mjs`, which is what
-    the deploy reads, and in `PageManifest.EDITION`, which is what the
-    world reads. Two copies of one fact is a bug waiting for a redeploy, so
-    they are checked against each other here, and against what this hub
-    actually enforces.                                                  */
-  ok("the manifest publishes the whole edition, not just this chain's band",
+  /* The manifest and deployment table independently publish the one-row
+     Ethereum edition. Keep them equal so clients cannot be routed to a
+     chain that is not part of the collection. */
+  ok("the manifest publishes the complete Ethereum edition",
      Array.isArray(m.edition) && m.edition.length === Object.keys(BANDS).length,
      JSON.stringify(m.edition || null).slice(0, 120));
   {

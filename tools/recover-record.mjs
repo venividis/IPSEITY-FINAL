@@ -12,8 +12,8 @@
   makes an existing record checkable: what the file says and what the chain
   says are two answers to the same question, and they should agree.
 
-      node tools/recover-record.mjs deployments/base-sepolia.json
-      node tools/recover-record.mjs deployments/base-sepolia.json --write
+      node tools/recover-record.mjs deployments/eth-sepolia.json
+      node tools/recover-record.mjs deployments/eth-sepolia.json --write
 ───────────────────────────────────────────────────────────────────────────*/
 import fs from "node:fs";
 import path from "node:path";

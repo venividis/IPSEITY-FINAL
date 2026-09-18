@@ -518,12 +518,7 @@ contract PageConsole {
     function _chainName() private view returns (string memory) {
         uint256 c = block.chainid;
         if (c == 1) return "Ethereum";
-        if (c == 8453) return "Base";
-        if (c == 130) return "Unichain";
-        if (c == 56) return "BNB";
-        if (c == 4663) return "Robinhood";
         if (c == 11155111) return "Ethereum Sepolia";
-        if (c == 84532) return "Base Sepolia";
         return string.concat("chain ", c.str());
     }
 }

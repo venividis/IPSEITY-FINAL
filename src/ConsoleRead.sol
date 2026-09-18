@@ -9,10 +9,8 @@ import {IHub, IPoolRead, ILeaseRead} from "./interfaces/Site.sol";
   CONSOLE READ — one call, and it cannot revert on you
 
   The console renders in a single response. That response reads the hub and
-  then five satellites, and the satellites are the problem: this collection
-  is deployed on five chains and no two of them carry the same set. A pool
-  exists on Base and does not on Robinhood. A Nameplate answers on Ethereum
-  and there is no ENS registry underneath it anywhere else.
+  then five satellites. The production Ethereum deployment includes them,
+  while an incomplete rehearsal may omit one or more optional satellites.
 
   A page that reads them directly does not degrade on those chains. It
   REVERTS — one absent contract and the whole document is a 500, and the
@@ -60,7 +58,7 @@ contract ConsoleRead {
         reverts the whole transaction, which is precisely the failure the
         wrapping was written to prevent.
 
-        Two of the five chains this collection ships on have no pool and no
+        A rehearsal deployment may have no pool and no
         lease. Without this check the console is a 500 on both of them, and
         the try/catch reads as protection while providing none.        */
     function _live(address a) private view returns (bool ok_) {

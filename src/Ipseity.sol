@@ -78,36 +78,22 @@ contract Ipseity is
     string public constant name   = "IPSEITY";
     string public constant symbol = "IPSE";
 
-    /*═══ one collection, several chains, one numbering ═══
+    /*═══ one collection, one chain, one numbering ═══
 
-      The whole edition is four thousand and ninety-six, and it is cut into
-      contiguous bands — one per chain, fixed in the constructor and never
-      moved. A token minted here is numbered inside this chain's band, so
-      #1337 names exactly one token in the world, and nothing has to be
-      asked of another chain to know it. No bridge, no oracle, no shared
-      counter, no trust: an arithmetic fact about a constructor argument,
-      settled before the first mint and unable to drift afterwards.
+      The entire edition is issued on Ethereum. Token ids run consecutively
+      from 1 through 4096, with no per-chain bands, bridge, remote ownership
+      or duplicated collection deployment in the production architecture.
 
-      Why not a full edition per chain: four collections of four thousand
-      are four collections, however they are branded.
-
-      Why not a token that travels: everything this collection is about
-      hangs off the token through an ERC-6551 account whose address is
-      derived from `block.chainid` and from this contract's own address.
-      A token that crossed would arrive with correct artwork and empty
-      hands — no vault, no Grip, no rooms it stewards, no seal. The number
-      can travel. The thing it names cannot.                            */
+      The token's ERC-6551 accounts derive from Ethereum's chain id, this
+      collection and the token id. Keeping the edition on one chain keeps
+      the artwork, vaults, markets, rooms and seals in one coherent state. */
     uint256 public constant COLLECTION = 4096;
 
-    /// @notice The first and last id this deployment may ever issue.
-    uint256 public immutable FIRST_ID;
-    uint256 public immutable LAST_ID;
+    uint256 public constant FIRST_ID = 1;
+    uint256 public constant LAST_ID = COLLECTION;
+    uint256 public constant MAX_SUPPLY = COLLECTION;
 
-    /// @notice How many this chain can issue. The global edition is
-    ///         `COLLECTION`; this is one band of it.
-    uint256 public immutable MAX_SUPPLY;
-
-    error BadBand();
+    error UnsupportedChain();
 
     /*  The instruments that only look are open from birth. The ones that
         move value are sealed until the holder deliberately opens them.
@@ -126,7 +112,7 @@ contract Ipseity is
         though it were the design, which is how it survived.
 
         It is a constant, so it is settled at deployment and settled
-        forever for every token in the band.                             */
+        forever for every token in the edition.                          */
     uint16 public constant BORN_OPEN = 0x987;
     uint16 public constant ALL_OPEN  = 0xFFF;
     uint8  public constant NODE_COUNT = 12;
@@ -327,18 +313,12 @@ contract Ipseity is
         _lock = 1;
     }
 
-    constructor(IRenderer renderer_, address accountImpl_, address gripImpl_,
-                uint256 firstId_, uint256 lastId_) {
+    constructor(IRenderer renderer_, address accountImpl_, address gripImpl_) {
+        // Ethereum is the production home. Sepolia and the conventional local
+        // development chain are rehearsals, not additional edition bands.
+        if (block.chainid != 1 && block.chainid != 11155111 && block.chainid != 31337)
+            revert UnsupportedChain();
         if (accountImpl_ == address(0) || gripImpl_ == address(0)) revert ZeroAddress();
-        /*  Zero is not a token id anywhere in this collection — `_exists`
-            reads an owner of the zero address as "no such token" — and a
-            band that runs past the edition would let two chains issue the
-            same number, which is the one thing the partition exists to
-            prevent.                                                     */
-        if (firstId_ == 0 || lastId_ < firstId_ || lastId_ > COLLECTION) revert BadBand();
-        FIRST_ID = firstId_;
-        LAST_ID = lastId_;
-        unchecked { MAX_SUPPLY = lastId_ - firstId_ + 1; }
         ACCOUNT_IMPL = accountImpl_;
         GRIP_IMPL = gripImpl_;
         emit OwnershipTransferred(address(0), msg.sender);

@@ -34,8 +34,7 @@ async function run(extraStored) {
   const nft = await c.deploy(A.Ipseity.bytecode,
     encodeAddressArg(renderer) +
     encodeAddressArg(await c.deploy(A.Account.bytecode, "", "acct")) +
-    encodeAddressArg(await c.deploy(A.Grip.bytecode, "", "grip")) +
-    (1).toString(16).padStart(64,"0") + (4096).toString(16).padStart(64,"0"), "Ipseity");
+    encodeAddressArg(await c.deploy(A.Grip.bytecode, "", "grip")), "Ipseity");
   for (const s of plan.head) await c.exec(engine, "loadHead(bytes)", [s.data]);
   for (const s of plan.body) await c.exec(engine, "loadBody(bytes)", [s.data]);
   let left = extraStored;

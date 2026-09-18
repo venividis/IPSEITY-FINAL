@@ -35,7 +35,7 @@ const sigil  = await c.deploy(A("src/Sigil.sol", "Sigil").bytecode);
 const rend   = await c.deploy(A("src/Renderer.sol", "Renderer").bytecode,
   encodeAddressArg(engine) + encodeAddressArg(sigil));
 const nft    = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
-  encodeAddressArg(rend) + encodeAddressArg(impl) + encodeAddressArg(grip) + w(1) + w(4096));
+  encodeAddressArg(rend) + encodeAddressArg(impl) + encodeAddressArg(grip));
 /* a royalty so the split is exercised rather than skipped */
 await c.exec(nft, "setRoyalty(address,uint96)", [me, 500]);
 
