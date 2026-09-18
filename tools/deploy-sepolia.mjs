@@ -10,7 +10,7 @@ import {Wallet,HDNodeWallet,Interface,hexlify,keccak256,sha256,getCreateAddress,
 import {compile,artifact} from './compile.mjs';
 import {RpcChain,DEV_KEYS} from './rpc.mjs';
 import {decAddr,decUint,decBool,decString,encodeAddressArg} from './evm.mjs';
-import {deploySite,UNISWAP,NO_VENUE,bandArgs,EXPECTED,encRequest,decResponse} from './site.mjs';
+import {deploySite,UNISWAP,NO_VENUE,EXPECTED,encRequest,decResponse} from './site.mjs';
 import {buildWorkbench} from './modules-build-workbench.mjs';
 import {loadModuleArtifacts,planModuleDeployment} from './modules-deployment.mjs';
 import {recoverWorkbench} from './modules-recover-workbench.mjs';
@@ -171,7 +171,7 @@ export async function deploySepolia({c,A,artifacts,engineBuild,workbench,output,
   contracts.renderer=await c.deploy(A('src/Renderer.sol','Renderer').bytecode,encodeAddressArg(contracts.engine)+encodeAddressArg(contracts.sigil),'Renderer');
   contracts.reach=await c.deploy(A('src/IpseityAccount.sol','IpseityAccount').bytecode,'','Reach');
   contracts.grip=await c.deploy(A('src/GripVault.sol','GripVault').bytecode,'','Grip');
-  contracts.ipseity=await c.deploy(A('src/Ipseity.sol','Ipseity').bytecode,encodeAddressArg(contracts.renderer)+encodeAddressArg(contracts.reach)+encodeAddressArg(contracts.grip)+bandArgs(chainId),'Ipseity');
+  contracts.ipseity=await c.deploy(A('src/Ipseity.sol','Ipseity').bytecode,encodeAddressArg(contracts.renderer)+encodeAddressArg(contracts.reach)+encodeAddressArg(contracts.grip),'Ipseity');
   contracts.pool=await c.deploy(A('src/Pool.sol','Pool').bytecode,encodeAddressArg(contracts.ipseity)+word(10n**27n)+encodeAddressArg(deployer)+word(0),'Pool');
   await c.exec(contracts.ipseity,'setPool(address)',[contracts.pool]);
   contracts.lease=await c.deploy(A('src/Lease.sol','Lease').bytecode,encodeAddressArg(contracts.ipseity),'Lease');

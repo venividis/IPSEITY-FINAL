@@ -77,7 +77,7 @@ contract ModulesTest is Test {
         engine.loadBody(bytes("<body>The original instrument</body></html>"));
         engine.freeze();
         Renderer renderer = new Renderer(engine, new Sigil());
-        token = new Ipseity(IRenderer(address(renderer)), address(new IpseityAccount()), address(new GripVault()), 1, 4096);
+        token = new Ipseity(IRenderer(address(renderer)), address(new IpseityAccount()), address(new GripVault()));
         vm.deal(alice, 100 ether);
         vm.deal(bob, 100 ether);
         vm.prank(alice);

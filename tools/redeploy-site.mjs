@@ -9,7 +9,7 @@
   ever sent is a log that contract emitted, and a new Parley would not
   migrate the conversation, it would end it.
 
-      node tools/redeploy-site.mjs deployments/base-sepolia.json
+      node tools/redeploy-site.mjs deployments/eth-sepolia.json
 ───────────────────────────────────────────────────────────────────────────*/
 import fs from "node:fs";
 import path from "node:path";

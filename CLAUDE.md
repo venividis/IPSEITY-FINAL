@@ -11,8 +11,8 @@ surface: a self-contained WebGL2 4D renderer plus wallet client, stored as
 contract bytecode, returned as a `data:` URI. The same contracts serve an
 entire website over `web3://` (ERC-5219), run a per-token AMM whose price
 curve *is* the artwork's orientation, and give every token two ERC-6551
-accounts. One edition of 4096 tokens is partitioned across five chains by
-disjoint id bands with no bridge for the tokens themselves.
+accounts. One edition of 4096 tokens lives entirely on Ethereum, numbered #1 through #4096.
+Sepolia is a rehearsal only; there are no production chain bands or NFT bridge.
 
 There is no server, no IPFS, no indexer, no external dependency anywhere —
 on chain or off. That absence is the product. Do not introduce one.
@@ -67,7 +67,7 @@ family): `npm run verify:pool | verify:vault | verify:kernel |
 verify:premises | verify:site | verify:parley | verify:timelock |
 verify:recover | verify:console | verify:plate | verify:thermal |
 verify:instrument`. Some have no npm alias — run directly:
-`node tools/verify-curve.mjs`, `verify-port.mjs`, `verify-estate.mjs`,
+`node tools/verify-curve.mjs`, `verify-estate.mjs`,
 `verify-launch.mjs`, `verify-portal.mjs`.
 
 Browser-dependent (launch Playwright Chromium): `shots.mjs`,
@@ -109,7 +109,7 @@ src/                  all Solidity; zero external dependencies, ever
   Venue.sol             read-only Uniswap v3/v4 aggregator (never routes token-market trades)
   Kiln.sol Facet.sol    memecoin launchpad + Uniswap v4 hooks (Gate, Facet)
   Parley.sol            on-chain messaging: logs only, back-linked, indexer-free; never redeploy
-  ParleyPort.sol Roster.sol Nameplate.sol           LayerZero commons bridge, membership reads, ENS
+  Roster.sol Nameplate.sol                          membership reads and Ethereum ENS
   Premises.sol          the web3:// router (ERC-5219); pages are immutable constructor args
   Chrome.sol Desk*.sol Page*.sol                    site shell / JS clients / HTML pages
   PageConsole.sol ConsoleRead.sol ConsoleSkin.sol   the /c/<id> console
@@ -156,12 +156,12 @@ deployments/          machine-checked deployment records (the authoritative ones
 - **Messaging**: Parley messages are event logs carrying `prev` block
   pointers, so clients walk history with single-block `eth_getLogs` — no
   range scans, no indexer. The archive lives in that contract; redeploying
-  Parley ends the conversation. `ParleyPort` federates the commons (room 0
+  Parley is the permanent Ethereum conversation.
   only) over LayerZero V2 — real receiver ABI (`lzReceive(Origin,…)`,
   `allowInitializePath`, `nextNonce`), no admin/delegate ever, security
   config pinnable only at construction; tokens never bridge
   (`OMNICHAIN.md` argues both halves).
-- **Multi-chain**: 4096 ids in five per-chain bands (arithmetic in
+- **Ethereum-only**: 4096 ids in one Ethereum edition (arithmetic in
   `Nameplate.sol`, mirrored by `BANDS` in `tools/site.mjs` — keep them in
   lockstep). Testnet deployments are rehearsals holding the whole edition.
   Satellites (Pool, Lease, console…) do not exist on every chain — reads
@@ -250,7 +250,7 @@ deployments/          machine-checked deployment records (the authoritative ones
 4. **Never**: make any swap path move the curve anchors; turn Pool's
    `curveWord` copy into a live `sectionOf` read; shorten a bond or seal
    (ratchets); add any outbound/admin path to `GripVault`; add admin,
-   delegate, or peer mutation to `ParleyPort`; add fees or curators to
+   cross-chain ports; add fees or curators to
    Lease/Locker/Consign; hardcode a `0x` selector in a Desk (selectors are
    keccak'd on chain in `_sel`; the one existing literal is DeskLaunch's
    `decimals()` fallback for chains without DeskUni); claim ERC-7857

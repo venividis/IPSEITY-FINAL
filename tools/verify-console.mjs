@@ -132,8 +132,7 @@ const renderer = await c.deploy(A("src/Renderer.sol", "Renderer").bytecode,
 const nft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
   encodeAddressArg(renderer) +
   encodeAddressArg(await c.deploy(A("src/IpseityAccount.sol", "IpseityAccount").bytecode)) +
-  encodeAddressArg(await c.deploy(A("src/GripVault.sol", "GripVault").bytecode)) +
-  w(1) + w(4096));
+  encodeAddressArg(await c.deploy(A("src/GripVault.sol", "GripVault").bytecode)));
 
 const { gzipSync } = await import("node:zlib");
 const doc = Buffer.from("<!doctype html><title>x</title><body>the instrument</body>", "utf8");
@@ -145,10 +144,8 @@ await c.send({ to: engine, data: evm.sel("loadBody(bytes)") + loadArg(packed) })
 await c.exec(engine, "setInflatedSize(uint32)", [doc.length]);
 
 /*═══════════════ the reader, pointed at nothing ═══════════════*/
-/*  Deployed against addresses with no code, which is not a contrivance —
-    it is Robinhood and BNB, where this collection ships without a pool or
-    a lease. If the reader reverts here the console is a 500 on two of the
-    five chains it claims to run on.                                    */
+/* Deployed against addresses with no code to prove that an incomplete
+   rehearsal reports missing satellites instead of reverting. */
 
 head("a satellite that does not answer is recorded as not answering");
 {
@@ -335,7 +332,7 @@ head("the instrument leaves for the console, and for this token");
 {
   /*  The one line the whole redesign was for. `/connect` used to land on
       /door — one address for every token, so a holder who had just been
-      holding #2049 arrived at a page about the collection and had to find
+      holding a token arrived at a page about the collection and had to find
       their own token in it.
 
       Read from the engine's source rather than driven, for the reason its

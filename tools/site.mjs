@@ -47,89 +47,20 @@ const encStrArray = (arr) => {
   without gets an honest "no pool" — there is no list here to be wrong. */
 const ZERO = "0x0000000000000000000000000000000000000000";
 
-/*───────────────────────────────────────────────────────────────────────────
-  LayerZero V2, per chain — probed, not recalled.
-
-  There are TWO canonical EndpointV2 addresses, not one. The chains
-  onboarded early sit at 0x1a4407…; the ones onboarded later sit at
-  0x6f4756…. Probing only the first and reporting absence is exactly the
-  mistake this table exists to stop: it was made twice in one session, and
-  the conclusion reported both times — that Unichain and Robinhood Chain
-  had no LayerZero and could never join a federated commons — was simply
-  false. Both have a full endpoint. Every entry below was read off the
-  chain: 24,005 bytes of code, an `eid()` that answers, and a
-  `defaultReceiveLibrary(30101)` that resolves.
-
-  A chain is in this table only if all three held.
-───────────────────────────────────────────────────────────────────────────*/
+/* LayerZero is not part of the Ethereum-only NFT architecture. These two
+   records are retained only for explicit Ethereum/Sepolia RPC inspection. */
 export const LAYERZERO = {
-  1:     { name: "Ethereum",  eid: 30101, read: true,  endpoint: "0x1a44076050125825900e736c501f859c50fE728c" },
-  10:    { name: "Optimism",  eid: 30111, read: true,  endpoint: "0x1a44076050125825900e736c501f859c50fE728c" },
-  56:    { name: "BNB",       eid: 30102, read: true,  endpoint: "0x1a44076050125825900e736c501f859c50fE728c" },
-  130:   { name: "Unichain",  eid: 30320, read: true,  endpoint: "0x6f475642a6e85809b1c36fa62763669b1b48dd5b" },
-  4663:  { name: "Robinhood", eid: 30416, read: false, endpoint: "0x6f475642a6e85809b1c36fa62763669b1b48dd5b" },
-  8453:  { name: "Base",      eid: 30184, read: true,  endpoint: "0x1a44076050125825900e736c501f859c50fE728c" },
-  42161: { name: "Arbitrum",  eid: 30110, read: true,  endpoint: "0x1a44076050125825900e736c501f859c50fE728c" },
+  1: { name: "Ethereum", eid: 30101, read: true, endpoint: "0x1a44076050125825900e736c501f859c50fE728c" },
 };
 
-/*  `read` is a SEPARATE capability from messaging and the difference is
-    easy to state wrongly — I did, twice.
-
-    Every chain above can send AND receive. What only some carry is
-    ReadLib1002 (v10.0.2, 23,471 bytes), the library behind lzRead: a
-    pull, where the answer lands on the chain that asked instead of a
-    push that lands on the chain being told. Measured from Unichain,
-    reading Ethereum costs 1.957e-5 ETH against 3.404e-4 to message it —
-    seventeen times cheaper, because the answer arrives at 0.0005 gwei.
-
-    Robinhood mainnet carries SendUln302 and ReceiveUln302 at v3.0.2 and
-    a 623-byte BlockedMessageLib, and no read library; its read channels
-    resolve to nothing. So it can speak and be spoken to, and it cannot
-    take part in a read in either direction — it can neither ask nor be
-    asked. That is the whole of the limitation, and the first two ways I
-    wrote it down were both wrong: "can never be heard" is false, it
-    receives perfectly.
-
-    Robinhood's TESTNET (46630) was reported here, twice, as having no
-    endpoint at all — measured at the three canonical addresses,
-    mainnet-early, mainnet-late, and the testnet address 0x6EDCE654…f10f,
-    all empty. The measurement was real and the conclusion was still
-    false: there is a FOURTH address. LayerZero's own metadata registry
-    places Robinhood testnet's endpoint at 0x3aCAAf60…Fe32, and reading
-    that address over the chain's public RPC finds 24,005 bytes of code —
-    the size of a full EndpointV2 — whose eid() answers 40451. "Not at
-    the addresses I knew" had been written down as "not deployed", which
-    is the same bad step as probing only the first canonical address,
-    made one address deeper. The table below carries it now. Base
-    Sepolia remains the control: endpoint at the testnet address, eid
-    40245, with three read libraries.
-
-    One more trap, from the same registry: it still carries a LEGACY
-    record for Ethereum Sepolia at eid 30161 — V1's numbering plus
-    30000, staged "mainnet", with no EndpointV2 behind it. The live V2
-    record is eid 40161. Wire 40161; a port built to 30161 is built to
-    a dead number.                                                    */
 export const canRead = (chainId) => !!(LAYERZERO[Number(chainId)] || {}).read;
 
-/*  The rehearsal chains' endpoints, measured the same way (code present,
-    eid() answering). Testnet eids are 40xxx as mainnet's are 30xxx, and
-    neither has any relation to the EVM chain id — never derive one from
-    the other. Robinhood's testnet endpoint is the one at the
-    non-canonical address; see the correction above.                    */
+/* Sepolia is a rehearsal, not another edition chain. */
 export const LAYERZERO_TESTNETS = {
   11155111: { name: "Ethereum Sepolia", eid: 40161, endpoint: "0x6EDCE65403992e310A62460808c4b910D972f10f" },
-  84532:    { name: "Base Sepolia",     eid: 40245, endpoint: "0x6EDCE65403992e310A62460808c4b910D972f10f" },
-  46630:    { name: "Robinhood Testnet", eid: 40451, endpoint: "0x3aCAAf60502791D199a5a5F0B173D78229eBFe32" },
 };
 
-/*  Who a chain's port should be built to hear. Every OTHER chain of the
-    edition that has an endpoint — the port carries speech, which every
-    one of the five can both send and receive, so `canRead` does not come
-    into it. Reading is a separate capability for a separate purpose.
-
-    A chain with no endpoint gets an empty list and must deploy no port at
-    all rather than one pointed at nothing. `ParleyPort` refuses to
-    construct on an empty list, so that mistake cannot be made quietly. */
+/* No production peer exists in the Ethereum-only edition. */
 export function portPeers(chainId) {
   const me = Number(chainId);
   const out = [];
@@ -142,49 +73,17 @@ export function portPeers(chainId) {
 }
 
 /*───────────────────────────────────────────────────────────────────────────
-  THE PARTITION — one edition of 4096, cut into five bands
+  THE EDITION — 4096 tokens, all on Ethereum
 
-  A token's number is its name. Two tokens numbered #7 would not be two
-  tokens with the same name, they would be a broken promise about how many
-  there are — and no bridge, quorum or oracle is needed to keep that
-  promise if the numbers simply cannot collide. Each chain is handed a
-  contiguous band in its constructor, and `mint` issues `FIRST_ID +
-  totalSupply` and refuses past `LAST_ID`. The partition is enforced by
-  arithmetic on each chain independently, with nothing to trust and no
-  message to miss.
-
-  This is the reason the collection can be multi-chain at all without
-  becoming a bridge. Nothing crosses. There is one edition and five places
-  it is issued from, the way one print run can be signed in five cities.
-
-  WHY THESE SIZES. The edition is 4096 = 2^12, so every band is a power of
-  two on a power-of-two boundary — a split you can check in your head and
-  a reader can verify without arithmetic. Ethereum, Base and Unichain take
-  a full quarter each; BNB and Robinhood split the last quarter.
-
-  Ethereum holds the first band because #1 should exist where the edition
-  is canonical, and because Ethereum is the one chain whose continued
-  existence needs no argument. Unichain gets a full quarter despite being
-  the newest, because it is the cheapest place to turn a solid — the
-  gesture the whole collection is built on — and it carries the v4 stack
-  natively. Robinhood's band is the smallest not as a judgement of the
-  chain but because it is the only one of the five that cannot be read
-  from: it carries a LayerZero endpoint but no read library, so a token
-  minted there can speak and can never be heard by the others. A smaller
-  band is the honest size for the place with the least connectivity.
-
-  These bounds go into an `immutable` at construction. They cannot be
-  changed afterwards, on purpose: a band that could move is a band that
-  could be made to overlap, and the whole guarantee is that it cannot.
+  The production collection lives only on Ethereum and issues the complete
+  range from #1 through #4096. There are no per-chain bands, duplicated
+  production hubs or NFT bridge. Testnets may rehearse the same range, but
+  they are never production members of the edition.
 ───────────────────────────────────────────────────────────────────────────*/
 export const COLLECTION = 4096;
 
 export const BANDS = {
-  1:    { name: "Ethereum",  first:    1, last: 1024 },
-  8453: { name: "Base",      first: 1025, last: 2048 },
-  130:  { name: "Unichain",  first: 2049, last: 3072 },
-  56:   { name: "BNB",       first: 3073, last: 3584 },
-  4663: { name: "Robinhood", first: 3585, last: 4096 },
+  1: { name: "Ethereum", first: 1, last: 4096 },
 };
 
 /*  The one property that makes the whole design work: the bands tile the
@@ -214,9 +113,7 @@ export function assertTiles(bands, total = COLLECTION) {
 
 assertTiles(BANDS);
 
-/// @notice The band a chain issues from, or null. A chain with no band is
-///         not part of the edition and must not deploy a hub: minting
-///         there would be minting a number some other chain owns.
+/// @notice Ethereum owns the production edition; every other chain is a rehearsal or unsupported.
 export const bandFor = (chainId) => BANDS[Number(chainId)] || null;
 
 /*  A testnet is a rehearsal, not part of the edition, so it takes the
@@ -224,68 +121,11 @@ export const bandFor = (chainId) => BANDS[Number(chainId)] || null;
     token on it is ever the token it is pretending to be.               */
 export const bandOrWhole = (chainId) => bandFor(chainId) || { name: "rehearsal", first: 1, last: COLLECTION };
 
-/// @notice The two constructor words, hex-encoded, for a chain's band.
-export const bandArgs = (chainId) => {
-  const b = bandOrWhole(chainId);
-  return BigInt(b.first).toString(16).padStart(64, "0") +
-         BigInt(b.last).toString(16).padStart(64, "0");
-};
+/// @notice Retained for old tool callers; the constructor has no band words.
+export const bandArgs = () => "";
 
-/// @notice The endpoint for a chain, or null — never a guess. A caller that
-///         gets null must degrade to a local-only deployment rather than
-///         deploy a port pointed at an address with nothing behind it.
+/// @notice Ethereum's recorded endpoint, or null for every other production chain.
 export const endpointFor = (chainId) => LAYERZERO[Number(chainId)] || null;
-
-/*───────────────────────────────────────────────────────────────────────────
-  What LayerZero actually costs here, quoted live against the real
-  endpoints rather than read off a docs page. Kept because these numbers
-  decide the architecture, and the scripts that produced them were
-  throwaway.
-
-  THE ONE THAT MATTERS: from Unichain, READING Ethereum costs 1.957e-5 ETH
-  and MESSAGING Ethereum costs 3.404e-4 — seventeen times more. The read's
-  answer lands on Unichain at 0.0005 gwei; the message lands on L1. Pulling
-  state is radically cheaper than pushing it, and it is the reason the
-  design here reads rather than sends.
-
-  READ, quoted from Unichain (eid 30320), which carries the read library —
-  only 30 of 183 LayerZero mainnet deployments do:
-    one read                       1.957e-5 ETH
-    each extra target, same command 1.021e-5
-    eight targets in one command    9.102e-5
-    lzReduce (fold on arrival)     +1.021e-5
-    lzMap                          +3.06e-5
-  Unichain can read Ethereum, Base, Arbitrum, Optimism, BNB, Polygon and
-  itself. It CANNOT read Robinhood (30416) — that endpoint has no read
-  library on mainnet or testnet, so Robinhood can speak and never be heard.
-
-  SEND, measured from production OApps on the same lanes:
-    Unichain -> Base        2.552e-5      Unichain -> Optimism  2.170e-5
-    Unichain -> BNB         3.132e-5      Unichain -> Arbitrum  4.379e-5
-    Unichain -> Ethereum    3.404e-4      Robinhood -> Ethereum 3.709e-4
-
-  PAYLOAD IS ALMOST FREE, so size is never the constraint the fixed fee is:
-    64 bytes 2.691e-5 · 10,000 bytes 2.789e-5  (~1e-10 ETH per byte)
-    maxMessageSize is exactly 10,000 — 10,001 reverts InvalidMessageSize.
-    The section word is 32 bytes. It fits three hundred times over.
-    Ordered execution costs +3.51e-8. Effectively free.
-
-  TWO PROTOCOL FACTS THAT DECIDE ADMISSIBILITY UNDER THE HOUSE RULES:
-    · An unwired lane fails at QUOTE time. The default verifier is a
-      934-byte contract whose whole behaviour is to revert with "Please set
-      your OApp's DVNs and/or Executor". A lane that is not configured says
-      so instead of accepting a message that would never arrive.
-    · Delivery is permissionless — `lzReceive` has no access control, so
-      once the DVNs verify, anyone may deliver. The paid executor is a
-      convenience and never a dependency. No server is required.
-    · `setConfig` + `setDelegate(address(0))` in a constructor freezes the
-      DVN set as hard as the bytecode: no admin key, no upgrade path.
-───────────────────────────────────────────────────────────────────────────*/
-export const LZ_COST = {
-  readOne: 1.957e-5, readExtra: 1.021e-5, reduce: 1.021e-5,
-  sendToL1: 3.404e-4, sendToL2: 2.552e-5,
-  maxMessageBytes: 10000, sectionWordBytes: 32,
-};
 
 export const UNISWAP = {
   1: {
@@ -300,28 +140,6 @@ export const UNISWAP = {
     v4Positions: "0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e",
     ens: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
     nameWrapper: "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401"
-  },
-  8453: {
-    name: "Base",
-    factory: "0x33128a8fC17869897dcE68Ed026d694621f6FDfD",
-    quoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a",
-    router: "0x2626664c2603336E57B271c5C0b26F421741e481", routerKind: 1,
-    positions: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-    wrapped: "0x4200000000000000000000000000000000000006",
-    governor: ZERO, govToken: ZERO,
-    poolManager: "0x498581fF718922c3f8e6A244956aF099B2652b2b",
-    v4Positions: "0xbD216513d74C8cf14cf4747E6AaA6420FF64ee9e"
-  },
-  84532: {
-    name: "Base Sepolia",
-    factory: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
-    quoter: "0xC5290058841028F1614F3A6F0F5816cAd0df5E27",
-    router: "0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4", routerKind: 1,
-    positions: "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2",
-    wrapped: "0x4200000000000000000000000000000000000006",
-    governor: ZERO, govToken: ZERO,
-    poolManager: "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408",
-    v4Positions: "0x429ba70129df741B2Ca2a85BC3A2a3328e5c09b4"
   },
   11155111: {
     name: "Ethereum Sepolia",

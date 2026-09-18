@@ -7,7 +7,7 @@
 
   It runs against a LOCAL chain — a Premises deployed here in-process — so
   the suite does not depend on a public RPC being up, and so a failure
-  means the gateway is wrong rather than that Base Sepolia was busy. The
+  means the gateway is wrong rather than that Sepolia was busy. The
   routing table and the refusals are exercised without a network at all.
 
       node tools/verify-portal.mjs
@@ -29,35 +29,35 @@ const head = (s) => console.log(`\n  \x1b[1m${s}\x1b[0m`);
 
 head("the routing table");
 {
-  const r = route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.basesep.ipseity.link");
-  eq("a short name resolves to its chain id", r && r.id, 84532);
+  const r = route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.sep.ipseity.link");
+  eq("a short name resolves to its chain id", r && r.id, 11155111);
   eq("and the address comes off the front", r && r.address,
      "0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9");
 
   /*  A chain's number is the one name it can never lose, so it always
       works even where the short name is unknown to a reader.          */
   eq("a numeric id works as well as a name",
-     route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.4663.x.y.z").id, 4663);
+     route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.1.x.y.z").id, 1);
 
   /*  Read from the RIGHT would be wrong: a domain may have any number of
       labels. The address is always first and the chain always second. */
   eq("a domain with many labels still routes",
-     route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.base.a.b.c.d.example").id, 8453);
+     route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.eth.a.b.c.d.example").id, 1);
 
   ok("an unknown chain is reported as unknown rather than guessed",
      route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.nope.ipseity.link").id === null);
   ok("a host with no address in it is refused outright",
      route("ipseity.link") === null);
   ok("and so is one whose first label only looks like an address",
-     route("0xnothex.base.ipseity.link") === null);
+     route("0xnothex.eth.ipseity.link") === null);
   ok("a port on the host does not confuse it",
-     route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.base.localhost:8080").id === 8453);
+     route("0x0f6b6921ea8d98733dcee0d981afca7726ecbbd9.eth.localhost:8080").id === 1);
   ok("case does not matter",
-     route("0x0F6B6921EA8D98733DCEE0D981AFCA7726ECBBD9.BASE.IPSEITY.LINK").id === 8453);
+     route("0x0F6B6921EA8D98733DCEE0D981AFCA7726ECBBD9.ETH.IPSEITY.LINK").id === 1);
 
   /*  Every chain this collection is deployed to must be reachable through
       the door, or the door is decorative on that chain.               */
-  for (const want of [1, 8453, 56, 4663]) {
+  for (const want of [1, 11155111]) {
     ok(`chain ${want} (${CHAINS[want] ? CHAINS[want].name : "?"}) is one this door opens onto`,
        !!CHAINS[want] && !!CHAINS[want].rpc);
   }
@@ -80,8 +80,7 @@ const sigil = await c.deploy(A("src/Sigil.sol", "Sigil").bytecode);
 const renderer = await c.deploy(A("src/Renderer.sol", "Renderer").bytecode,
   encodeAddressArg(engine) + encodeAddressArg(sigil));
 const nft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
-  encodeAddressArg(renderer) + encodeAddressArg(impl) + encodeAddressArg(grip) +
-  (1).toString(16).padStart(64, "0") + (4096).toString(16).padStart(64, "0"));
+  encodeAddressArg(renderer) + encodeAddressArg(impl) + encodeAddressArg(grip));
 await c.exec(nft, "mint()", [], { value: 10n ** 16n });
 const pool  = await c.deploy(A("src/Pool.sol", "Pool").bytecode,
   encodeAddressArg(nft) + (10n ** 27n).toString(16).padStart(64, "0") +
@@ -152,50 +151,24 @@ head("only headers that cannot hurt a shared origin cross");
     world rather than about code: every chain the collection intends to
     mint on must have a door, and a door that silently lacks one sends a
     visitor to a gateway that answers NXDOMAIN.                         */
-head("the door opens onto every chain the collection means to use");
+head("the door opens onto Ethereum and its rehearsal only");
 {
-  const MINTS = { 1: "eth", 8453: "base", 56: "bnb", 4663: "rhc", 130: "unichain" };
-  for (const [id, name] of Object.entries(MINTS)) {
-    ok(`chain ${id} is served, as ${name}`,
-       CHAINS[id] && CHAINS[id].name === name,
-       CHAINS[id] ? `named ${CHAINS[id].name}` : "absent from the table");
-  }
-  /*  And every entry must be reachable by BOTH of its names, because a
-      person copying a w3link-style host will type the short one and a
-      program will type the number.                                    */
-  const byNum = route("0x" + "11".repeat(20) + ".130.example");
-  const byName = route("0x" + "11".repeat(20) + ".unichain.example");
-  eq("a chain answers to its number", byNum && byNum.id, 130);
-  eq("and to its short name", byName && byName.id, 130);
+  eq("the production route is Ethereum",
+     route("0x" + "11".repeat(20) + ".eth.example").id, 1);
+  eq("the rehearsal route is Sepolia",
+     route("0x" + "11".repeat(20) + ".sep.example").id, 11155111);
+  ok("Base is not a supported route",
+     route("0x" + "11".repeat(20) + ".base.example").id === null);
 }
 
-/*  The LayerZero table is a claim about seven other chains, and the last
-    time a claim like that was made from memory it was wrong in a way that
-    changed the whole design. So it is pinned here: every mint chain must
-    have an endpoint, and no entry may carry an address from the wrong
-    family — the two canonical endpoints are not interchangeable, and a
-    port deployed against the wrong one points at nothing.             */
-head("every chain that mints has a LayerZero endpoint on record");
+head("the production network table is Ethereum only");
 {
-  const OLD = "0x1a44076050125825900e736c501f859c50fE728c".toLowerCase();
-  const NEW = "0x6f475642a6e85809b1c36fa62763669b1b48dd5b".toLowerCase();
-  const MINTS = [1, 8453, 56, 130, 4663];
-  for (const id of MINTS) {
-    const e = endpointFor(id);
-    ok(`chain ${id} has an endpoint and an eid`,
-       !!e && e.eid > 0 && /^0x[0-9a-fA-F]{40}$/.test(e.endpoint),
-       JSON.stringify(e));
-  }
-  ok("every endpoint is one of the two canonical addresses",
-     Object.values(LAYERZERO).every((e) => [OLD, NEW].includes(e.endpoint.toLowerCase())),
-     Object.values(LAYERZERO).map((e) => e.endpoint).join(" "));
-  /*  The two chains that were reported as having no LayerZero at all.  */
-  eq("Unichain is on the later endpoint, not the earlier one",
-     LAYERZERO[130].endpoint.toLowerCase(), NEW);
-  eq("and so is Robinhood", LAYERZERO[4663].endpoint.toLowerCase(), NEW);
-  ok("no two chains share an eid",
-     new Set(Object.values(LAYERZERO).map((e) => e.eid)).size === Object.keys(LAYERZERO).length);
-  eq("a chain with no endpoint answers null, never a guess", endpointFor(999999), null);
+  const e = endpointFor(1);
+  ok("Ethereum has a recorded endpoint for explicit inspection",
+     !!e && e.eid === 30101 && /^0x[0-9a-fA-F]{40}$/.test(e.endpoint),
+     JSON.stringify(e));
+  eq("the table has no second production chain", Object.keys(LAYERZERO).length, 1);
+  eq("a non-Ethereum chain answers null", endpointFor(8453), null);
 }
 
 console.log(`\n  ${pass} passed, ${fail} failed\n`);

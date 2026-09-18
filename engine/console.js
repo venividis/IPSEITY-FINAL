@@ -200,8 +200,7 @@
     }
   }
 
-  /*  The wrong chain, said where the wallet is named — §E.5. A wallet on
-      Base signing for a token that lives on Unichain is the sharpest trap
+  /*  The wrong chain, said where the wallet is named — §E.5. A wallet on a chain other than Ethereum is the sharpest trap
       this page can set, and it used to be sprung at signature time. Now
       the crest says so the moment the wallet answers, the cell offers the
       one move that fixes it, and `propose` refuses to build a transaction

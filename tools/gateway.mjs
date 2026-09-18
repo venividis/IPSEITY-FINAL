@@ -35,12 +35,12 @@ const ARGV = process.argv.slice(2);
 const arg = (f, d) => { const i = ARGV.indexOf(f); return i < 0 ? d : ARGV[i + 1]; };
 
 /*  --record picks the deployment; without it, the most recent local run
-    wins, then the committed Base Sepolia record — so a fresh clone serves
+    wins, then the committed Ethereum Sepolia record — so a fresh clone serves
     the public deployment with no setup at all.                          */
 const recordPath = arg("--record",
   fs.existsSync(path.join(ROOT, "dist/testnet.json"))
     ? path.join(ROOT, "dist/testnet.json")
-    : path.join(ROOT, "deployments/base-sepolia.json"));
+    : path.join(ROOT, "deployments/eth-sepolia.json"));
 const record = JSON.parse(fs.readFileSync(recordPath, "utf8"));
 const PORT = Number(arg("--port", 8080));
 const HOST = arg("--host", "127.0.0.1");

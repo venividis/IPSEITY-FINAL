@@ -111,32 +111,18 @@ contract Nameplate {
 
     mapping(bytes32 => uint256) public tokenOf;   // node → tokenId (0 = unbound)
 
-    /*═══════════════ one name, five chains ═══════════════
+    /*═══════════════ one Ethereum name ═══════════════
 
-      A resolver runs where its name lives, and .eth names live on
-      Ethereum. Reading `block.chainid` there answers `1` for every query,
-      so a single name could only ever point at the Ethereum deployment —
-      which is the wrong answer for four fifths of an edition that was
-      deliberately partitioned.
-
-      The partition is also the fix. Every id belongs to exactly one chain
-      by arithmetic, so the name needs no chain syntax at all: `1500.<name>`
-      is a Base token because 1500 is in Base's band, and a reader types
-      nothing they would have to be told. What the resolver cannot derive is
-      where the other four deployments sit, because those addresses did not
-      exist when it was constructed. That is the only thing a station holds.
-
-      The local chain needs no station: PREMISES and HUB are immutables, so
-      the deployment the resolver sits in always answers. Stations are for
-      the other four, they are write-once, and the authorisation is the ENS
-      registry's opinion of who owns the parent — the same mailbox rule the
-      parent slot already uses, not an admin.                            */
+      The complete production edition and its ENS names live on Ethereum.
+      PREMISES and HUB are immutable, so every id from 1 through 4096
+      resolves locally without a cross-chain station or gateway.         */
+    /// @dev Legacy ABI shape retained so existing readers fail closed rather
+    ///      than decoding a different layout. Ethereum-only deployments never
+    ///      populate a station.
     struct Station { address premises; address hub; }
     mapping(uint256 => Station) public stationOf;      // chainId → deployment
 
-    /// @notice The edition, tiled across five chains. Must agree with
-    ///         `BANDS` in tools/site.mjs, which the suite checks tiles
-    ///         1..4096 exactly once with no hole and no overlap.
+    /// @notice The complete Ethereum edition.
     uint256 internal constant EDITION = 4096;
 
     event StationSet(uint256 indexed chainId, address premises, address hub);
@@ -203,20 +189,10 @@ contract Nameplate {
         emit ParentClaimed(node, msg.sender);
     }
 
-    /// @notice Tell this resolver where another chain's deployment lives,
-    ///         so `<id>.parent` can answer for an id in that chain's band.
-    /// @dev    Write-once per chain and only for a chain the edition
-    ///         actually uses. A station that could be rewritten would let
-    ///         whoever holds the parent silently repoint a token's site
-    ///         long after somebody bought it on the strength of that site.
+    /// @notice Disabled legacy entry point. The edition has no remote station.
     function setStation(uint256 chainId, address premises_, address hub_) external {
-        if (parentNode == bytes32(0)) revert ParentUnclaimed();
-        if (!_ownsNode(parentNode, msg.sender)) revert NotTheNameOwner();
-        if (_bandFirst(chainId) == 0) revert NotAnEditionChain();
-        if (stationOf[chainId].premises != address(0)) revert StationAlreadySet();
-        if (premises_ == address(0) || hub_ == address(0)) revert NothingThere();
-        stationOf[chainId] = Station(premises_, hub_);
-        emit StationSet(chainId, premises_, hub_);
+        chainId; premises_; hub_;
+        revert NotAnEditionChain();
     }
 
     /*  The same three writes, taking the name as DNS wire format instead
@@ -521,16 +497,12 @@ contract Nameplate {
         return "";
     }
 
-    /*═══════════════════ the partition, as arithmetic ═══════════════════*/
+    /*═══════════════════ the Ethereum edition ═══════════════════*/
 
     /// @notice The first id of a chain's band, or 0 if the edition does not
     ///         use that chain. Must agree with `BANDS` in tools/site.mjs.
     function _bandFirst(uint256 c) internal pure returns (uint256) {
-        if (c == 1)    return 1;       // Ethereum   1 .. 1024
-        if (c == 8453) return 1025;    // Base    1025 .. 2048
-        if (c == 130)  return 2049;    // Unichain 2049 .. 3072
-        if (c == 56)   return 3073;    // BNB      3073 .. 3584
-        if (c == 4663) return 3585;    // Robinhood 3585 .. 4096
+        if (c == 1) return 1;          // Ethereum 1 .. 4096
         return 0;
     }
 
@@ -543,12 +515,8 @@ contract Nameplate {
     ///         deployment on another network.
     function _chainOfToken(uint256 id) internal view returns (uint256) {
         if (id == 0 || id > EDITION) return 0;
-        if (_bandFirst(block.chainid) == 0) return block.chainid;
-        if (id <= 1024) return 1;
-        if (id <= 2048) return 8453;
-        if (id <= 3072) return 130;
-        if (id <= 3584) return 56;
-        return 4663;
+        // Testnets are rehearsals and resolve their own local deployment.
+        return block.chainid == 1 ? 1 : block.chainid;
     }
 
     /// @dev The deployment for a chain: this one's immutables where the
@@ -569,8 +537,7 @@ contract Nameplate {
     function _reachable(uint256 id) internal view returns (bool) {
         uint256 chain = _chainOfToken(id);
         if (chain == 0) return false;
-        if (chain == block.chainid) return id <= HUB.totalSupply();
-        return stationOf[chain].premises != address(0);
+        return chain == block.chainid && id <= HUB.totalSupply();
     }
 
     /*═══════════════════ ENSIP-10 wildcards ═══════════════════*/
@@ -584,10 +551,8 @@ contract Nameplate {
 
         /*  A numeric child of the parent that cannot be served is NOT the
             parent. Both used to arrive here as `t == 0`, and `_text(0,…)`
-            answers for the bare name — so `1500.<parent>`, a Base token
-            this resolver has not been told the address of, was handed back
-            Ethereum's premises under chain 1. That record resolves. A
-            wallet would open the wrong deployment and be told nothing.
+            answers for the bare name. An unminted numeric child must not be
+            handed the parent record as though it were a live token.
 
             Silence is the only correct answer for a name that exists and
             cannot be answered for.                                     */
@@ -595,11 +560,7 @@ contract Nameplate {
         if (t == 0 && parentNode != bytes32(0)) {
             (uint256 parsed, uint256 next, bool numeric) = _numericLabel(name);
             if (numeric && _namehash(name, next) == parentNode) {
-                /*  `_reachable` replaces a bare `<= HUB.totalSupply()`,
-                    which asked the local hub about an id the local hub does
-                    not own. Under the partition an id belongs to one chain
-                    and is minted there; the resolver either sits on that
-                    chain, or has been told where it is.                */
+                /* `_reachable` also rejects ids beyond the minted supply. */
                 if (_reachable(parsed)) t = parsed;
                 else unservable = true;
             }
@@ -612,11 +573,7 @@ contract Nameplate {
             revert UnknownQuery();
         }
         if (sel == ADDR_IFACE) {
-            /*  An account is a contract on the token's own chain. Answering
-                with this chain's 6551 address for a token that lives
-                elsewhere would name an address that exists and is not the
-                token's — so sending to the name would send into the void.
-                Empty is the only honest answer from the wrong chain.   */
+            /* An account is meaningful only on the local deployment. */
             if (t == 0 || _chainOfToken(t) != block.chainid)
                 return abi.encode(address(0));
             return abi.encode(HUB.account(t));
@@ -642,9 +599,7 @@ contract Nameplate {
         return 0;
     }
 
-    /// @notice Which chain an id lives on, and where that deployment is —
-    ///         one call for a client that would rather ask than derive.
-    ///         `site` is zero when nobody has said where that chain is.
+    /// @notice The Ethereum chain and local deployment for an edition id.
     function whereIs(uint256 id)
         external view returns (uint256 chain, address site, address hub, bool reachable)
     {
@@ -692,12 +647,7 @@ contract Nameplate {
     ///      than none, because a reader would try to resolve it.
     function _shortName(uint256 c) private pure returns (string memory) {
         if (c == 1)        return "eth";
-        if (c == 8453)     return "base";
-        if (c == 130)      return "unichain";
-        if (c == 56)       return "bnb";
-        if (c == 4663)     return "robinhoodchain";
         if (c == 11155111) return "sep";
-        if (c == 84532)    return "basesep";
         return "";
     }
 
@@ -715,14 +665,7 @@ contract Nameplate {
         not be the thing that prints a broken link.                      */
     function _gateway(uint256 c) private pure returns (string memory) {
         if (c == 1)        return ".eth.w3link.io";
-        if (c == 8453)     return ".base.w3link.io";
-        if (c == 56)       return ".bnb.w3link.io";
         if (c == 11155111) return ".sep.w3link.io";
-        if (c == 84532)    return ".basesep.w3link.io";
-        /*  Unichain (130) and Robinhood (4663) are in the edition and no
-            public gateway serves either, so a token in those bands gets a
-            web3:// URL and no https one. That is a fact about gateways,
-            not about the site — tools/portal.mjs serves any of them.  */
         return "";
     }
 

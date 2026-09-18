@@ -67,7 +67,7 @@ const sigil = await c.deploy(A("src/Sigil.sol", "Sigil").bytecode);
 const renderer = await c.deploy(A("src/Renderer.sol", "Renderer").bytecode,
   encodeAddressArg(engine) + encodeAddressArg(sigil));
 const nft = await c.deploy(A("src/Ipseity.sol", "Ipseity").bytecode,
-  encodeAddressArg(renderer) + encodeAddressArg(impl) + encodeAddressArg(grip) + w(1) + w(4096));
+  encodeAddressArg(renderer) + encodeAddressArg(impl) + encodeAddressArg(grip));
 const pm = await c.deploy(A("test/mocks/MockPoolManager.sol", "MockPoolManager").bytecode);
 await c.exec(nft, "mint()", [], { value: 10n ** 16n });
 ok("a manager and a token", pm.length === 42);
@@ -281,19 +281,12 @@ head("a hook is only consulted for the bits its address carries");
      decUint(await c.read(pm, "lastFeeCharged()")), 3000n);
 }
 
-/*════════════ the property Unichain made obvious ════════════
+/*════════════ deterministic Ethereum hook addresses ════════════
 
-  Every chain in the survey runs the SAME PoolManager bytecode — byte
-  diffed, with only the self-address immutable and a metadata hash
-  differing. A hook address under v4 is CREATE2 from (deployer, salt,
-  initCodeHash), and none of those three is a chain id.
-
-  So a salt mined once gives the same hook address on all five chains,
-  and a launch can carry one address everywhere instead of five. That is
-  worth a test, because it is the kind of claim that is true until one
-  constructor argument quietly differs.
+  A hook address under v4 is CREATE2 from (deployer, salt, initCodeHash).
+  None is a chain id, so the Ethereum address can be independently reproduced.
 */
-head("one mined salt, the same hook address on every chain");
+head("a mined Ethereum salt contains no hidden chain input");
 {
   const kiln = await c.deploy(A("src/Kiln.sol", "Kiln").bytecode,
     encodeAddressArg(nft) + encodeAddressArg(pm), "Kiln");
@@ -335,7 +328,7 @@ head("one mined salt, the same hook address on every chain");
     Buffer.from(hash.replace(/^0x/, ""), "hex")]);
   eq("recomputed from (deployer, salt, initCodeHash) alone, it is the same address",
      "0x" + Buffer.from(keccak256(pre)).toString("hex").slice(24), at.toLowerCase());
-  ok("none of those three is a chain id, so one salt serves all five chains", true);
+  ok("none of those three is a chain id", true);
 
   /*  And the miner's assembly against a plain implementation, kept because
       a hand-written CREATE2 is exactly the thing that is wrong quietly.  */
