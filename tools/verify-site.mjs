@@ -1441,6 +1441,8 @@ head("driving the terminal");
   eq("`mint` minted", decUint(await c.read(nft, "totalSupply()")), supply0 + 1n);
   ok("and hands the minter the live website it created",
      new RegExp(`/token/${supply0 + 1n}/live`).test(minted), minted);
+  ok("and hands the minter the live website it created",
+     new RegExp(`/token/${supply0 + 1n}/live`).test(minted), minted);
   await globalThis.TERM.run(`use ${supply0 + 1n}`);
 
   const commons0 = decUint(await c.read(site.parley, "stateOf(uint256)", [0]), 1);
@@ -1627,6 +1629,12 @@ head("driving the Uniswap card");
     [uniTrader.from.toString(), uniRouterV3]));
   ok("the first press approved the router and nothing else", allow > 0n);
 
+  ok("the receipt opens a next-action flow instead of becoming a dead end",
+     $("after") && $("after").hidden === false,
+     "the lock / memory handoff stayed hidden");
+  ok("and the acquired asset can continue into the time vault",
+     $("afterLock") && /\/lock$/.test($("afterLock").href),
+     $("afterLock") ? $("afterLock").href : "no lock handoff");
   const usdcBefore = decUint(await c.read(usdc, "balanceOf(address)",
     [uniTrader.from.toString()]));
   await $("go").fire("click");                       // swaps

@@ -179,8 +179,9 @@ contract PageLaunch {
             "<div class=tabs><a href=#forge>forge</a><a href=#law>law</a>"
             "<a href=#market>pool</a><a href=#seed>seed</a></div>"
             "<p class=e>Four reviewed transactions. Nothing is bundled into a blind signature.</p>",
-            _step1(), _step2(), _step3(),
-            _inspector(),
+            "<h2 id=forge>1 &middot; forge the token</h2>"
+                "<h2 id=law>2 &middot; choose its law</h2>"
+            "<h2 id=law>2 &middot; choose its law</h2>",
             _recent(),
             _where()
         );
@@ -297,8 +298,8 @@ contract PageLaunch {
             "trading shut until a time you set; <code>beforeRemoveLiquidity</code> keeps "
             "liquidity in until another. Both timestamps are fixed at deployment with no "
             "setter and no owner, so the only thing that opens the gate is the clock. "
-            "That is what makes a lock a lock rather than a promise: the pool itself "
-            "will not process the withdrawal.</p>"
+            "<h2 id=market>3 &middot; open the pool</h2>",
+            "<h2 id=seed>4 &middot; seed the world</h2>"
             "<p class=\"e w\"><b>And the same two bits are what a trap looks like.</b> "
             "A hook that refuses withdrawals until Friday and a hook that refuses them "
             "forever are indistinguishable by address. The bits prove the power exists; "

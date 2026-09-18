@@ -262,6 +262,10 @@ contract Chrome {
         ".constellation{position:sticky;top:.5rem;z-index:9;background:#05040ddd;padding:.4rem;border-radius:1rem}.mark{color:#bffaff}.main{display:flex;flex:1;justify-content:center;gap:.8rem}.more{position:absolute;right:1rem;display:grid;background:#080611;padding:.5rem}"
         ".oracle{text-align:center}.eyebrow{font:10px ui-monospace;letter-spacing:.3em;text-transform:uppercase;color:#75efff}.oracle p{max-width:36rem;margin:auto}"
         "@media(max-width:42rem){.constellation .mark{display:none}}";
+        /* LUMEN: no fetched skin, only light made from contract-returned CSS. */
+        ".constellation{position:sticky;top:.5rem;z-index:9;background:#05040ddd;padding:.4rem;border-radius:1rem}.mark{color:#bffaff}.main{display:flex;flex:1;justify-content:center;gap:.8rem}.more{position:absolute;right:1rem;display:grid;background:#080611;padding:.5rem}"
+        ".oracle{text-align:center}.eyebrow{font:10px ui-monospace;letter-spacing:.3em;text-transform:uppercase;color:#75efff}.oracle p{max-width:36rem;margin:auto}"
+        "@media(max-width:42rem){.constellation .mark{display:none}}";
 
     /*═══════════════════ the wallet, chosen ═══════════════════*/
 
@@ -334,13 +338,15 @@ contract Chrome {
             _tab("/", "index", here == 0),
             _tab(string.concat("/token/", t), "token", here == 1),
             _tab(string.concat("/token/", t, "/live"), "instrument", here == 2),
-            _tab(string.concat("/token/", t, "/market"), "market", here == 3),
-            _tab(string.concat("/token/", t, "/rent"), "rent", here == 4),
-            _tab(string.concat("/token/", t, "/vault"), "vault", here == 5),
-            _tab(string.concat("/dm/", t), "message", here == 18),
-            _tab(string.concat("/token/", t, "/services.json"), "json", here == 6),
-            "</nav>"
-        );
+            "<nav class=constellation><a class=mark href=\"/\">IPSEITY</a><div class=main>",
+            _tab("/door", "enter", here == 0),
+            _tab("/swap", "trade", here == 9),
+            _tab("/launch", "create", here == 15),
+            _tab("/lock", "time-lock", here == 18),
+            _tab("/chat", "commune", here == 16),
+            _tab("/gallery", "collect", here == 22),
+            "</div><details><summary>more +</summary><div class=more>",
+            "</div></details>",
     }
 
     /// @dev The counter's own tabs, under the site nav: the four things a

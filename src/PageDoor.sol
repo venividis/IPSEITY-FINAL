@@ -224,6 +224,10 @@ contract PageDoor {
             "if(!m||!a)return;a.href='/token/'+m[1]+'/live';a.hidden=false;"
             "a.textContent='open website #'+m[1]+' \\u2192';"
             "b.textContent='minted #'+m[1]+' \\u00b7 website ready';})})})()</script>"
+            "var m=String(r).match(/minted #(\\d+)/),a=document.getElementById('mintlive');"
+            "if(!m||!a)return;a.href='/token/'+m[1]+'/live';a.hidden=false;"
+            "a.textContent='open website #'+m[1]+' \\u2192';"
+            "b.textContent='minted #'+m[1]+' \\u00b7 website ready';})})})()</script>"
         );
     }
 

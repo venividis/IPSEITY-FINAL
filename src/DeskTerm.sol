@@ -66,6 +66,7 @@ contract DeskTerm {
             "\",\"openFee\":\"",_s("openFee()"),
             "\",\"supply\":\"", _s("totalSupply()"),
             "\",\"first\":\"",  _s("FIRST_ID()"),
+            "\",\"first\":\"",  _s("FIRST_ID()"),
             "\",\"bal\":\"",    _s("balanceOf(address)"),
             "\",\"at\":\"",     _s("tokenOfOwnerByIndex(address,uint256)"),
             "\",\"owner\":\"",  _s("ownerOf(uint256)"),
@@ -173,7 +174,13 @@ contract DeskTerm {
         "return sel+head+tail};"
 
         /*───── who is speaking ─────*/
-        "const mine=async()=>{const a=I.acct();if(!a)return[];"
+        /*  Know the id before sending: ids are FIRST_ID + totalSupply and
+            mint is non-reentrant. A mint must hand back the website it just
+            created, not strand the holder at a transaction hash.          */
+        "const first=I.word(await I.call(X.hub,S.first),0);"
+        "const n=I.word(await I.call(X.hub,S.supply),0),id=first+n;"
+        "await I.send(X.hub,S.mint,p);ME=id;"
+        "return'minted #'+id+' at '+I.fmt(p,18,6)+' ETH \\u00b7 website /token/'+id+'/live'});"
         "const n=Number(I.word(await I.call(X.hub,S.bal+I.AD(a)),0));const out=[];"
         "for(let i=0;i<n&&i<64;i++){const r=await I.tryCall(X.hub,S.at+I.AD(a)+I.W(i));"
         "if(r)out.push(I.word(r,0))}return out};"

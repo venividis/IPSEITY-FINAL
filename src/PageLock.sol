@@ -307,6 +307,15 @@ contract PageLock {
         "$('lt').value=f.token;if(f.amount&&f.decimals!==undefined){"
         "$('la').value=I.fmt(BigInt(f.amount),Number(f.decimals),Number(f.decimals)).replace(/,/g,'')}"
         "localStorage.removeItem('ipse.flow.lock');ask()}}}catch(e){}"
+        /*  A completed swap may leave a short-lived handoff. It contains no
+            authority and sends nothing: it only restores the token and the
+            amount into this form, where the ordinary approval/lock review
+            remains mandatory.                                            */
+        "try{const raw=localStorage.getItem('ipse.flow.lock');if(raw){"
+        "const f=JSON.parse(raw);if(f&&/^0x[0-9a-f]{40}$/i.test(f.token||'')){"
+        "$('lt').value=f.token;if(f.amount&&f.decimals!==undefined){"
+        "$('la').value=I.fmt(BigInt(f.amount),Number(f.decimals),Number(f.decimals)).replace(/,/g,'')}"
+        "localStorage.removeItem('ipse.flow.lock');ask()}}}catch(e){}"
         "show();"
         "})();";
 }

@@ -161,6 +161,11 @@ contract DeskUni {
             position-manager, ERC-4626 and Governor selectors in every page's
             config. They described controls the site no longer exposed and
             made discovery look broader than the product.                 */
+                             ",", _selVenue(), "}");
+            The retired pools/vault/governance application used to leave its
+            position-manager, ERC-4626 and Governor selectors in every page's
+            config. They described controls the site no longer exposed and
+            made discovery look broader than the product.                 */
         return string.concat("{", _selErc(), ",", _selPool(), ",", _selSwap(),
                              ",", _selVenue(), "}");
     }
@@ -202,42 +207,6 @@ contract DeskUni {
         );
     }
 
-    function _selPool() private pure returns (string memory) {
-        return string.concat(
-            "\"getPool\":\"", _sel("getPool(address,address,uint24)"),
-            "\",\"spacingOf\":\"", _sel("feeAmountTickSpacing(uint24)"),
-            "\",\"slot0\":\"", _sel("slot0()"),
-            "\",\"liq\":\"", _sel("liquidity()"),
-            "\",\"t0\":\"", _sel("token0()"),
-            "\",\"t1\":\"", _sel("token1()"),
-            "\",\"poolFee\":\"", _sel("fee()"),
-            "\",\"poolFactory\":\"", _sel("factory()"),
-            "\",\"observe\":\"", _sel("observe(uint32[])"),
-            "\",\"grow\":\"", _sel("increaseObservationCardinalityNext(uint16)"), "\""
-        );
-    }
-
-    /*  Both routers, both shapes, side by side and named for the router each
-        belongs to. The client picks by `kind`, which came from the same
-        contract as the address.                                          */
-    function _selSwap() private pure returns (string memory) {
-        return string.concat(
-            "\"swapV3\":\"",
-            _sel("exactInputSingle((address,address,uint24,address,uint256,uint256,uint256,uint160))"),
-            "\",\"swap02\":\"",
-            _sel("exactInputSingle((address,address,uint24,address,uint256,uint256,uint160))"),
-            // the struct declaration's order, NOT the NatSpec comment's
-            "\",\"quote\":\"",
-            _sel("quoteExactInputSingle((address,address,uint256,uint24,uint160))"), "\""
-        );
-    }
-
-    function _sel(string memory sig) private pure returns (string memory) {
-        bytes4 x = bytes4(keccak256(bytes(sig)));
-        bytes memory hexd = "0123456789abcdef";
-        bytes memory o = new bytes(10);
-        o[0] = "0"; o[1] = "x";
-        for (uint256 i; i < 4; ++i) {
             o[2 + i * 2] = hexd[uint8(x[i]) >> 4];
             o[3 + i * 2] = hexd[uint8(x[i]) & 0x0f];
         }
