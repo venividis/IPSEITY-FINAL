@@ -35,7 +35,7 @@ jobs:
       DEPLOYMENT_JOURNAL: out/sepolia-deployment.jsonl
     steps:
       - name: Check out the reviewed source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Require main and a fresh manual execution
         env:
