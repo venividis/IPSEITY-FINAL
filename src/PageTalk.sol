@@ -47,10 +47,14 @@ contract PageTalk {
         return string.concat(
             CHROME.head("IPSEITY \xc2\xb7 the commons"),
             CHROME.navTop(16),
-            "<h1>the commons</h1>"
-            "<p class=e>One room, and every token in the collection is already in it. "
-            "There are <b>", uint256(count).str(), "</b> messages in it so far. "
-            "Anyone can read this; only a token can speak in it.</p>",
+            "<header class=oracle><span class=eyebrow>token-native social / permanent signal</span>"
+            "<h1>commons</h1><p>No followers to farm. No algorithm to please. A voice is "
+            "an object with history, custody and consequence.</p></header>"
+            "<div class=signal><i class=pulse></i><span><b>live public memory</b> "
+            "<small class=m>one room / every token / no server</small></span><code>",
+            uint256(count).str(), " signals</code></div>"
+            "<p class=e>Anyone can witness this room. Only a token can leave a mark, and "
+            "the mark remains attributable after the wallet that spoke has gone.</p>",
             DESK.bare(),
             TALK.config(0, 0, 0),
             _gate(),
@@ -60,6 +64,7 @@ contract PageTalk {
             CHROME.wallet(),
             DESK.core(),
             TALK.core(),
+            _draft(),
             CHROME.foot(msg.sender, block.chainid)
         );
     }
@@ -88,6 +93,7 @@ contract PageTalk {
             DESK.core(),
             TALK.core(),
             SEAL.core(),
+            _draft(),
             CHROME.foot(msg.sender, block.chainid)
         );
     }
@@ -134,6 +140,18 @@ contract PageTalk {
             "\xc2\xb7 \xe2\x8c\x98/ctrl + enter</span>"
             "</div>"
         );
+    }
+
+    /// @dev Swap can carry a locally held sentence here. It is deliberately
+    ///      only a draft: Parley receives nothing until a holder chooses a
+    ///      token voice and presses send, preserving the review boundary.
+    function _draft() private pure returns (string memory) {
+        return
+            "<script>(()=>{try{const r=localStorage.getItem('ipse.flow.memory');if(!r)return;"
+            "const d=JSON.parse(r),e=document.getElementById('say');if(e&&d&&d.text){"
+            "e.value=d.text;localStorage.removeItem('ipse.flow.memory');"
+            "const s=document.getElementById('s');if(s)s.textContent='trade memory carried here "
+            "locally \\u00b7 choose a token voice and review before sending'}}catch(e){}})()</script>";
     }
 
     function _how() private pure returns (string memory) {

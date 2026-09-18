@@ -1652,6 +1652,12 @@ head("driving the Uniswap card");
   const usdcAfter = decUint(await c.read(usdc, "balanceOf(address)",
     [uniTrader.from.toString()]));
   eq("and the tokens actually moved", usdcAfter - usdcBefore, 2995n * 10n ** 6n);
+  ok("the receipt opens a next-action flow instead of becoming a dead end",
+     $("after") && $("after").hidden === false,
+     "the lock / memory handoff stayed hidden");
+  ok("and the acquired asset can continue into the time vault",
+     $("afterLock") && /\/lock$/.test($("afterLock").href),
+     $("afterLock") ? $("afterLock").href : "no lock handoff");
 
   /*──── the override, which used to be a highlight and nothing else ────*/
 

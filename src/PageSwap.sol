@@ -97,7 +97,13 @@ contract PageSwap {
             CHROME.head("IPSEITY \xc2\xb7 swap"),
             CHROME.navTop(9),
             DESKU.config(),
+            "<header class=oracle><span class=eyebrow>permissionless exchange / one honest hop</span>"
+            "<h1>transmute</h1><p>Choose the atoms. Read every pool. Sign only the path "
+            "you can explain. What arrives can become a promise or a memory.</p></header>"
+            "<div class=tabs><a href=#exchange>choose</a><a href=#exchange>quote</a>"
+            "<a href=#exchange>exchange</a><a href=#after>remember</a></div>",
             _card(),
+            _after(),
             _how(),
             _where(),
             CHROME.wallet(),
@@ -106,6 +112,26 @@ contract PageSwap {
             DESKT.swap(),
             CHROME.foot(msg.sender, block.chainid)
         );
+    }
+
+    /// @dev The swap does not end at a receipt. The browser fills this only
+    ///      after a successful send, then hands exact token/amount context to
+    ///      the lock page or a human sentence to Parley. No new authority is
+    ///      introduced: both destination contracts still enforce their own.
+    function _after() private pure returns (string memory) {
+        return
+            "<section class=afterglow id=after hidden>"
+            "<span class=eyebrow>the receipt is not the ending</span>"
+            "<h3>What should this trade become?</h3>"
+            "<p class=e id=afterSum>The acquired asset can be time-locked, or the reason "
+            "can be carried into the commons and signed there by a token you hold.</p>"
+            "<div class=aftergrid><div><b>Make it a promise</b>"
+            "<p class=m>Carry the received token and amount into the ownerless time vault.</p>"
+            "<a class=g id=afterLock href=\"/lock\">lock what arrived &rarr;</a></div>"
+            "<div><b>Make it a memory</b>"
+            "<textarea class=memory id=memory maxlength=720 placeholder=\"Why this asset, "
+            "why this block, why now?\"></textarea>"
+            "<button id=afterTell>carry to the commons &rarr;</button></div></div></section>";
     }
 
     function _noVenue() private view returns (string memory) {
@@ -128,8 +154,8 @@ contract PageSwap {
     ///      has one market per token.
     function _card() private view returns (string memory) {
         return string.concat(
-            "<div class=app>"
-            "<div class=hd><b>Swap</b>"
+            "<div class=app id=exchange>"
+            "<div class=hd><b>Live route</b>"
             "<button class=ico id=cog>slippage &amp; deadline</button></div>"
             "<div class=set id=set hidden>"
             "<div>Slippage tolerance, now <b id=sl>0.5%</b> &mdash; the most the price "
