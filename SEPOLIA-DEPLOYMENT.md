@@ -1,14 +1,15 @@
-# Deploy the integrated IPSEITY and mint three on Ethereum Sepolia
+# Deploy the integrated IPSEITY and mint three on a supported Sepolia chain
 
 This procedure deploys the original IPSEITY collection and complete website,
 then its immutable module, state, cartridge and workbench companions. It mints
 exactly three IPSEITY NFTs directly to
 `0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b`.
 
-The public chain is **Ethereum Sepolia, chain ID 11155111**. The recipient is
-fixed for this authorized deployment. This does not deploy to Ethereum mainnet
-or Base Sepolia, and it does not alter the historical deployments recorded in
-`deployments/eth-sepolia.json` or `deployments/base-sepolia.json`.
+The runner accepts **Ethereum Sepolia (11155111)** and **Base Sepolia (84532)**;
+the HTTPS RPC endpoint selects the chain. The recipient is fixed for this
+authorized deployment. It never deploys to mainnet and it does not overwrite
+the historical records in `deployments/eth-sepolia.json` or
+`deployments/base-sepolia.json`.
 
 ## Signing configuration
 
@@ -63,7 +64,8 @@ node tools/deploy-sepolia.mjs --preflight
 node tools/deploy-sepolia.mjs
 ```
 
-Required environment names are `RPC_URL` and `PRIVATE_KEY`. Optional output
+Required environment names are `RPC_URL` and `PRIVATE_KEY`; `RPC_URL` may point
+to Ethereum Sepolia or Base Sepolia. Optional output
 locations are `DEPLOYMENT_OUTPUT` and `DEPLOYMENT_JOURNAL`; the workflow uses
 `out/sepolia-deployment.json` and `out/sepolia-deployment.jsonl`. Existing output
 or journal files are refused to prevent an accidental fresh run from replacing

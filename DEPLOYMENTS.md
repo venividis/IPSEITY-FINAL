@@ -9,17 +9,21 @@ rewrites its own past cannot be used to tell when something broke.
 
 ### Base Sepolia · chain 84532
 
+The integrated collection and module portal deployed on 2026-09-18. Tokens
+#1–#3 were minted directly to `0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b`;
+the checked-in receipt record is `deployments/base-sepolia-2026-09-18.json`.
+
 ```
-Premises     0x01de7b5d7233f9ecfc11a8a07d347654f95b07b1
-Ipseity      0x36c49f58c6437ee994766ce80f6654c4d797b8db
-Pool         0x8b699b46edb8e8bd156347d73c8eaa2a0abe80f4
-Engine       0x3f3e39a630376301575afbf90b3af2a3eb003636   (frozen)
+Portal       0xd9F6d454189d3D116C9F8927014317daD0D27740
+Premises     0x42eaca69478bb637968b2c14a0d52eab09ff0b67
+Ipseity      0xceefce2ceb0e0ec1e8cb3dc34c57227b9db5edb6
+Engine       0x73eed7c6168a036ce8f27e335d6f884c4ff76ce6   (frozen)
 ```
 
 ```
-https://0x01de7b5d7233f9ecfc11a8a07d347654f95b07b1.basesep.w3link.io/
-https://0x01de7b5d7233f9ecfc11a8a07d347654f95b07b1.basesep.w3link.io/token/2/live
-web3://0x01de7b5d7233f9ecfc11a8a07d347654f95b07b1:84532/
+https://0xd9f6d454189d3d116c9f8927014317dad0d27740.basesep.w3link.io/
+https://0xd9f6d454189d3d116c9f8927014317dad0d27740.basesep.w3link.io/token/1/live
+web3://0xd9F6d454189d3D116C9F8927014317daD0D27740:84532/
 ```
 
 ### Ethereum Sepolia · chain 11155111

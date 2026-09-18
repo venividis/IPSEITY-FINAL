@@ -17,6 +17,8 @@ import {recoverWorkbench} from './modules-recover-workbench.mjs';
 
 const ROOT=path.resolve(import.meta.dirname,'..');
 export const SEPOLIA_CHAIN_ID=11155111;
+export const BASE_SEPOLIA_CHAIN_ID=84532;
+export const PUBLIC_TESTNET_CHAIN_IDS=new Set([SEPOLIA_CHAIN_ID,BASE_SEPOLIA_CHAIN_ID]);
 export const MINT_RECIPIENT='0xb88Fbf05268802100E5E55ADBa211d6453aF8b5b';
 export const REGISTRY='0x000000006551c19487814612e58FE06813775758';
 export const TX_GAS_CAP=1n<<24n;
@@ -55,7 +57,7 @@ export function publicConfig(env=process.env){
 export async function deploymentPreflight({c,workbench,localRehearsal=false}){
  const chainId=Number(await c.rpc('eth_chainId'));
  eq(chainId,c.chainId,'RPC chain changed.');
- check(chainId===SEPOLIA_CHAIN_ID||(localRehearsal&&chainId===31337),'Only Ethereum Sepolia is authorized.');
+ check(PUBLIC_TESTNET_CHAIN_IDS.has(chainId)||(localRehearsal&&chainId===31337),'Only Ethereum Sepolia or Base Sepolia is authorized.');
  if(localRehearsal){
   let url;try{url=new URL(c.url);}catch{throw new DeploymentError('Local rehearsal requires loopback RPC.');}
   check(chainId===31337&&['localhost','127.0.0.1','[::1]'].includes(url.hostname),'Local rehearsal requires chain 31337 on loopback.');
@@ -68,7 +70,7 @@ export async function deploymentPreflight({c,workbench,localRehearsal=false}){
  const nonce=BigInt(await c.rpc('eth_getTransactionCount',[deployer,'pending']));
  eq(nonce,await c.nonceNow(),'Signer nonce changed before deployment.');
  eq(await c.rpc('eth_getTransactionCount',[deployer,'latest']),quantity(nonce),'Signer has pending transactions; reconcile them first.');
- const uniswap=localRehearsal?NO_VENUE:UNISWAP[SEPOLIA_CHAIN_ID];
+ const uniswap=localRehearsal?NO_VENUE:UNISWAP[chainId];
  const dependencies={erc6551:REGISTRY,...Object.fromEntries(Object.entries(uniswap).filter(([,v])=>typeof v==='string'&&/^0x[0-9a-fA-F]{40}$/.test(v)&&BigInt(v)!==0n))};
  for(const [name,address] of Object.entries(dependencies))check(await c.codeSize(address)>0,'Required dependency has no code: '+name+'.');
  const initialGasPrice=BigInt(await c.rpc('eth_gasPrice'));
@@ -78,7 +80,7 @@ export async function deploymentPreflight({c,workbench,localRehearsal=false}){
  const gasBudget=180000000n+BigInt(workbench.bytes.length+workbench.packed.length)*250n+50000000n;
  const requiredBalance=gasBudget*feeCeiling+3n*PRICE;
  const balance=await c.balanceOf(deployer);
- check(balance>=requiredBalance,'Insufficient Sepolia funding: required '+requiredBalance+' wei; available '+balance+' wei.');
+ check(balance>=requiredBalance,'Insufficient testnet funding: required '+requiredBalance+' wei; available '+balance+' wei.');
  return {chainId,deployer,startingNonce:nonce,uniswap,dependencies,gasBudget,feeCeiling,requiredBalance};
 }
 
@@ -237,14 +239,14 @@ export async function deploySepolia({c,A,artifacts,engineBuild,workbench,output,
 export async function main(env=process.env,{preflightOnly=false}={}){
  const config=publicConfig(env);
  const c=await RpcChain.open(config.rpcUrl,config.key);
- check(c.chainId===SEPOLIA_CHAIN_ID,'Only Ethereum Sepolia is authorized.');
+ check(PUBLIC_TESTNET_CHAIN_IDS.has(c.chainId),'Only Ethereum Sepolia or Base Sepolia is authorized.');
  // Rebuild locally before signing so stale dist files cannot become immutable.
  execFileSync(process.execPath,['tools/build-engine.mjs'],{cwd:ROOT,stdio:'pipe',env:{...process.env,PRIVATE_KEY:'',RPC_URL:''}});
  const output=compile({quiet:true}),A=(file,name)=>artifact(output,file,name);
  const artifacts=loadModuleArtifacts(output),workbench=await buildWorkbench({output:null});
  const engineBuild=JSON.parse(fs.readFileSync(path.join(ROOT,'dist/shards.json'),'utf8'));
  if(preflightOnly){const result=await deploymentPreflight({c,workbench});console.log(json({status:'preflight-passed',chainId:result.chainId,deployer:result.deployer,recipient:MINT_RECIPIENT,mintCount:3,gasBudget:result.gasBudget,feeCeiling:result.feeCeiling,requiredBalance:result.requiredBalance,workbenchSha256:workbench.manifest.sha256,broadcast:false}));return result;}
- console.log('Deploying IPSEITY to Ethereum Sepolia; exactly three tokens go to '+MINT_RECIPIENT+'.');
+ console.log('Deploying IPSEITY to chain '+c.chainId+'; exactly three tokens go to '+MINT_RECIPIENT+'.');
  const record=await deploySepolia({c,A,artifacts,engineBuild,workbench,...config});
  console.log(json({collection:record.contracts.ipseity,portal:record.modules.portal,recipient:record.recipient,tokens:record.tokens.map(t=>({id:t.id,urls:t.urls})),workbenchSha256:record.workbench.sha256,gasUsed:record.gasUsed}));
  return record;

@@ -34,7 +34,7 @@ test('public deployment rejects missing credentials, development keys, recipient
 
 test('a wrong public chain refuses before any transaction or dependency probe',async()=>{
  let calls=0;const c={chainId:1,rpc:async method=>{calls++;assert.equal(method,'eth_chainId');return '0x1';}};
- await assert.rejects(()=>deploymentPreflight({c,workbench:sample}),/Only Ethereum Sepolia/);assert.equal(calls,1);
+ await assert.rejects(()=>deploymentPreflight({c,workbench:sample}),/Only Ethereum Sepolia or Base Sepolia/);assert.equal(calls,1);
 });
 
 test('public preflight rejects missing dependencies and insufficient funding without broadcasting',async()=>{
@@ -49,7 +49,7 @@ test('public preflight rejects missing dependencies and insufficient funding wit
   writes++;throw Error('Unexpected write');
  };
  await assert.rejects(()=>deploymentPreflight({c,workbench:sample}),/dependency has no code/);
- missing=false;await assert.rejects(()=>deploymentPreflight({c,workbench:sample}),/Insufficient Sepolia funding/);
+ missing=false;await assert.rejects(()=>deploymentPreflight({c,workbench:sample}),/Insufficient testnet funding/);
  balance=10n**24n;const budget=await deploymentPreflight({c,workbench:sample});
  assert.equal(budget.gasBudget,230003250n);assert.equal(budget.feeCeiling,201n);
  assert.equal(budget.requiredBalance,budget.gasBudget*201n+3n*10n**14n);assert.equal(writes,0);

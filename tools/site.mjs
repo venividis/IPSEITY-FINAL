@@ -321,7 +321,7 @@ export const UNISWAP = {
     wrapped: "0x4200000000000000000000000000000000000006",
     governor: ZERO, govToken: ZERO,
     poolManager: "0x05E73354cFDd6745C338b50BcFDfA3Aa6fA03408",
-    v4Positions: "0x429ba70129df741B2Ca2a85BC3A2a3328e5c09b4"
+    v4Positions: "0x4b2c77d209d3405f41a037ec6c77f7f5b8e2ca80"
   },
   11155111: {
     name: "Ethereum Sepolia",
@@ -334,7 +334,7 @@ export const UNISWAP = {
     poolManager: "0xE03A1074c86CFeDd5C142C4F04F1a1536e203543",
     v4Positions: "0x429ba70129df741B2Ca2a85BC3A2a3328e5c09b4",
     ens: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
-    nameWrapper: "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401"
+    nameWrapper: "0x0635513f179D50A207757E05759CbD106d7dFcE8"
   }
 };
 
