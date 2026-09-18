@@ -60,7 +60,7 @@ jobs:
         run: npm run test:modules
       - name: Retain module verification artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: module-verification
           path: |
@@ -90,7 +90,7 @@ jobs:
         run: npm run test:modules:native
       - name: Retain browser evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: native-module-browser-evidence
           path: |
