@@ -113,15 +113,20 @@ export class RpcChain {
       block explorer understands, and nothing about fee markets to be wrong
       about. The price is asked of the node and padded, because a base fee
       can rise between asking and mining.                                 */
-  async send({ to, data = "0x", value = 0n, label } = {}) {
+  async send({ to, data = "0x", value = 0n, label, gasLimit: suppliedGasLimit } = {}) {
     const gasPrice = (BigInt(await this.rpc("eth_gasPrice")) * 15n) / 10n + 1n;
-    let gasLimit;
+    let gasLimit = suppliedGasLimit == null ? undefined : BigInt(suppliedGasLimit);
     try {
+      if (gasLimit != null) {
+        const block = await this.rpc("eth_getBlockByNumber", ["latest", false]);
+        if (gasLimit > BigInt(block.gasLimit)) throw new Error("supplied gas limit exceeds the block limit");
+      } else {
       const est = await this.rpc("eth_estimateGas", [{
         from: this.from.toString(), to: to || undefined,
         data, value: "0x" + BigInt(value).toString(16)
       }]);
       gasLimit = (BigInt(est) * 13n) / 10n;
+      }
     } catch (e) {
       /*  estimateGas replays the call and reports the revert here, which is
           a better error than a mined failure — surface it.              */
