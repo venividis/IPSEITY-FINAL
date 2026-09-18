@@ -1043,6 +1043,7 @@ const runScripts = (html) => {
 const nap = (ms) => new Promise((r) => setTimeout(r, ms));
 const wallet = (actor) => {
   let n = 0;
+  let receiptRequests = 0;
   const filters = [];
   /*  One request at a time. The in-process EVM is not a node: two
       interleaved runCalls corrupt each other's checkpoints and neither
@@ -1073,6 +1074,10 @@ const wallet = (actor) => {
           for them. The ledger is the same one the transactions above wrote
           into, filtered the way a node filters.                        */
       if (method === "eth_getLogs") { filters.push(params[0]); return seq(() => c.getLogs(params[0])); }
+      if (method === "eth_getTransactionReceipt") {
+        receiptRequests++;
+        return { status: "0x1", transactionHash: params[0] };
+      }
       if (method === "eth_sendTransaction") {
         n++;
         const t = params[0];
@@ -1083,7 +1088,7 @@ const wallet = (actor) => {
       throw new Error("unexpected method " + method);
     }
   };
-  return { sent: () => n, filters: () => filters };
+  return { sent: () => n, filters: () => filters, receiptRequests: () => receiptRequests };
 };
 
 /*════════════ the app, actually driven ════════════
@@ -1652,6 +1657,8 @@ head("driving the Uniswap card");
   const usdcAfter = decUint(await c.read(usdc, "balanceOf(address)",
     [uniTrader.from.toString()]));
   eq("and the tokens actually moved", usdcAfter - usdcBefore, 2995n * 10n ** 6n);
+  ok("the handoff waits for a successful transaction receipt",
+     W.receiptRequests() > 0, "the client never requested the swap receipt");
   ok("the receipt opens a next-action flow instead of becoming a dead end",
      $("after") && $("after").hidden === false,
      "the lock / memory handoff stayed hidden");
