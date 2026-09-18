@@ -156,8 +156,13 @@ contract DeskUni {
     /*═══════════════════ every selector, from its own signature ═══════════════════*/
 
     function selectors() public pure returns (string memory) {
+        /*  Only selectors reached by the shipped swap and launch surfaces.
+            The retired pools/vault/governance application used to leave its
+            position-manager, ERC-4626 and Governor selectors in every page's
+            config. They described controls the site no longer exposed and
+            made discovery look broader than the product.                 */
         return string.concat("{", _selErc(), ",", _selPool(), ",", _selSwap(),
-                             ",", _selPos(), ",", _selVenue(), ",", _selCivic(), "}");
+                             ",", _selVenue(), "}");
     }
 
     /*  This collection's own reader.
@@ -224,42 +229,6 @@ contract DeskUni {
             // the struct declaration's order, NOT the NatSpec comment's
             "\",\"quote\":\"",
             _sel("quoteExactInputSingle((address,address,uint256,uint24,uint160))"), "\""
-        );
-    }
-
-    function _selPos() private pure returns (string memory) {
-        return string.concat(
-            "\"mint\":\"",
-            _sel("mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))"),
-            "\",\"initPool\":\"",
-            _sel("createAndInitializePoolIfNecessary(address,address,uint24,uint160)"),
-            "\",\"positions\":\"", _sel("positions(uint256)"),
-            "\",\"inc\":\"", _sel("increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))"),
-            "\",\"dec\":\"", _sel("decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))"),
-            "\",\"collect\":\"", _sel("collect((uint256,address,uint128,uint128))"),
-            "\",\"burn\":\"", _sel("burn(uint256)"),
-            "\",\"ofOwner\":\"", _sel("tokenOfOwnerByIndex(address,uint256)"), "\""
-        );
-    }
-
-    function _selCivic() private pure returns (string memory) {
-        return string.concat(
-            "\"vDeposit\":\"", _sel("deposit(uint256,address)"),
-            "\",\"vRedeem\":\"", _sel("redeem(uint256,address,address)"),
-            "\",\"vAsset\":\"", _sel("asset()"),
-            "\",\"vTotal\":\"", _sel("totalAssets()"),
-            "\",\"vToAssets\":\"", _sel("convertToAssets(uint256)"),
-            "\",\"vMaxRedeem\":\"", _sel("maxRedeem(address)"),
-            "\",\"vPreview\":\"", _sel("previewDeposit(uint256)"),
-            "\",\"castVote\":\"", _sel("castVote(uint256,uint8)"),
-            "\",\"proposals\":\"", _sel("proposals(uint256)"),
-            "\",\"pState\":\"", _sel("state(uint256)"),
-            "\",\"pCount\":\"", _sel("proposalCount()"),
-            "\",\"quorum\":\"", _sel("quorumVotes()"),
-            "\",\"receipt\":\"", _sel("getReceipt(uint256,address)"),
-            "\",\"delegate\":\"", _sel("delegate(address)"),
-            "\",\"delegates\":\"", _sel("delegates(address)"),
-            "\",\"votes\":\"", _sel("getCurrentVotes(address)"), "\""
         );
     }
 

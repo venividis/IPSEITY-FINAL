@@ -1436,9 +1436,11 @@ head("driving the terminal");
   ok("help is the same table, for people", help.includes("mint") && help.includes("launch"));
 
   const supply0 = decUint(await c.read(nft, "totalSupply()"));
-  await globalThis.TERM.run("mint");
+  const minted = await globalThis.TERM.run("mint");
   await nap(30);
   eq("`mint` minted", decUint(await c.read(nft, "totalSupply()")), supply0 + 1n);
+  ok("and hands the minter the live website it created",
+     new RegExp(`/token/${supply0 + 1n}/live`).test(minted), minted);
   await globalThis.TERM.run(`use ${supply0 + 1n}`);
 
   const commons0 = decUint(await c.read(site.parley, "stateOf(uint256)", [0]), 1);
@@ -1652,6 +1654,12 @@ head("driving the Uniswap card");
   const usdcAfter = decUint(await c.read(usdc, "balanceOf(address)",
     [uniTrader.from.toString()]));
   eq("and the tokens actually moved", usdcAfter - usdcBefore, 2995n * 10n ** 6n);
+  ok("the receipt opens a next-action flow instead of becoming a dead end",
+     $("after") && $("after").hidden === false,
+     "the lock / memory handoff stayed hidden");
+  ok("and the acquired asset can continue into the time vault",
+     $("afterLock") && /\/lock$/.test($("afterLock").href),
+     $("afterLock") ? $("afterLock").href : "no lock handoff");
 
   /*──── the override, which used to be a highlight and nothing else ────*/
 

@@ -216,10 +216,14 @@ contract PageDoor {
         return string.concat(
             "<button id=mint1>mint the next one \xc2\xb7 ",
             Web.amount(HUB.price(), 18, 4),
-            " ETH</button>"
+            " ETH</button><a class=g id=mintlive hidden>open the minted website &rarr;</a>"
             "<script>(function(){var b=document.getElementById('mint1');"
             "if(b)b.addEventListener('click',function(){"
-            "if(window.TERM)window.TERM.run('mint');})})()</script>"
+            "if(!window.TERM)return;window.TERM.run('mint').then(function(r){"
+            "var m=String(r).match(/minted #(\\d+)/),a=document.getElementById('mintlive');"
+            "if(!m||!a)return;a.href='/token/'+m[1]+'/live';a.hidden=false;"
+            "a.textContent='open website #'+m[1]+' \\u2192';"
+            "b.textContent='minted #'+m[1]+' \\u00b7 website ready';})})})()</script>"
         );
     }
 
