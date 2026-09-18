@@ -1436,9 +1436,11 @@ head("driving the terminal");
   ok("help is the same table, for people", help.includes("mint") && help.includes("launch"));
 
   const supply0 = decUint(await c.read(nft, "totalSupply()"));
-  await globalThis.TERM.run("mint");
+  const minted = await globalThis.TERM.run("mint");
   await nap(30);
   eq("`mint` minted", decUint(await c.read(nft, "totalSupply()")), supply0 + 1n);
+  ok("and hands the minter the live website it created",
+     new RegExp(`/token/${supply0 + 1n}/live`).test(minted), minted);
   await globalThis.TERM.run(`use ${supply0 + 1n}`);
 
   const commons0 = decUint(await c.read(site.parley, "stateOf(uint256)", [0]), 1);

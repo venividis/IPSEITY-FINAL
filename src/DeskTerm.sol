@@ -65,6 +65,7 @@ contract DeskTerm {
             "\",\"price\":\"",  _s("price()"),
             "\",\"openFee\":\"",_s("openFee()"),
             "\",\"supply\":\"", _s("totalSupply()"),
+            "\",\"first\":\"",  _s("FIRST_ID()"),
             "\",\"bal\":\"",    _s("balanceOf(address)"),
             "\",\"at\":\"",     _s("tokenOfOwnerByIndex(address,uint256)"),
             "\",\"owner\":\"",  _s("ownerOf(uint256)"),
@@ -198,7 +199,13 @@ contract DeskTerm {
         "ME=id;return'acting as #'+id});"
         "def('mint','mint',1,'mint a token at the current price',async()=>{"
         "const p=I.word(await I.call(X.hub,S.price),0);"
-        "await I.send(X.hub,S.mint,p);return'minted at '+I.fmt(p,18,6)+' ETH'});"
+        /*  Know the id before sending: ids are FIRST_ID + totalSupply and
+            mint is non-reentrant. A mint must hand back the website it just
+            created, not strand the holder at a transaction hash.          */
+        "const first=I.word(await I.call(X.hub,S.first),0);"
+        "const n=I.word(await I.call(X.hub,S.supply),0),id=first+n;"
+        "await I.send(X.hub,S.mint,p);ME=id;"
+        "return'minted #'+id+' at '+I.fmt(p,18,6)+' ETH \\u00b7 website /token/'+id+'/live'});"
         "def('state','state [id]',0,'a token\\u2019s word and stats',async(a)=>{"
         "const id=a[0]?BigInt(a[0]):await need();"
         "const w=I.word(await I.call(X.hub,S.section+I.W(id)),0);"
