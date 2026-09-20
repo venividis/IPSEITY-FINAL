@@ -26,8 +26,10 @@ Hardhat's published development keys are refused for public deployment.
 The workflow calculates a funding requirement from the live network fee and
 the complete deployment budget, including both the raw and compressed
 workbench archives. It refuses insufficient funds before sending a transaction.
-The three NFTs are issued with `mintTo(recipient)`, so the recipient owns them
-from their mint transactions; no recipient signing key is required.
+The three NFTs are issued atomically by the collection constructor, so no
+observer can claim an earlier token ID. Public minting remains disabled until
+the runner has completed and verified the bootstrap allocation; no recipient
+signing key is required.
 The collection curator and Pool administrator remain the deployer.
 
 ## Run the deployment
@@ -77,8 +79,8 @@ for the recipient through the NFT's canonical Reach.
 
 ## Current status
 
-The complete local rehearsal passed all five deployment tests: 124 transactions,
-384,732,031 gas, and exactly three independently seeded tokens owned by the
+The complete local rehearsal passed all five deployment tests: 122 transactions,
+386,141,600 gas, and exactly three independently seeded tokens owned by the
 specified recipient. This used a disposable local chain, not public Sepolia.
 
 Adding this workflow is preparation, not evidence of a public deployment.

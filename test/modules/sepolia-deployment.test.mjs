@@ -52,7 +52,7 @@ test('public preflight rejects missing dependencies and insufficient funding wit
  missing=false;await assert.rejects(()=>deploymentPreflight({c,workbench:sample}),/Insufficient Sepolia funding/);
  balance=10n**24n;const budget=await deploymentPreflight({c,workbench:sample});
  assert.equal(budget.gasBudget,230003250n);assert.equal(budget.feeCeiling,201n);
- assert.equal(budget.requiredBalance,budget.gasBudget*201n+3n*10n**14n);assert.equal(writes,0);
+ assert.equal(budget.requiredBalance,budget.gasBudget*201n);assert.equal(writes,0);
 });
 
 test('a broadcast whose response is lost leaves its exact hash durable and is never retried',async()=>{
@@ -100,9 +100,11 @@ test('the complete public deployment sequence mints exactly three directly to th
  assert.equal(record.status,'verified');assert.equal(record.recipient,MINT_RECIPIENT);assert.equal(record.tokens.length,3);
  assert.deepEqual(record.tokens.map(t=>t.id),[1,2,3]);assert.equal(new Set(record.tokens.map(t=>t.seed)).size,3);
  assert.ok(record.tokens.every(t=>t.owner===MINT_RECIPIENT&&t.urls.modules.endsWith('/'+t.id+'/modules')));
- assert.equal(record.transactions.filter(r=>r.label.startsWith('mintTo:')).length,3);
+ assert.equal(record.transactions.filter(r=>r.label.startsWith('mintTo:')).length,0);
+ assert.equal(record.transactions.filter(r=>r.label==='enablePublicMinting').length,1);
  assert.ok(record.transactions.every(r=>BigInt(r.gasLimit)<=TX_GAS_CAP));
  assert.equal(decUint(await c.read(record.contracts.ipseity,'totalSupply()')),3n);
+ assert.equal(decUint(await c.read(record.contracts.ipseity,'publicMintingEnabled()')),1n);
  assert.equal(decUint(await c.read(record.modules.cartridges,'nextId()')),1n,'No extra cartridge NFT was minted');
  assert.equal(decUint(await c.read(record.contracts.parley,'stateOf(uint256)',[0]),1),0n,'No demo message was posted');
  const file=fs.readFileSync(inputs.output,'utf8'),journal=fs.readFileSync(inputs.journal,'utf8');

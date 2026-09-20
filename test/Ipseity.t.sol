@@ -5,7 +5,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {Engine} from "../src/Engine.sol";
 import {Sigil} from "../src/Sigil.sol";
 import {Renderer} from "../src/Renderer.sol";
-import {Ipseity, IRenderer} from "../src/Ipseity.sol";
+import {Ipseity, SepoliaIpseity, IRenderer} from "../src/Ipseity.sol";
 import {IDataVerifier} from "../src/interfaces/Standards.sol";
 import {Section} from "../src/lib/Types.sol";
 import {SSTORE2} from "../src/lib/SSTORE2.sol";
@@ -145,6 +145,25 @@ contract IpseityTest is Test {
         assertEq(token.totalSupply(), 1);
         assertEq(token.balanceOf(alice), 1);
         assertTrue(Section.valid(token.sectionOf(id)), "born with an unrenderable section");
+    }
+
+    function test_sepoliaBootstrapIsAtomicAndPublicMintingStartsClosed() public {
+        SepoliaIpseity bootstrap = new SepoliaIpseity(
+            IRenderer(address(renderer)), address(new IpseityAccount()),
+            address(new GripVault()), 1, 4096, alice
+        );
+        assertEq(bootstrap.totalSupply(), 3);
+        assertEq(bootstrap.ownerOf(1), alice);
+        assertEq(bootstrap.ownerOf(2), alice);
+        assertEq(bootstrap.ownerOf(3), alice);
+
+        vm.prank(bob);
+        vm.expectRevert(SepoliaIpseity.PublicMintingDisabled.selector);
+        bootstrap.mint{value: 0.01 ether}();
+
+        bootstrap.enablePublicMinting();
+        vm.prank(bob);
+        assertEq(bootstrap.mint{value: 0.01 ether}(), 4);
     }
 
     function test_mint_refusesUnderpayment() public {

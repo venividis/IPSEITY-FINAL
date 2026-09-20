@@ -349,11 +349,11 @@ contract Ipseity is
 
     /*═══════════════════════ issuance ═══════════════════════*/
 
-    function mint() external payable returns (uint256 id) {
+    function mint() external payable virtual returns (uint256 id) {
         return _mintTo(msg.sender);
     }
 
-    function mintTo(address to) external payable returns (uint256 id) {
+    function mintTo(address to) external payable virtual returns (uint256 id) {
         return _mintTo(to);
     }
 
@@ -1142,4 +1142,35 @@ contract Ipseity is
     }
 
     receive() external payable {}
+}
+
+/// @notice Deployment variant that atomically reserves the three Sepolia
+/// bootstrap token IDs and keeps public issuance closed until setup completes.
+contract SepoliaIpseity is Ipseity {
+    bool public publicMintingEnabled;
+
+    error PublicMintingDisabled();
+
+    constructor(
+        IRenderer renderer_, address accountImpl_, address gripImpl_,
+        uint256 firstId_, uint256 lastId_, address bootstrapRecipient
+    ) Ipseity(renderer_, accountImpl_, gripImpl_, firstId_, lastId_) {
+        _issue(bootstrapRecipient);
+        _issue(bootstrapRecipient);
+        _issue(bootstrapRecipient);
+    }
+
+    function enablePublicMinting() external onlyCurator {
+        publicMintingEnabled = true;
+    }
+
+    function mint() external payable override returns (uint256 id) {
+        if (!publicMintingEnabled) revert PublicMintingDisabled();
+        return _mintTo(msg.sender);
+    }
+
+    function mintTo(address to) external payable override returns (uint256 id) {
+        if (!publicMintingEnabled) revert PublicMintingDisabled();
+        return _mintTo(to);
+    }
 }

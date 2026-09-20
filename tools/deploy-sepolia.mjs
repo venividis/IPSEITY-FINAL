@@ -76,7 +76,7 @@ export async function deploymentPreflight({c,workbench,localRehearsal=false}){
  // 180M covers the measured original deployment. Data deposition, calldata,
  // readers and companion contracts get a separate conservative allowance.
  const gasBudget=180000000n+BigInt(workbench.bytes.length+workbench.packed.length)*250n+50000000n;
- const requiredBalance=gasBudget*feeCeiling+3n*PRICE;
+ const requiredBalance=gasBudget*feeCeiling;
  const balance=await c.balanceOf(deployer);
  check(balance>=requiredBalance,'Insufficient Sepolia funding: required '+requiredBalance+' wei; available '+balance+' wei.');
  return {chainId,deployer,startingNonce:nonce,uniswap,dependencies,gasBudget,feeCeiling,requiredBalance};
@@ -171,7 +171,8 @@ export async function deploySepolia({c,A,artifacts,engineBuild,workbench,output,
   contracts.renderer=await c.deploy(A('src/Renderer.sol','Renderer').bytecode,encodeAddressArg(contracts.engine)+encodeAddressArg(contracts.sigil),'Renderer');
   contracts.reach=await c.deploy(A('src/IpseityAccount.sol','IpseityAccount').bytecode,'','Reach');
   contracts.grip=await c.deploy(A('src/GripVault.sol','GripVault').bytecode,'','Grip');
-  contracts.ipseity=await c.deploy(A('src/Ipseity.sol','Ipseity').bytecode,encodeAddressArg(contracts.renderer)+encodeAddressArg(contracts.reach)+encodeAddressArg(contracts.grip)+bandArgs(chainId),'Ipseity');
+  contracts.ipseity=await c.deploy(A('src/Ipseity.sol','SepoliaIpseity').bytecode,encodeAddressArg(contracts.renderer)+encodeAddressArg(contracts.reach)+encodeAddressArg(contracts.grip)+bandArgs(chainId)+encodeAddressArg(recipient),'SepoliaIpseity');
+  const collectionDeploymentHash=record.transactions.at(-1).transactionHash;
   contracts.pool=await c.deploy(A('src/Pool.sol','Pool').bytecode,encodeAddressArg(contracts.ipseity)+word(10n**27n)+encodeAddressArg(deployer)+word(0),'Pool');
   await c.exec(contracts.ipseity,'setPool(address)',[contracts.pool]);
   contracts.lease=await c.deploy(A('src/Lease.sol','Lease').bytecode,encodeAddressArg(contracts.ipseity),'Lease');
@@ -195,14 +196,12 @@ export async function deploySepolia({c,A,artifacts,engineBuild,workbench,output,
   record.modules={archiveFactory:plan.modules.ModuleArchiveFactory,releases:plan.modules.ExtensionReleaseRegistry,registry:plan.modules.TokenModuleRegistry,stateStore:plan.modules.ModuleStateStore,cartridges:plan.modules.ChunkedCartridgeRegistry,workbench:plan.modules.ModuleWorkbench,portal:plan.modules.ModulePortal,rawArchive:plan.modules.WorkbenchArchive,packedArchive:plan.modules.PackedWorkbenchArchive};save();
   const recovered=await recoverWorkbench({request:({method,params})=>c.rpc(method,params),chainId,workbench:record.modules.workbench,expectedHash:workbench.manifest.sha256});
   check(Buffer.from(recovered.bytes).equals(Buffer.from(workbench.bytes)),'Recovered workbench differs from the source build.');
-  eq(decUint(await c.read(contracts.ipseity,'totalSupply()')),0,'Fresh collection already has tokens.');
+  eq(decUint(await c.read(contracts.ipseity,'totalSupply()')),3,'Bootstrap supply differs.');
   await c.exec(contracts.ipseity,'setPricing(uint256,uint256)',[PRICE,OPEN_FEE],{label:'setPricing'});
+  eq(decUint(await c.read(contracts.ipseity,'price()')),PRICE,'Mint price changed.');
   for(let id=1;id<=3;id++){
-   eq(decUint(await c.read(contracts.ipseity,'totalSupply()')),id-1,'Unexpected concurrent mint; refusing further mints.');
-   eq(decUint(await c.read(contracts.ipseity,'price()')),PRICE,'Mint price changed.');
-   const minted=await c.exec(contracts.ipseity,'mintTo(address)',[recipient],{value:PRICE,label:'mintTo:'+id});
    eq(decAddr(await c.read(contracts.ipseity,'ownerOf(uint256)',[id])),recipient,'Mint recipient differs.');
-   record.tokens.push({id,owner:recipient,mintTransaction:minted.hash});save();
+   record.tokens.push({id,owner:recipient,mintTransaction:collectionDeploymentHash});save();
    await c.exec(contracts.ipseity,'embody(uint256)',[id],{label:'embody:'+id});
    await c.exec(contracts.ipseity,'embodyGrip(uint256)',[id],{label:'embodyGrip:'+id});
   }
@@ -225,6 +224,9 @@ export async function deploySepolia({c,A,artifacts,engineBuild,workbench,output,
   const modulePage=decResponse(await c.call(record.modules.portal,encRequest(['token','1','modules'])));check(modulePage.status===200&&modulePage.body.includes(workbench.manifest.sha256.slice(2)),'Onchain module page commitment differs.');
   const discovery=decResponse(await c.call(record.modules.portal,encRequest(['modules','services.json'])));check(discovery.status===200,'Module discovery failed.');
   record.urls={door:`web3://${record.modules.portal}:${chainId}/`,original:`web3://${contracts.premises}:${chainId}/`,modules:`web3://${record.modules.portal}:${chainId}/modules`};
+  // Public minting remains impossible throughout setup. Opening it is the
+  // final state-changing action, after the bootstrap allocation is verified.
+  await c.exec(contracts.ipseity,'enablePublicMinting()',[],{label:'enablePublicMinting'});
   // Re-read every receipt at completion: a disappeared/reorged receipt is not
   // accepted as a successful deployment. This records inclusion, not finality.
   for(const receipt of record.transactions){const current=await c.rpc('eth_getTransactionReceipt',[receipt.transactionHash]);check(current?.status==='0x1'&&current.blockHash===receipt.blockHash,'A receipt changed during verification; reconcile the chain.');}
