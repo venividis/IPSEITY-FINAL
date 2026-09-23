@@ -144,7 +144,7 @@ contract PageMarket {
     function _card(MarketView memory m) private view returns (string memory) {
         return string.concat(
             "<div class=app>"
-            "<div class=hd><b>Swap</b>"
+            "<div class=hd><b>Token market</b>"
             "<button class=ico id=cog>slippage &amp; deadline</button></div>"
             "<div class=set id=set hidden>"
             "<div>Slippage tolerance, now <b id=sl>0.5%</b> &mdash; the most the price "
@@ -180,7 +180,7 @@ contract PageMarket {
 
     function _shut(string memory t) private pure returns (string memory) {
         return string.concat(
-            "<div class=app><div class=hd><b>Swap</b></div>"
+            "<div class=app><div class=hd><b>Token market</b></div>"
             "<p class=e>Token #", t, " has not opened a market. Only its holder can, "
             "against any pair of ERC-20s, and when they do the fee income belongs to "
             "the token &mdash; so selling the NFT would sell the exchange, inventory "

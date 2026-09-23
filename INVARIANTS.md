@@ -1709,3 +1709,28 @@ The Solidity tests above execute through the repository's Foundry-shaped Node
 EVM runner. They are not native Foundry invariant campaigns, an audit, or a
 public deployment. Final pass counts and source-bound gas measurements belong
 to the final integration report, not to the mere existence of these tests.
+
+---
+
+## Packet Garden interface
+
+**A framed instrument picks the node the viewer actually clicks.**
+Projection, node labels and the nested section use field-local coordinates.
+Pointer events subtract the measured field origin. Focus mode, portrait and
+desktop layouts preserve that relationship. Tiny embedded tokens retain a
+renderable field and a command strip.
+→ `tools/verify-packet-garden.mjs`, `tools/verify-thermal.mjs`
+
+**Navigation replaces the instrument; a view never implies a transaction.**
+The permanent navigation and workbench cards use the current token's routes.
+The journal and cartridge fragments select existing workbench tabs only.
+They do not connect a wallet, open a runtime, prepare an inscription or sign.
+Standalone data documents do not invent a site origin. Transaction reviews,
+module authority checks, privacy choices and renderer pacing remain in force.
+→ `tools/verify-packet-garden.mjs`, `test/browser/modules.mjs`
+
+**Semantic colours do not change with a token's hue.**
+The onchain hue continues to drive the artwork and console identity rules.
+Cyan, coral, amber, green and error pink keep their interface meanings.
+Packet Garden uses system fonts, CSS ornaments and the existing renderer;
+it requires no font server, CDN or external image request.

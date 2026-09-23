@@ -2,29 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <title>IPSEITY</title>
 <style>
 /*═══════════════════════════════════════════════════════════════════════════
   IPSEITY · the surface
 
-  Every colour in this sheet is a function of one number held on chain.
-  --a is the token's hue; the entire interface is tinted by the state it
-  is currently editing. Change the hue, and the instrument changes with
-  the thing it measures.
+  Packet Garden. The token keeps its own hue in the artwork and identity
+  rule. Navigation and transaction semantics use a stable, legible palette:
+  cyan for reading, coral for the primary action, amber for a caution.
 ═══════════════════════════════════════════════════════════════════════════*/
 :root{
   --h:34;                      /* token hue, overwritten from chain state */
-  --a:hsl(var(--h) 92% 66%);   /* accent  — the token's own colour        */
-  --a-dim:hsl(var(--h) 62% 44%);
-  --a-ghost:hsl(var(--h) 92% 66% / .10);
+  --a:#67e8f9; --orchid:#d0a6ff; --coral:#ff75af; --token:hsl(var(--h) 92% 66%);   /* accent  — the token's own colour        */
+  --a-dim:#569caf;
+  --a-ghost:#67e8f914;
   --b:hsl(calc(var(--h) + 186) 78% 64%);  /* counter-accent               */
 
-  --void:#04050a; --void-2:#070912; --void-3:#0b0e18;
-  --rule:#151a26; --rule-2:#212838; --rule-3:#2e3648;
-  --dim:#5d6780; --mid:#8b95ad; --txt:#c8d0e2; --lit:#eef2fb;
-  --ok:#5fe3b4; --warn:#ffc95c; --bad:#ff6b63;
+  --void:#130f25; --void-2:#1c1731; --void-3:#251d3e;
+  --rule:#3d3057; --rule-2:#57426f; --rule-3:#82639e;
+  --dim:#aa9bbe; --mid:#b6abc9; --txt:#ded3ee; --lit:#f4edff;
+  --ok:#94e2b5; --warn:#ffc46b; --bad:#ff8e9d;
 
   --mono:ui-monospace,"SF Mono",SFMono-Regular,"Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace;
   --rail:44px;
@@ -36,7 +35,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;background:var(--void);color:var(--txt);
-  font-family:var(--mono);font-size:13px;line-height:1.45;
+  font-family:var(--mono);font-size:14px;line-height:1.55;
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"zero" 1;
   overscroll-behavior:none;text-rendering:optimizeLegibility;
   -webkit-font-smoothing:antialiased}
@@ -63,10 +62,10 @@ svg#wires{position:fixed;left:0;top:0;
   pointer-events:none;z-index:2}
 
 /*──────────────────────────── type ────────────────────────────*/
-.k{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.k{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
 .v{font-size:12px;letter-spacing:.01em;color:var(--lit)}
-.n{font-size:11px;letter-spacing:.05em;color:var(--txt)}
-.s{font-size:10px;letter-spacing:.08em;color:var(--mid)}
+.n{font-size:14px;letter-spacing:.05em;color:var(--txt)}
+.s{font-size:12px;letter-spacing:.08em;color:var(--mid)}
 .acc{color:var(--a)}
 .mut{color:var(--dim)}
 hr{border:0;height:1px;background:var(--rule);margin:12px 0}
@@ -81,7 +80,7 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
 /*──────────────────────────── rail ────────────────────────────*/
 #rail{position:fixed;top:0;left:0;right:0;z-index:7;display:flex;align-items:stretch;
   height:calc(var(--rail) + var(--safeT));padding-top:var(--safeT);
-  background:linear-gradient(180deg,rgba(4,5,10,.92) 40%,rgba(4,5,10,0));
+  background:linear-gradient(180deg,rgba(19,15,37,.92) 40%,rgba(19,15,37,0));
   pointer-events:none;backdrop-filter:blur(2px)}
 #rail>*{pointer-events:auto}
 .cell{display:flex;flex-direction:column;justify-content:center;gap:1px;padding:0 13px;
@@ -92,7 +91,7 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
 #c-net{flex:1 1 auto;overflow:hidden}
 #c-net .v{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #link{border:0;background:transparent;border-left:1px solid var(--rule);color:var(--a);
-  font:inherit;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  font:inherit;font-size:12px;letter-spacing:.2em;text-transform:uppercase;
   padding:0 15px;cursor:pointer;transition:background .2s var(--ease);white-space:nowrap}
 #link:hover,#link:focus-visible{background:var(--a-ghost);outline:none}
 #link.live{color:var(--ok)}
@@ -130,14 +129,14 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
   width:100%;height:100%;
   z-index:3;pointer-events:none}
 .nd{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;cursor:pointer;
-  padding:5px 10px;white-space:nowrap;font-size:9px;letter-spacing:.21em;
-  text-transform:uppercase;color:var(--mid);background:rgba(4,5,10,.62);
+  padding:5px 10px;white-space:nowrap;font-size:12px;letter-spacing:.21em;
+  text-transform:uppercase;color:var(--mid);background:rgba(19,15,37,.62);
   border:1px solid transparent;transition:color .22s,border-color .22s,background .22s,transform .22s;
   user-select:none;will-change:transform,opacity}
-.nd:hover{color:var(--lit);border-color:var(--rule-3);background:rgba(4,5,10,.86)}
+.nd:hover{color:var(--lit);border-color:var(--rule-3);background:rgba(19,15,37,.86)}
 .nd.on{color:var(--void);background:var(--a);border-color:var(--a);font-weight:600}
-.nd.hi{color:var(--lit);border-color:var(--a);background:rgba(4,5,10,.9)}
-.nd.shut{color:#3d4457}
+.nd.hi{color:var(--lit);border-color:var(--a);background:rgba(19,15,37,.9)}
+.nd.shut{color:#a397b4}
 .nd.shut::after{content:" ·";color:var(--a-dim)}
 
 /*──────── the plate: a sealed node, answered where you tapped ────────
@@ -155,21 +154,21 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
     draws a wire to wherever its node has since gone — which also means
     the node may orbit behind the solid without stranding the reader.  */
 #plate{position:fixed;z-index:7;width:min(268px,calc(100vw - 28px));
-  padding:13px 14px 12px;background:rgba(7,9,18,.96);border:1px solid var(--rule-3);
+  padding:13px 14px 12px;background:rgba(28,23,49,.96);border:1px solid var(--rule-3);
   border-left:1px solid var(--a);
   transform-origin:left center;pointer-events:auto;
   opacity:0;transform:scale(.96);transition:opacity .2s var(--ease),transform .2s var(--ease)}
 #plate.on{opacity:1;transform:scale(1)}
 #plate[hidden]{display:none}
-#plname{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--a);
+#plname{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--a);
   padding-right:18px}
-#plblurb{font-size:11px;line-height:1.6;color:var(--mid);margin:7px 0 0}
+#plblurb{font-size:14px;line-height:1.6;color:var(--mid);margin:7px 0 0}
 /*  The cost is stated before the button, never after it, and never in a
     tone lighter than the thing it describes: this is irreversible.   */
-#plnote{font-size:10px;line-height:1.55;color:var(--dim);margin:9px 0 0}
+#plnote{font-size:12px;line-height:1.55;color:var(--dim);margin:9px 0 0}
 #plgo{display:block;width:100%;margin-top:11px;padding:9px;cursor:pointer;
   background:transparent;border:1px solid var(--a);color:var(--a);
-  font:inherit;font-size:9px;letter-spacing:.24em;text-transform:uppercase;
+  font:inherit;font-size:12px;letter-spacing:.24em;text-transform:uppercase;
   transition:background .2s,color .2s}
 #plgo:hover{background:var(--a);color:var(--void)}
 #plno{position:absolute;top:6px;right:6px;background:transparent;border:0;
@@ -180,7 +179,7 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
 #tick{position:fixed;left:0;z-index:6;
   bottom:calc(var(--dock) + var(--safeB));
   padding:6px 13px;max-width:min(56vw,440px);pointer-events:none;
-  font-size:10px;letter-spacing:.06em;color:var(--mid);
+  font-size:12px;letter-spacing:.06em;color:var(--mid);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   transition:opacity .4s var(--ease)}
 #tick b{color:var(--a);font-weight:400}
@@ -190,22 +189,22 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
 /*──────────────────────── the dock: 4D controls ────────────────────────*/
 #dock{position:fixed;left:0;right:0;bottom:0;z-index:6;
   padding:0 13px calc(9px + var(--safeB));
-  background:linear-gradient(0deg,rgba(4,5,10,.94) 46%,rgba(4,5,10,0));
+  background:linear-gradient(0deg,rgba(19,15,37,.94) 46%,rgba(19,15,37,0));
   pointer-events:none;user-select:none}
 #dock>*{pointer-events:auto}
 
 #planes{display:flex;gap:5px;align-items:flex-end;margin-bottom:8px;
   overflow-x:auto;scrollbar-width:none;padding-top:14px}
 #planes::-webkit-scrollbar{display:none}
-.pl{flex:0 0 auto;border:1px solid var(--rule-2);background:rgba(7,9,18,.8);
+.pl{flex:0 0 auto;border:1px solid var(--rule-2);background:rgba(28,23,49,.8);
   padding:5px 8px 4px;cursor:pointer;min-width:52px;
   transition:border-color .2s,background .2s;position:relative;overflow:hidden}
 .pl:hover{border-color:var(--rule-3)}
 .pl.on{border-color:var(--a);background:var(--a-ghost)}
 .pl.w{border-style:dashed}
-.pl .pn{font-size:10px;letter-spacing:.16em;color:var(--mid);text-transform:uppercase}
+.pl .pn{font-size:12px;letter-spacing:.16em;color:var(--mid);text-transform:uppercase}
 .pl.on .pn{color:var(--a)}
-.pl .pv{font-size:9px;letter-spacing:.04em;color:var(--dim);margin-top:1px}
+.pl .pv{font-size:12px;letter-spacing:.04em;color:var(--dim);margin-top:1px}
 .pl .bar{position:absolute;left:0;bottom:0;height:1px;background:var(--a);width:0;
   transition:width .12s linear}
 .pl .spin{position:absolute;right:3px;top:3px;width:4px;height:4px;border-radius:50%;
@@ -221,9 +220,9 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
 #wticks i.mid{height:14px;top:8px;background:var(--rule-3)}
 #whead{position:absolute;top:5px;width:2px;height:20px;background:var(--a);
   box-shadow:0 0 12px var(--a);pointer-events:none;transition:none}
-#wval{flex:0 0 auto;width:62px;text-align:right;font-size:11px;color:var(--lit)}
+#wval{flex:0 0 auto;width:62px;text-align:right;font-size:14px;color:var(--lit)}
 #wauto{flex:0 0 auto;border:1px solid var(--rule-2);background:transparent;color:var(--dim);
-  font:inherit;font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:5px 8px;
+  font:inherit;font-size:12px;letter-spacing:.18em;text-transform:uppercase;padding:5px 8px;
   cursor:pointer;transition:.2s var(--ease)}
 #wauto.on{color:var(--a);border-color:var(--a-dim)}
 
@@ -247,13 +246,13 @@ hr{border:0;height:1px;background:var(--rule);margin:12px 0}
 #grip::after{content:"";width:34px;height:2px;background:var(--rule-3);border-radius:2px}
 #shead{display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding:11px 15px;border-bottom:1px solid var(--rule);flex:0 0 auto}
-#shead .t{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--lit)}
+#shead .t{font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:var(--lit)}
 #shut{border:0;background:transparent;color:var(--dim);font:inherit;font-size:15px;
   cursor:pointer;padding:2px 5px;line-height:1;transition:color .2s}
 #shut:hover{color:var(--lit)}
 #sbody{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;
   padding:14px 15px calc(20px + var(--safeB))}
-.blurb{font-size:11px;line-height:1.62;color:var(--mid);margin-bottom:14px}
+.blurb{font-size:14px;line-height:1.62;color:var(--mid);margin-bottom:14px}
 
 /*──────────────────────── controls ────────────────────────*/
 label.f{display:block;margin:10px 0 4px}
@@ -262,14 +261,14 @@ input[type=text],input[type=number],textarea,select{
   font:inherit;font-size:12px;padding:8px 10px;outline:none;
   transition:border-color .18s;border-radius:0;-webkit-appearance:none;appearance:none}
 input:focus,textarea:focus,select:focus{border-color:var(--a)}
-input::placeholder,textarea::placeholder{color:#3f4759}
+input::placeholder,textarea::placeholder{color:#a397b4}
 textarea{resize:vertical;min-height:64px;line-height:1.5}
 select{background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),
   linear-gradient(135deg,var(--dim) 50%,transparent 50%);
   background-position:calc(100% - 15px) 15px,calc(100% - 11px) 15px;
   background-size:4px 4px,4px 4px;background-repeat:no-repeat;padding-right:30px}
 button.b{display:block;width:100%;margin-top:12px;padding:11px;border:1px solid var(--a);
-  background:transparent;color:var(--a);font:inherit;font-size:10px;letter-spacing:.24em;
+  background:transparent;color:var(--a);font:inherit;font-size:12px;letter-spacing:.24em;
   text-transform:uppercase;cursor:pointer;transition:.2s var(--ease)}
 button.b:hover:not(:disabled){background:var(--a);color:var(--void)}
 button.b:disabled{opacity:.32;cursor:not-allowed}
@@ -292,27 +291,27 @@ input[type=range]::-moz-range-thumb{width:2px;height:18px;background:var(--a);bo
 .kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
   border-bottom:1px solid var(--rule);align-items:baseline}
 .kv:last-child{border-bottom:0}
-.kv .vv{font-size:11px;color:var(--lit);text-align:right;
+.kv .vv{font-size:14px;color:var(--lit);text-align:right;
   overflow-wrap:anywhere;min-width:0}
 pre.code{background:var(--void);border:1px solid var(--rule);padding:9px 10px;
-  font-size:10px;line-height:1.55;color:var(--mid);overflow-x:auto;
+  font-size:12px;line-height:1.55;color:var(--mid);overflow-x:auto;
   white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;max-height:190px}
 pre.code b{color:var(--a);font-weight:400}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
-.chip{border:1px solid var(--rule-2);padding:5px 9px;font-size:9px;letter-spacing:.16em;
+.chip{border:1px solid var(--rule-2);padding:5px 9px;font-size:12px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--mid);cursor:pointer;transition:.18s var(--ease)}
 .chip:hover{border-color:var(--rule-3);color:var(--lit)}
 .chip.on{border-color:var(--a);color:var(--a);background:var(--a-ghost)}
 .chip.shut{opacity:.4;cursor:not-allowed}
 
 /*──────────────────────── confirm slab ────────────────────────*/
-#confirm{position:fixed;inset:0;z-index:12;background:rgba(4,5,10,.82);
+#confirm{position:fixed;inset:0;z-index:12;background:rgba(19,15,37,.82);
   backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;
   padding:18px}
 #confirm.open{display:flex}
 #cbox{width:min(468px,100%);max-height:88vh;overflow-y:auto;background:var(--void-2);
   border:1px solid var(--rule-3);padding:18px}
-#cbox h3{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--a);
+#cbox h3{font-size:14px;letter-spacing:.26em;text-transform:uppercase;color:var(--a);
   font-weight:400;margin-bottom:4px}
 #cbox .plain{font-size:12px;line-height:1.6;color:var(--lit);margin:10px 0 14px;
   padding-left:11px;border-left:1px solid var(--a)}
@@ -359,7 +358,7 @@ pre.code b{color:var(--a);font-weight:400}
 #r2d:hover,#rcmd:hover,#r2d:focus-visible,#rcmd:focus-visible{color:var(--a);outline:none}
 #r2d[hidden]{display:none}
 /*──────────────────────── palette ────────────────────────*/
-#pal{position:fixed;inset:0;z-index:13;background:rgba(4,5,10,.7);backdrop-filter:blur(6px);
+#pal{position:fixed;inset:0;z-index:13;background:rgba(19,15,37,.7);backdrop-filter:blur(6px);
   display:none;align-items:flex-start;justify-content:center;padding:12vh 16px 16px}
 #pal.open{display:flex}
 #palbox{width:min(520px,100%);background:var(--void-2);border:1px solid var(--rule-3)}
@@ -371,14 +370,14 @@ pre.code b{color:var(--a);font-weight:400}
 .pi:last-child{border-bottom:0}
 .pi.sel{background:var(--a-ghost)}
 .pi .pt{font-size:12px;color:var(--lit);flex:0 0 auto}
-.pi .pd{font-size:10px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pi .pk{margin-left:auto;font-size:9px;color:var(--dim);letter-spacing:.14em;flex:0 0 auto}
+.pi .pd{font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pi .pk{margin-left:auto;font-size:12px;color:var(--dim);letter-spacing:.14em;flex:0 0 auto}
 
 /*──────────────────────── coach ────────────────────────*/
 #coach{position:fixed;left:50%;bottom:calc(var(--dock) + 34px + var(--safeB));
   transform:translateX(-50%);z-index:9;pointer-events:none;text-align:center;
-  font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);
-  background:rgba(4,5,10,.76);padding:7px 15px;border:1px solid var(--rule);
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);
+  background:rgba(19,15,37,.76);padding:7px 15px;border:1px solid var(--rule);
   opacity:0;transition:opacity .55s var(--ease);max-width:88vw}
 #coach.on{opacity:1}
 #coach b{color:var(--a);font-weight:400}
@@ -388,8 +387,8 @@ pre.code b{color:var(--a);font-weight:400}
   flex-direction:column;align-items:center;justify-content:center;gap:15px;
   transition:opacity .7s var(--ease)}
 #boot.gone{opacity:0;pointer-events:none}
-#boot .mark{font-size:11px;letter-spacing:.72em;color:var(--a);text-indent:.72em}
-#boot .sub{font-size:9px;letter-spacing:.26em;color:var(--dim);text-transform:uppercase}
+#boot .mark{font-size:14px;letter-spacing:.72em;color:var(--a);text-indent:.72em}
+#boot .sub{font-size:12px;letter-spacing:.26em;color:var(--dim);text-transform:uppercase}
 #bootbar{width:150px;height:1px;background:var(--rule-2);overflow:hidden}
 #bootbar i{display:block;height:100%;width:0;background:var(--a);transition:width .3s linear}
 
@@ -397,31 +396,129 @@ pre.code b{color:var(--a);font-weight:400}
 #fatal{position:fixed;inset:0;z-index:30;background:var(--void);display:none;
   align-items:center;justify-content:center;padding:24px;text-align:center}
 #fatal.on{display:flex}
-#fatal div{max-width:420px;font-size:11px;line-height:1.7;color:var(--mid)}
-#fatal h4{color:var(--bad);font-size:10px;letter-spacing:.26em;text-transform:uppercase;
+#fatal div{max-width:420px;font-size:14px;line-height:1.7;color:var(--mid)}
+#fatal h4{color:var(--bad);font-size:12px;letter-spacing:.26em;text-transform:uppercase;
   font-weight:400;margin-bottom:10px}
 
 @media (prefers-reduced-motion:reduce){
   *{transition-duration:.01ms !important}
 }
+/* Packet Garden's frame is DOM, not another renderer. Its decorations are
+   deliberately still; a moving target must never be the only way in. */
+:root{--rail:72px;--left:236px;--right:292px;--ftop:184px;--fbottom:240px;--dock:180px;--sheet:min(440px,100vw)}
+body{background:radial-gradient(ellipse at 50% 0,#38244e55,transparent 65%),var(--void)}
+:focus-visible{outline:2px solid var(--a);outline-offset:4px}
+button,a,input,select,textarea{touch-action:manipulation}
+button{border-radius:3px}
+.k{letter-spacing:.13em}.s{letter-spacing:.02em}.blurb{font-size:14px;line-height:1.7}
+#rail{height:calc(var(--rail) + var(--safeT));padding:10px 18px;background:var(--void);border-bottom:1px solid var(--rule-3);gap:8px}
+#brand{display:flex;align-items:center;gap:12px;color:var(--orchid);text-decoration:none;margin-right:auto;min-width:0}
+#brand strong{font:700 28px/1 Georgia,serif;letter-spacing:.04em;text-shadow:2px 2px #67e8f94d}
+#brand small{display:block;font:10px/1.4 var(--mono);letter-spacing:.14em;color:var(--mid);margin-top:6px}
+.pixel-flower{width:7px;height:7px;background:var(--a);color:var(--orchid);box-shadow:-7px -7px,7px -7px,-7px 7px,7px 7px,0 -14px,0 14px,-14px 0,14px 0;display:inline-block;flex:none;margin:16px}
+#c-form{display:none}#c-id{border:0}#c-net{border:0;min-width:100px}.cell{padding:0 10px}
+#link{background:var(--coral);color:var(--void);padding:0 18px;font-size:13px;letter-spacing:0;text-transform:none;border:1px solid #ffa5c9;min-height:44px;margin-left:8px}
+#link:hover,#link:focus-visible{background:#ffa5c9}#link.live{background:var(--void-2);color:var(--ok);border-color:var(--ok)}
+#r2d,#rcmd{border:1px solid var(--rule-2);padding:0 12px;min-width:44px;font-size:13px;letter-spacing:0}
+#garden-nav{position:fixed;top:84px;bottom:52px;left:12px;width:212px;padding:16px 10px;z-index:5;border:1px solid var(--rule-3);background:var(--void-2);display:flex;flex-direction:column;gap:7px;overflow-y:auto}
+.garden-id{border:1px dashed var(--rule-3);padding:12px;color:var(--orchid);font-size:13px;letter-spacing:.08em;margin-bottom:14px}
+.garden-nav-item{display:flex;align-items:center;gap:12px;padding:12px 10px;color:var(--txt);font:14px/1.4 var(--mono);text-decoration:none;border:1px solid transparent;border-radius:3px;min-height:46px;background:none;cursor:pointer;text-align:left}
+.garden-nav-item span{width:22px;font-size:21px;text-align:center;color:var(--orchid)}
+.garden-nav-item:hover{background:#d0a6ff14;border-color:var(--rule-3)}
+.garden-nav-item[aria-current]{background:var(--coral);color:var(--void)}.garden-nav-item[aria-current] span{color:inherit}
+.garden-nav-item[aria-disabled=true]{color:var(--dim);border-style:dashed;cursor:help}
+.garden-nav-note{margin-top:auto;padding:26px 8px 2px;font-size:12px;line-height:1.7;color:var(--mid)}
+.garden-nav-note b{color:var(--a);font-weight:400;display:block;margin-bottom:8px}
+.pixel-garden{height:104px;margin-top:22px;position:relative;overflow:hidden;border-bottom:1px dashed var(--rule-3)}
+.pixel-garden i{position:absolute;left:var(--x);bottom:0;width:2px;height:var(--stem);background:#94e2b580}
+.pixel-garden i::before{content:"";position:absolute;top:0;left:-2px;width:6px;height:6px;background:var(--a);color:var(--flower,var(--orchid));box-shadow:-6px -6px,6px -6px,-6px 6px,6px 6px,0 -12px,0 12px}
+.pixel-garden i::after{content:"";position:absolute;top:28px;left:-5px;width:4px;height:4px;background:#94e2b5;box-shadow:10px 8px,-4px -4px,14px 4px,0 24px,10px 32px}
+#garden-title{position:fixed;left:calc(var(--left) + 20px);right:calc(var(--right) + 20px);top:96px;z-index:3}
+#garden-title p{color:var(--orchid);font-size:11px;letter-spacing:.14em;margin-bottom:8px}
+#garden-title h1{font:400 clamp(24px,2.6vw,44px)/1.12 Georgia,serif;color:var(--lit);letter-spacing:-.02em}
+#garden-field{position:fixed;left:var(--left);right:var(--right);top:var(--ftop);bottom:var(--fbottom);border:1px solid var(--rule-3);border-radius:4px;overflow:hidden;background:var(--void);box-shadow:0 0 0 5px #d0a6ff06}
+#garden-field::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;border:6px solid transparent;border-image:repeating-linear-gradient(45deg,#d0a6ff66 0 1px,transparent 1px 4px) 6}
+canvas#field,svg#wires,#nodes{position:absolute;inset:0;width:100%;height:100%}#nest{position:absolute;inset:0}
+#garden-field:not(.show-labels) #nodes,#garden-field:not(.show-labels) #wires{visibility:hidden}
+#garden-labels{position:absolute;right:14px;top:14px;z-index:4;background:#130f25cc;border:1px solid var(--rule-3);color:var(--mid);font:11px var(--mono);padding:9px 12px;min-height:36px;cursor:pointer}
+#garden-labels[aria-pressed=true]{color:var(--a);border-color:var(--a)}
+.nd{font-size:11px;letter-spacing:.07em;padding:8px;min-height:32px;background:#1c1731cc;border-color:var(--rule)}
+#garden-side{position:fixed;right:12px;top:84px;bottom:52px;width:268px;display:flex;flex-direction:column;gap:14px;z-index:5;overflow-y:auto}
+.garden-card{border:1px solid var(--rule-3);padding:8px;background:var(--void-2);border-radius:4px}
+.garden-card h2{font:600 13px/1.4 var(--mono);letter-spacing:.06em;color:var(--void);background:var(--a);padding:12px;margin-bottom:16px}
+.garden-card:nth-child(2) h2{background:var(--orchid)}.garden-card:nth-child(3) h2{background:#ffb7a7}
+.garden-card p{font:14px/1.7 var(--mono);color:var(--mid);margin:12px 8px}
+.garden-card .garden-label{font-size:11px;color:var(--orchid);letter-spacing:.08em;text-transform:uppercase}
+.garden-card a{display:flex;align-items:center;justify-content:space-between;color:var(--lit);text-decoration:none;padding:14px 10px;min-height:48px;border-top:1px dashed var(--rule-3);gap:8px}
+.garden-card a:hover{color:var(--a);background:var(--a-ghost)}.garden-card a small{display:block;color:var(--mid);font-size:12px;margin-top:3px}
+.garden-card a span:first-child{font:24px Georgia,serif}.garden-card .garden-glyph{height:54px;display:grid;place-items:center;font:38px Georgia,serif;color:var(--orchid);background:radial-gradient(circle at center,#67e8f91c,transparent 65%);letter-spacing:16px}
+#dock{left:var(--left);right:var(--right);bottom:54px;padding:10px 14px;background:var(--void-2);border:1px solid var(--rule-2);border-radius:4px}
+#planes{padding-top:0;gap:6px}.pl{flex:1;min-width:42px;padding:8px}.pl .pn{font-size:12px}.pl .pv{font-size:11px;letter-spacing:0}
+#wrow{height:36px;gap:8px}#wrow .k{font-size:11px;letter-spacing:.06em}#wauto{font-size:11px;letter-spacing:.05em;min-height:36px}
+#garden-actions{display:flex;gap:12px;margin-top:10px}#garden-actions button{font:13px/1.3 var(--mono);padding:11px 9px;min-height:44px;flex:1;background:transparent;border:1px solid var(--rule-3);color:var(--lit);cursor:pointer}#garden-actions #garden-focus{background:var(--coral);color:var(--void);border-color:var(--coral)}
+#garden-actions button:hover{filter:brightness(1.15)}
+#tick{left:calc(var(--left) + 8px);right:calc(var(--right) + 8px);bottom:calc(var(--fbottom) + 10px);max-width:none;background:#130f25dc;border-radius:3px;font-size:11px;z-index:4}
+#coach{left:calc(var(--left) + (100% - var(--left) - var(--right))/2);bottom:calc(var(--fbottom) + 54px);max-width:calc(100% - var(--left) - var(--right) - 30px);font-size:11px;letter-spacing:.04em;text-transform:none}
+#garden-command{position:fixed;bottom:0;left:0;right:0;height:40px;display:flex;align-items:center;gap:14px;border-top:1px solid var(--rule-3);background:var(--void);z-index:7;padding:0 20px;font:12px var(--mono);color:var(--mid)}
+#garden-command button{color:var(--a);font:inherit;background:none;border:0;cursor:pointer;min-height:36px;text-align:left}#garden-command span:last-child{margin-left:auto;font-size:10px;letter-spacing:.09em}
+#sheet{box-shadow:-16px 0 70px #0006;border-color:var(--rule-3)}#shead{padding:16px;background:var(--void-3)}#shut{min-width:44px;min-height:44px}#sbody{padding:20px}
+button.b{font-size:13px;letter-spacing:.05em;min-height:44px;background:var(--coral);color:var(--void);border-color:var(--coral)}button.b.g{background:transparent;color:var(--a);border-color:var(--rule-3)}button.b:disabled{opacity:.55}
+input[type=text],input[type=number],textarea,select{font-size:14px;min-height:44px;border-radius:3px}input::placeholder,textarea::placeholder{color:var(--dim)}
+.chip{min-height:36px;background:transparent;font-family:var(--mono)}.pi{padding:14px 16px}.pi .pd{font-size:12px}#plno{min-width:36px;min-height:36px}#plname{padding-right:26px}
+body.garden-focus{--left:12px;--right:12px;--ftop:84px}body.garden-focus #garden-nav,body.garden-focus #garden-side,body.garden-focus #garden-title{display:none}
+@media(max-width:1200px){:root{--right:12px;--left:220px}#garden-side{display:none}#garden-nav{width:196px}#brand small{display:none}#garden-title h1{font-size:34px}}
+@media(max-width:780px){:root{--rail:64px;--left:10px;--right:10px;--ftop:204px;--fbottom:232px}#rail{padding:9px 10px;gap:4px;height:64px}#brand strong{font-size:21px}#brand .pixel-flower{display:none}#c-id,#c-net{display:none}#link{padding:0 12px;margin-left:0;font-size:12px}#r2d{padding:0 8px;font-size:12px}#rcmd{padding:0 10px}#garden-nav{left:10px;right:10px;top:74px;bottom:auto;width:auto;height:54px;flex-direction:row;padding:4px;overflow-x:auto;overflow-y:hidden;gap:6px}#garden-nav .garden-id,#garden-nav .garden-nav-note{display:none}.garden-nav-item{white-space:nowrap;padding:8px 10px;min-height:42px;font-size:12px;gap:6px;flex-shrink:0}.garden-nav-item span{font-size:16px;width:18px}#garden-title{top:144px;left:20px;right:20px}#garden-title p{font-size:10px;margin-bottom:6px}#garden-title h1{font-size:25px}#dock{bottom:48px;padding:8px}#planes{gap:4px}.pl{padding:6px;min-width:42px}.pl .pv{font-size:10px}.pl .pn{font-size:11px}#wrow{gap:6px}#wrow .k{font-size:10px}#wval{width:51px;font-size:12px}#garden-actions{gap:8px}#garden-actions button{font-size:12px}#tick{font-size:10px;padding:6px;white-space:normal;max-height:42px}#coach{display:none}#garden-command{padding:0 12px;gap:8px}#garden-command span:last-child{display:none}#sheet{max-height:88dvh}body.garden-focus{--ftop:74px}.nd{font-size:10px;padding:5px;letter-spacing:0}}
+@media(max-height:650px) and (min-width:781px){:root{--ftop:136px;--fbottom:240px}#garden-title{top:88px}#garden-title h1{font-size:27px}#garden-title p{display:none}.garden-nav-note{display:none}#garden-side .garden-card:last-child{display:none}}
+@media(max-height:700px) and (max-width:780px){:root{--ftop:176px}#garden-title{top:140px}#garden-title h1{font-size:21px}#garden-title p{display:none}}
+@media(max-width:780px){:root{--ftop:232px}}
+@media(max-height:520px) and (max-width:780px){:root{--ftop:74px;--fbottom:168px}#garden-nav,#garden-title,#planes{display:none}}
+@media(min-height:521px) and (max-height:700px) and (max-width:780px){:root{--ftop:198px}}
+@media(max-width:380px){#brand strong{font-size:18px}#link{font-size:11px;padding:0 8px}#r2d{font-size:11px;padding:0 6px}#rcmd{min-width:38px;padding:0 8px}#garden-title h1{font-size:23px}}
+/* A nested token or a marketplace thumbnail still gets an actual field.
+   The compact command strip retains access to every tool and way out. */
+@media(max-width:480px) and (max-height:360px){#garden-field{inset:0;border:0;border-radius:0}#garden-field::after,#rail,#garden-nav,#garden-title,#garden-side,#dock,#tick,#coach,#garden-labels{display:none}#garden-command{height:28px;padding:0 8px;background:#130f25cc}#garden-command button{min-height:26px;font-size:10px}#garden-command span{display:none}}
 </style>
 </head>
 <body>
 
-<canvas id="field"></canvas>
-
+<main id="garden-field" aria-label="Live four-dimensional instrument">
+<canvas id="field" aria-label="Drag to orbit the artwork"></canvas>
+<button id="garden-labels" type="button" aria-pressed="false">Node labels</button>
 <svg id="wires" aria-hidden="true"></svg>
 <div id="nodes"></div>
+<div id="nest"><div id="nestbox"><div id="nestbar"></div><iframe id="nestframe" title="This token, one section deeper"
+  sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe></div></div>
+</main>
 <div id="plate" hidden role="dialog" aria-labelledby="plname"><button id="plno" type="button" aria-label="Dismiss">×</button><div id="plname"></div><div id="plblurb"></div><p id="plnote"></p><button id="plgo" type="button"></button></div>
 
 <div id="rail">
+  <a id="brand" href="#" aria-label="IPSEITY instrument"><i class="pixel-flower" aria-hidden="true"></i><span><strong>IPSEITY</strong><small>YOUR CORNER OF THE NETWORK</small></span></a>
   <div class="cell" id="c-id"><span class="k">Token</span><span class="v" id="v-id">—</span></div>
   <div class="cell" id="c-form"><span class="k">Section</span><span class="v" id="v-form">—</span></div>
   <div class="cell" id="c-net"><span class="k">Chain</span><span class="v" id="v-net">—</span></div>
   <button id="link" type="button"><span class="led" id="v-led"></span><span id="v-link">Connect</span></button>
-  <button id="r2d" type="button" hidden>2D</button>
-  <button id="rcmd" type="button" title="every command">&#8230;</button>
+  <button id="r2d" type="button" hidden>Console</button>
+  <button id="rcmd" type="button" title="Every command" aria-label="Open command palette">&#9776;</button>
 </div>
+
+<nav id="garden-nav" aria-label="IPSEITY navigation">
+  <div class="garden-id">IPSEITY / <span id="garden-id">—</span></div>
+  <button class="garden-nav-item" id="garden-home" aria-current="page"><span aria-hidden="true">✣</span>Instrument</button>
+  <a class="garden-nav-item" data-garden-route="hold"><span aria-hidden="true">◇</span>Assets &amp; vaults</a>
+  <a class="garden-nav-item" data-garden-route="trade"><span aria-hidden="true">✧</span>Trade</a>
+  <a class="garden-nav-item" data-garden-route="messages"><span aria-hidden="true">▱</span>Messages</a>
+  <a class="garden-nav-item" data-garden-route="create"><span aria-hidden="true">♧</span>Create</a>
+  <a class="garden-nav-item" data-garden-route="modules"><span aria-hidden="true">▦</span>Modules</a>
+  <a class="garden-nav-item" data-garden-route="explore"><span aria-hidden="true">✛</span>Explore</a>
+  <a class="garden-nav-item" data-garden-route="hand"><span aria-hidden="true">↗</span>Transfer &amp; access</a>
+  <div class="garden-nav-note"><b>Small worlds. Your keys.</b>A place to turn an idea<br>into something that stays.<div class="pixel-garden" aria-hidden="true"><i style="--x:10%;--stem:42px"></i><i style="--x:30%;--stem:76px;--flower:var(--a)"></i><i style="--x:52%;--stem:50px"></i><i style="--x:73%;--stem:80px;--flower:var(--coral)"></i><i style="--x:91%;--stem:36px"></i></div></div>
+</nav>
+<header id="garden-title"><p>YOUR LIVING INSTRUMENT</p><h1>Something only you can become.</h1></header>
+<aside id="garden-side" aria-label="Around your instrument">
+  <section class="garden-card"><h2>✧ THE COMMONS · PUBLIC</h2><div class="garden-glyph" aria-hidden="true">✣ ✧ ✣</div><p>A meeting place for the network. Read what others leave behind. Speak as your token.</p><a data-garden-route="messages">Read the commons <span aria-hidden="true">↗</span></a></section>
+  <section class="garden-card"><h2>✣ YOUR WORKBENCH</h2><a data-garden-route="journal"><div><span>Journal</span><small>Keep a memory</small></div><span aria-hidden="true">↗</span></a><a data-garden-route="games"><div><span>Cartridges</span><small>Open a small world</small></div><span aria-hidden="true">↗</span></a><a data-garden-route="modules">Discover modules <span aria-hidden="true">↗</span></a></section>
+  <section class="garden-card"><h2>✧ THE COLLECTION</h2><div class="garden-glyph" aria-hidden="true">◇ ✦ ◇</div><p>Every identity, a different section of the same possibility.</p><a data-garden-route="explore">Find another instrument <span aria-hidden="true">↗</span></a></section>
+</aside>
 
 <div id="tick" role="status" aria-live="polite">Drag the field to orbit. The slider moves you through the fourth axis.</div>
 
@@ -436,14 +533,13 @@ pre.code b{color:var(--a);font-weight:400}
     <span id="wval" class="n">+0.000</span>
     <button id="wauto" class="on" type="button">Drift</button>
   </div>
+  <div id="garden-actions"><button id="garden-focus" type="button" aria-pressed="false">✣ Explore interior</button><button id="garden-shape" type="button">☷ Shape &amp; color</button></div>
 </div>
+<footer id="garden-command"><button id="garden-prompt" type="button">✧ ipseity &gt; explore</button><span>Press / for commands</span><span>PACKET GARDEN / ONCHAIN INSTRUMENT</span></footer>
 
 <div id="coach"></div>
 
-<div id="nest"><div id="nestbox"><div id="nestbar"></div><iframe id="nestframe" title="This token, one section deeper"
-  sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe></div></div>
-
-<aside id="sheet" aria-hidden="true">
+<aside id="sheet" aria-hidden="true" inert>
   <div id="grip"></div>
   <header id="shead"><span class="t" id="s-title">—</span>
     <button id="shut" type="button" aria-label="Close">&#215;</button></header>
@@ -1359,8 +1455,9 @@ function allocate(w, h){
     ray, the label clamp — reads these instead, so a pane makes the solid
     smaller rather than hiding half of it, and every gesture keeps working
     on the part that is left. The canvas is inset by --fx/--fy in CSS; its
-    origin is still (0,0), which is why `pick()` needs no offset at all.  */
-let FW = innerWidth, FH = innerHeight, fieldDirty = true;
+    Packet Garden caches its origin as FX/FY. Picking subtracts that origin;
+    labels, wires and nested sections keep using local field coordinates.  */
+let FW = innerWidth, FH = innerHeight, FX = 0, FY = 0, fieldDirty = true;
 /*  Reading offsetWidth forces a synchronous layout, and resize() runs once
     a frame. Measuring there unconditionally put a forced layout in the
     frame loop for a number that changes only when the window changes or
@@ -1373,8 +1470,10 @@ function resize(){
   dpr = Math.min(window.devicePixelRatio || 1, 2);
   if(fieldDirty){
     fieldDirty = false;
-    FW = Math.max(2, cvs.offsetWidth  || innerWidth);
-    FH = Math.max(2, cvs.offsetHeight || innerHeight);
+    const rect = cvs.getBoundingClientRect();
+    FW = Math.max(2, rect.width || innerWidth);
+    FH = Math.max(2, rect.height || innerHeight);
+    FX = rect.left; FY = rect.top;
   }
   const w = Math.max(2, Math.round(FW * dpr * scale));
   const h = Math.max(2, Math.round(FH * dpr * scale));
@@ -1430,11 +1529,15 @@ function project(p){
   const v = V.sub(p, basis.eye);
   const z = V.dot(v, basis.fwd);
   if(z <= 0.06) return null;
-  const x = V.dot(v, basis.right) / (z * 1.42);
-  const y = V.dot(v, basis.up)    / (z * 1.42);
+  // Inverse of the shader/picking ray: fwd * 1.42 + right * uv.x + up * uv.y.
+  // Dividing by the focal length put labels halfway toward the centre.
+  const x = V.dot(v, basis.right) * 1.42 / z;
+  const y = V.dot(v, basis.up)    * 1.42 / z;
   return { x: FW * 0.5 + x * FH, y: FH * 0.5 - y * FH, z };
 }
 function pick(sx, sy){
+  // Pointer events use viewport coordinates; projection uses the framed field.
+  sx -= FX; sy -= FY;
   const ux = (sx - FW * 0.5) / FH;
   const uy = (FH * 0.5 - sy) / FH;
   const rd = V.norm(V.add(V.mul(basis.fwd, 1.42),
@@ -2453,6 +2556,7 @@ function panel(title, html, sel, after){
   sbody.innerHTML = html;
   sheet.classList.add("open");
   sheet.setAttribute("aria-hidden", "false");
+  sheet.inert = false;
   sbody.scrollTop = 0;
   if(sel != null) VIS.sel = sel;
   if(after) after();
@@ -2460,6 +2564,7 @@ function panel(title, html, sel, after){
 function shut(){
   sheet.classList.remove("open");
   sheet.setAttribute("aria-hidden", "true");
+  sheet.inert = true;
   VIS.sel = -1; current = -1;
 }
 $("#shut").onclick = shut;
@@ -2513,9 +2618,9 @@ function plateOpen(i){
   /*  Toward the middle, so the plate opens over empty field rather than
       off the side it is already nearest to.                           */
   const px = clamp(nx + (nx > FW * 0.5 ? -(w + 22) : 22), M, Math.max(M, FW - w - M));
-  const py = clamp(ny - h * 0.5, M, Math.max(M, innerHeight - h - M));
-  el.style.left = px.toFixed(1) + "px";
-  el.style.top  = py.toFixed(1) + "px";
+  const py = clamp(ny - h * 0.5, M, Math.max(M, FH - h - M));
+  el.style.left = (FX + px).toFixed(1) + "px";
+  el.style.top  = (FY + py).toFixed(1) + "px";
   plateAt = { x: px, y: py, w, h };
   requestAnimationFrame(() => el.classList.add("on"));
   $("#plgo").focus({ preventScroll: true });
@@ -2708,12 +2813,12 @@ BUILD.SECTION = m => {
   panel(m.name,
     '<div class="blurb">' + esc(m.blurb) + '</div>' +
     '<div class="k">Solid</div><div class="chips" id="forms">' +
-      FORMS.map((f, i) => '<span class="chip' + (i === L.form ? " on" : "") + '" data-f="' + i + '" title="' +
-        esc(f.g + " — " + f.d) + '">' + esc(f.n) + '</span>').join("") + '</div>' +
+      FORMS.map((f, i) => '<button type="button" class="chip' + (i === L.form ? " on" : "") + '" data-f="' + i + '" title="' +
+        esc(f.g + " — " + f.d) + '">' + esc(f.n) + '</button>').join("") + '</div>' +
     '<p class="s" id="f-note" style="color:var(--mid);min-height:30px"></p>' +
-    '<label class="f k">Section along w <span class="mut" id="s-w"></span></label>' +
+    '<label for="sw" class="f k">Section along w <span class="mut" id="s-w"></span></label>' +
     '<input type="range" id="sw" min="-1.6" max="1.6" step="0.001" value="' + L.w + '">' +
-    '<label class="f k">Hue <span class="mut" id="s-h"></span></label>' +
+    '<label for="sh" class="f k">Hue <span class="mut" id="s-h"></span></label>' +
     '<input type="range" id="sh" min="0" max="255" step="1" value="' + L.hue + '">' +
     '<hr><button class="b" id="s-go">Commit</button>', m.i, () => {
       const note = () => {
@@ -3768,10 +3873,12 @@ async function refresh(loud){
 
 function paintRail(){
   $("#v-id").textContent = "#" + S.id;
+  $("#garden-id").textContent = String(S.id).padStart(3, "0");
   $("#v-net").textContent = chainOf(NET.chainId).n;
   const led = $("#v-led"), lbl = $("#v-link");
   led.className = "led" + (NET.account ? " live" : NET.ro ? " ro" : "");
-  lbl.textContent = NET.account ? short(NET.account) : NET.dead ? "No network" : NET.ro ? "Read only" : "Connect";
+  lbl.textContent = NET.account ? short(NET.account) : "Connect wallet";
+  $("#link").title = NET.dead ? "Network unavailable. Connect a wallet to try again." : NET.ro ? "Reading without a connected wallet" : "Choose a wallet";
   $("#link").classList.toggle("live", !!NET.account);
   paintDock();
 }
@@ -3901,6 +4008,42 @@ const COMMANDS = [
   }
 })();
 
+/* Stable navigation replaces the document. The workbench lives at the
+   ModulePortal's token-scoped route; it is never another live renderer
+   embedded beside this one. A standalone data: token has no site origin. */
+(function packetGarden(){
+  const paths = {hold:LANDING()+"/hold", trade:"/swap", messages:"/chat",
+    create:"/launch", modules:"/token/"+S.id+"/modules", explore:"/gallery",
+    hand:LANDING()+"/hand", journal:"/token/"+S.id+"/modules#journal",
+    games:"/token/"+S.id+"/modules#games"};
+  $$("[data-garden-route]").forEach(a => {
+    if(DOORED) a.href = paths[a.dataset.gardenRoute];
+    else {
+      a.setAttribute("aria-disabled", "true"); a.tabIndex = 0;
+      a.title = "Open the collection site to visit this page";
+      a.addEventListener("click", () => say("This standalone token has no site origin. Open the collection site to visit the commons and workbench."));
+    }
+  });
+  const focus = $("#garden-focus");
+  function setFocus(on){
+    document.body.classList.toggle("garden-focus", on);
+    focus.setAttribute("aria-pressed", String(on));
+    focus.textContent = on ? "← Back to the garden" : "✣ Explore interior";
+    plateShut(); remeasure(); resize(); layout(); accFrames = 0;
+  }
+  focus.onclick = () => setFocus(!document.body.classList.contains("garden-focus"));
+  $("#garden-home").onclick = () => { shut(); plateShut(); setFocus(false); };
+  $("#brand").onclick = e => { e.preventDefault(); $("#garden-home").click(); };
+  $("#garden-shape").onclick = () => open(2);
+  $("#garden-labels").onclick = () => {
+    const shown = $("#garden-field").classList.toggle("show-labels");
+    $("#garden-labels").setAttribute("aria-pressed", String(shown));
+  };
+  $("#garden-prompt").onclick = () => window.__palette();
+  // Nested sections and very small embeds keep a usable field and an exit.
+  if(!ROOT) { document.body.classList.add("garden-focus"); focus.setAttribute("aria-pressed", "true"); focus.textContent="← Back to the garden"; }
+})();
+
 addEventListener("keydown", e => {
   if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   const k = e.key;
@@ -3913,6 +4056,7 @@ addEventListener("keydown", e => {
     if($("#pal").classList.contains("open")){ $("#pal").classList.remove("open"); return; }
     if(plateI >= 0) return plateShut();
     if(sheet.classList.contains("open")) return shut();
+    if(document.body.classList.contains("garden-focus")) $("#garden-focus").click();
     return;
   }
   const m = MODULES.find(x => x.key === k);
