@@ -79,7 +79,7 @@ focus/exit, actual node clicks, label visibility, command access and workbench
 fragment navigation. The other browser suites exercise the installed module,
 journal, account and cartridge boundaries on disposable local fixtures.
 
-The shared Chrome contract fits EIP-170 at 23,141 bytes. The 82 module tests,
+The shared Chrome contract fits EIP-170 at 23,127 bytes. The 82 module tests,
 five browser fixture scenarios and five native workbench scenarios passed;
 the native rehearsal checked 11 explicitly reviewed local transactions.
 
@@ -97,4 +97,5 @@ transaction. The artwork engine, console stores, site contracts and immutable
 module workbench are separate deployment paths. Publishing a site alone does
 not replace a frozen engine or an existing immutable workbench. Build and review
 the corresponding new deployment artifacts through the project's existing
-release process before making the new interface live.
+release process before making the new interface live. Serve the combined site
+through ModulePortal so its `/token/<id>/modules` routes resolve.
