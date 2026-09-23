@@ -88,7 +88,8 @@ contract PageSwap {
             return string.concat(
                 CHROME.head("IPSEITY \xc2\xb7 swap"),
                 CHROME.navTop(9),
-                "<h1>swap</h1>",
+                "<header class=oracle><span class=eyebrow>UNISWAP V3</span>"
+                "<h1>External swap</h1></header>",
                 _noVenue(),
                 CHROME.foot(msg.sender, block.chainid)
             );
@@ -97,9 +98,9 @@ contract PageSwap {
             CHROME.head("IPSEITY \xc2\xb7 swap"),
             CHROME.navTop(9),
             DESKU.config(),
-            "<header class=oracle><span class=eyebrow>permissionless exchange / one honest hop</span>"
-            "<h1>transmute</h1><p>Choose the atoms. Read every pool. Sign only the path "
-            "you can explain. What arrives can become a promise or a memory.</p></header>"
+            "<header class=oracle><span class=eyebrow>EXTERNAL SWAP / UNISWAP V3</span>"
+            "<h1>A different kind of exchange.</h1><p>Choose a pair. Read the quote. Review the route "
+            "before you sign. A single-hop swap through Uniswap v3.</p></header>"
             "<div class=tabs><a href=#exchange>choose</a><a href=#exchange>quote</a>"
             "<a href=#exchange>exchange</a><a href=#after>remember</a></div>",
             _card(),
@@ -136,11 +137,10 @@ contract PageSwap {
 
     function _noVenue() private view returns (string memory) {
         return string.concat(
-            "<p class=e>There is no Uniswap v3 deployment wired up on chain <code>",
+            "<p class=\"e w\">External swaps are unavailable on chain <code>",
             block.chainid.str(),
-            "</code>. That is a deployment fact, not a failure: this contract was given "
-            "the zero address for the factory, so every read degrades to \"no venue\" "
-            "and this page says so rather than showing prices from nowhere.</p>"
+            "</code>. This deployment has no Uniswap v3 venue configured. "
+            "You can still explore the collection's token markets below.</p>"
             "<p class=e>The collection's own markets are unaffected &mdash; each token "
             "runs its exchange out of <code>Pool</code>, which needs nothing external "
             "at all.</p>"
@@ -154,8 +154,8 @@ contract PageSwap {
     ///      has one market per token.
     function _card() private view returns (string memory) {
         return string.concat(
-            "<div class=app id=exchange>"
-            "<div class=hd><b>Live route</b>"
+            "<div class=app id=exchange><p class=eyebrow>UNISWAP V3 / FEES TO POOL LIQUIDITY PROVIDERS</p>"
+            "<div class=hd><b>External swap</b>"
             "<button class=ico id=cog>slippage &amp; deadline</button></div>"
             "<div class=set id=set hidden>"
             "<div>Slippage tolerance, now <b id=sl>0.5%</b> &mdash; the most the price "

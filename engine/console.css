@@ -5,9 +5,9 @@
   see the header of src/ConsoleSkin.sol for why a stylesheet cannot take
   the trade the scripts take.
 
-  Three surfaces, three rules, four texts, four semantics. Everything is
-  1px. Not one rounded corner except the LED and the scrollbar thumb. Not
-  one shadow used as elevation — a glow means live and means nothing else.
+  Packet Garden: one-pixel rules, small corners and a quiet reading desk.
+  The artwork and breadcrumb retain the token hue. Cyan, coral and the
+  status colours keep their meanings across every token.
 
   --warn is rationed to exactly one meaning: you can do this, but read this
   first. --bad is failure, or a deadline that has passed. --ok is a live
@@ -16,16 +16,16 @@
 
 :root{
   /*  --h is written by Console.doc() from the token's own hue trait, so the
-      token's colour is in the first kilobyte of the response and the
-      console is that token's colour before a byte of script has run.    */
+      token's identity colour is in the first kilobyte of the response,
+      before a byte of script has run.    */
   --h:34;
-  --a:hsl(var(--h) 92% 66%);
-  --a-dim:hsl(var(--h) 62% 44%);
-  --a-ghost:hsl(var(--h) 92% 66% / .10);
-  --void:#04050a; --void-2:#070912; --void-3:#0b0e18;
-  --rule:#151a26; --rule-2:#212838; --rule-3:#2e3648;
-  --dim:#5d6780; --mid:#8b95ad; --txt:#c8d0e2; --lit:#eef2fb;
-  --ok:#5fe3b4; --warn:#ffc95c; --bad:#ff6b63;
+  --a:#67e8f9; --orchid:#d0a6ff; --coral:#ff75af; --token:hsl(var(--h) 92% 66%);
+  --a-dim:#569caf;
+  --a-ghost:#67e8f914;
+  --void:#130f25; --void-2:#1c1731; --void-3:#251d3e;
+  --rule:#3d3057; --rule-2:#57426f; --rule-3:#82639e;
+  --dim:#aa9bbe; --mid:#b6abc9; --txt:#ded3ee; --lit:#f4edff;
+  --ok:#94e2b5; --warn:#ffc46b; --bad:#ff8e9d;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --ease:cubic-bezier(.22,.61,.36,1);
   --crest:46px; --col:300px; --cmd:36px;
@@ -41,7 +41,7 @@
 }
 
 html,body{background:var(--void);color:var(--txt);margin:0;height:100%;
-  font-family:var(--mono);font-size:13px;line-height:1.45;
+  font-family:var(--mono);font-size:14px;line-height:1.55;
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"zero" 1;
   -webkit-text-size-adjust:100%}
 /*  The document arrives rather than appearing. Nine tenths of a second is
@@ -72,25 +72,22 @@ a:hover,a:focus-visible{background:var(--a-ghost);outline:none}
 /*───────────────────────── type — five classes ─────────────────────────*/
 /*  The inverse relation is the system: the smaller the type, the wider the
     tracking, the dimmer the colour.                                     */
-.k{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.k{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
 .v{font-size:12px;letter-spacing:.01em;color:var(--lit)}
-.n{font-size:11px;letter-spacing:.05em;color:var(--txt)}
-.s{font-size:10px;letter-spacing:.08em;color:var(--mid)}
-.blurb{font-size:11px;line-height:1.62;color:var(--mid);margin:0 0 14px}
+.n{font-size:14px;letter-spacing:.05em;color:var(--txt)}
+.s{font-size:12px;letter-spacing:.08em;color:var(--mid)}
+.blurb{font-size:14px;line-height:1.62;color:var(--mid);margin:0 0 14px}
 .acc{color:var(--a)} .mut{color:var(--dim)}
 .warn{color:var(--warn)} .bad{color:var(--bad)} .ok{color:var(--ok)}
 
 /*───────────────────────── the band and its rule ─────────────────────────*/
-/*  A band re-derives the accent from its own token's hue. --a cannot merely
-    be inherited and re-tinted: a custom property containing var() is
-    substituted where it is DECLARED, so an --a written once on :root
-    carries :root's hue forever no matter what a descendant does to --h.
-    Three lines per band, and the whole band — its rule, its buttons, its
-    focus border, its selection — becomes the colour of what it is about. */
+/* A band's token hue is resolved where --h is declared. Custom properties
+   containing var() are substituted at their declaration, so each band
+   re-derives --token while the UI accent remains cyan. */
 .sub{
-  --a:hsl(var(--h) 92% 66%);
-  --a-dim:hsl(var(--h) 62% 44%);
-  --a-ghost:hsl(var(--h) 92% 66% / .10);
+  --a:#67e8f9; --orchid:#d0a6ff; --coral:#ff75af; --token:hsl(var(--h) 92% 66%);
+  --a-dim:#569caf;
+  --a-ghost:#67e8f914;
   position:fixed;inset:0}
 
 /*  Only the bands you have walked OUT of are inert. They are decoration —
@@ -130,7 +127,7 @@ a:hover,a:focus-visible{background:var(--a-ghost);outline:none}
 /*───────────────────────── the crest ─────────────────────────*/
 #crest{position:fixed;top:0;left:var(--walk);right:0;z-index:7;display:flex;align-items:stretch;
   height:calc(var(--crest) + var(--safeT));padding-top:var(--safeT);
-  background:linear-gradient(180deg,rgba(4,5,10,.94) 46%,rgba(4,5,10,.86));
+  background:linear-gradient(180deg,rgba(19,15,37,.94) 46%,rgba(19,15,37,.86));
   border-bottom:1px solid var(--rule);backdrop-filter:blur(2px)}
 .cell{display:flex;flex-direction:column;justify-content:center;gap:1px;
   padding:0 13px;border-right:1px solid var(--rule);min-width:0;
@@ -149,10 +146,10 @@ a:hover,a:focus-visible{background:var(--a-ghost);outline:none}
 #walk{display:flex;align-items:stretch;margin-left:auto;flex:none;
   overflow-x:auto;scrollbar-width:none}
 #walk::-webkit-scrollbar{display:none}
-#walk .cr{--a:hsl(var(--h) 92% 66%);
-  --a-ghost:hsl(var(--h) 92% 66% / .10);
+#walk .cr{--a:#67e8f9; --orchid:#d0a6ff; --coral:#ff75af; --token:hsl(var(--h) 92% 66%);
+  --a-ghost:#67e8f914;
   flex:0 0 auto;border:0;border-left:2px solid var(--a);background:transparent;
-  color:var(--mid);font:inherit;font-size:11px;padding:0 10px;cursor:pointer;
+  color:var(--mid);font:inherit;font-size:14px;padding:0 10px;cursor:pointer;
   white-space:nowrap;transition:color .18s var(--ease),background .18s var(--ease)}
 #walk .cr:hover,#walk .cr:focus-visible{background:var(--a-ghost);outline:none}
 #walk .cr:last-child{color:var(--lit)}
@@ -183,7 +180,7 @@ a:hover,a:focus-visible{background:var(--a-ghost);outline:none}
 #still{width:184px;max-width:100%;display:block;border:1px solid var(--rule);
   background:var(--void-2)}
 #still.uncommitted{border:1px dashed var(--a-dim)}
-#turning{display:inline-block;margin-top:6px;font-size:10px;letter-spacing:.08em;
+#turning{display:inline-block;margin-top:6px;font-size:12px;letter-spacing:.08em;
   color:var(--mid);text-decoration:none}
 #turning:hover,#turning:focus-visible{background:var(--a-ghost);color:var(--a);outline:none}
 @media(max-width:900px){#still{width:100%}}
@@ -195,7 +192,7 @@ a:hover,a:focus-visible{background:var(--a-ghost);outline:none}
 /*  The standing line: one, at most, and only when something is both soon
     and irreversible if missed. There is no stack and no second one.     */
 #stand{margin:16px 0 4px;padding-left:11px;border-left:1px solid var(--a);
-  font-size:11px;line-height:1.62;color:var(--mid)}
+  font-size:14px;line-height:1.62;color:var(--mid)}
 #stand.soon{color:var(--warn);border-left-color:var(--warn)}
 #stand[hidden]{display:none}
 
@@ -209,20 +206,20 @@ a:hover,a:focus-visible{background:var(--a-ghost);outline:none}
 .vb.on{border-left-color:var(--a);color:var(--lit);background:var(--a-ghost)}
 .vb .t{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .vb .nm{font-size:12px;letter-spacing:.02em}
-.vb .sub2{display:block;margin-top:2px;font-size:10px;letter-spacing:.06em;
+.vb .sub2{display:block;margin-top:2px;font-size:12px;letter-spacing:.06em;
   color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /*  The clock. One per verb, always the soonest, never a count, never a
     badge. --warn only when a threshold is crossed; --bad only when it has
     passed and something is now claimable or forfeit.                    */
-.vb .cl{font-size:10px;letter-spacing:.06em;color:var(--mid);white-space:nowrap;flex:none}
+.vb .cl{font-size:12px;letter-spacing:.06em;color:var(--mid);white-space:nowrap;flex:none}
 .vb .cl.soon{color:var(--warn)}
 .vb .cl.past{color:var(--bad)}
 
 /*  A verb that cannot run keeps its place, its label, its sub-line and its
     reason — marked the way a sealed node is marked, with a middot, not a
     padlock. Nothing in this interface is hidden because it is unavailable. */
-.vb.shut{color:#3d4457;cursor:default}
+.vb.shut{color:#a397b4;cursor:default}
 .vb.shut:hover{background:transparent}
 .vb.shut .nm::after{content:" \00b7";color:var(--a-dim)}
 .vb.shut .cl{color:var(--warn);white-space:normal;text-align:right}
@@ -232,12 +229,12 @@ a:hover,a:focus-visible{background:var(--a-ghost);outline:none}
     tell whether a button will cost them anything without reading it.    */
 .b{display:block;width:100%;margin:10px 0 0;padding:9px;cursor:pointer;
   background:transparent;border:1px solid var(--a);color:var(--a);
-  font:inherit;font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  font:inherit;font-size:12px;letter-spacing:.24em;text-transform:uppercase;
   transition:background .18s var(--ease),color .18s var(--ease)}
 .b:hover,.b:focus-visible{background:var(--a);color:var(--void);outline:none}
 .b.g{border-color:var(--rule-3);color:var(--mid)}
 .b.g:hover,.b.g:focus-visible{background:var(--rule);color:var(--lit)}
-.b[disabled]{border-color:var(--rule);color:#3d4457;cursor:default;background:transparent}
+.b[disabled]{border-color:var(--rule);color:#a397b4;cursor:default;background:transparent}
 
 input[type=text],input[type=number],textarea,select{
   width:100%;padding:8px 9px;background:var(--void-2);color:var(--lit);
@@ -256,11 +253,11 @@ input[type=range]::-moz-range-thumb{border:0;border-radius:0;
   padding:6px 0;border-bottom:1px solid var(--rule)}
 .kv:last-child{border-bottom:0}
 hr{border:0;height:1px;background:var(--rule);margin:12px 0}
-pre.code{font-size:10px;line-height:1.55;background:var(--void);color:var(--mid);
+pre.code{font-size:12px;line-height:1.55;background:var(--void);color:var(--mid);
   padding:8px;border:1px solid var(--rule);overflow-x:auto;margin:8px 0}
 .chip{display:inline-block;padding:4px 8px;margin:0 5px 5px 0;cursor:pointer;
   background:transparent;border:1px solid var(--rule-2);color:var(--mid);
-  font:inherit;font-size:10px;letter-spacing:.08em}
+  font:inherit;font-size:12px;letter-spacing:.08em}
 .chip.on{border-color:var(--a);color:var(--a);background:var(--a-ghost)}
 
 /*───────────────────────── the ticker ─────────────────────────*/
@@ -268,7 +265,7 @@ pre.code{font-size:10px;line-height:1.55;background:var(--void);color:var(--mid)
     disappears. The last thing that happened is always still readable, and
     there is no toast stack anywhere in this console.                    */
 #tick{position:fixed;left:var(--walk);bottom:calc(var(--cmd) + var(--safeB));z-index:6;
-  max-width:min(560px,92vw);padding:0 14px 8px;font-size:11px;color:var(--mid);
+  max-width:min(560px,92vw);padding:0 14px 8px;font-size:14px;color:var(--mid);
   opacity:1;transition:opacity .4s var(--ease);pointer-events:none}
 #tick.fade{opacity:.55}
 #tick.ok{color:var(--ok)}
@@ -284,7 +281,7 @@ pre.code{font-size:10px;line-height:1.55;background:var(--void);color:var(--mid)
 
 /*───────────────────────── the confirm slab ─────────────────────────*/
 #cbox{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
-  background:rgba(4,5,10,.86);padding:18px}
+  background:rgba(19,15,37,.86);padding:18px}
 #cbox.on{display:flex}
 #cbox .slab{width:min(460px,100%);max-height:86vh;overflow-y:auto;
   background:var(--void-2);border:1px solid var(--rule-2);padding:18px}
@@ -298,3 +295,32 @@ pre.code{font-size:10px;line-height:1.55;background:var(--void);color:var(--mid)
 /*  Nothing drifts, nothing pulses, nothing breathes. The instrument turns;
     its console does not. A target that moves while a thumb is on its way
     to it is not a target.                                               */
+
+/* Packet Garden: the quiet desk beside the instrument. Token hue belongs to
+   the identity rules; reading, signing and warning colours stay consistent. */
+:root{--crest:76px;--col:324px;--cmd:44px}
+body{background:radial-gradient(ellipse at 65% 0,#35254655,transparent 65%),var(--void)}
+:focus-visible{outline:2px solid var(--a);outline-offset:3px}
+a:focus-visible,.vb:focus-visible,.b:focus-visible,.chip:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.sub::before,.sub.here::before{background:var(--token)}
+#crest{background:var(--void);border-bottom-color:var(--rule-3);padding-left:12px;gap:4px}
+#console-brand{display:flex;flex-direction:column;justify-content:center;padding:0 20px 0 6px;color:var(--orchid);font:700 26px Georgia,serif;text-shadow:2px 2px #67e8f94d;letter-spacing:.02em}
+#console-brand small{font:10px var(--mono);text-shadow:none;color:var(--mid);letter-spacing:.09em;margin-top:5px}
+.cell{padding:0 12px}.k{font-size:11px;letter-spacing:.12em}.v{font-size:13px}.n{font-size:14px;line-height:1.65}.s{font-size:12px;letter-spacing:.01em}.blurb{font-size:15px;line-height:1.8;max-width:64ch}
+#walk .cr{min-width:44px;font-size:13px;border-left-color:hsl(var(--h) 92% 66%)}
+#body{gap:16px;padding:16px 16px 0 8px}#col{padding:18px 20px 40px 16px;border:1px solid var(--rule-2);border-radius:4px;background:var(--void-2)}
+#lane{padding:28px 30px 60px;border:1px solid var(--rule-2);border-radius:4px;max-width:none;background:var(--void-2)}
+#still{width:100%;aspect-ratio:1;max-height:210px;object-fit:contain;border:1px dashed var(--rule-3);border-radius:3px}
+#turning{display:block;text-align:center;font-size:13px;color:var(--a);padding:10px;border:1px solid var(--rule-2);margin-top:8px;min-height:44px}
+#ident{margin:20px 0}#ident h1{font:400 27px Georgia,serif;color:var(--orchid);margin-bottom:10px}
+.vb{padding:13px 10px;margin:0;border-radius:3px;min-height:52px;border-bottom:1px solid var(--rule)}.vb.on{border-left-color:var(--coral);background:#ff75af12}.vb .nm{font-size:13px}.vb .sub2{font-size:12px;letter-spacing:0;margin-top:5px}.vb.shut{color:var(--mid)}
+.b{font-size:13px;letter-spacing:.04em;min-height:44px;background:var(--coral);border-color:var(--coral);color:var(--void);border-radius:3px}.b.g{background:transparent;color:var(--a)}.b[disabled]{color:var(--dim);border-color:var(--rule-2)}
+input[type=text],input[type=number],textarea,select{font-size:14px;min-height:44px;border-radius:3px}input[type=range]{height:32px}.chip{min-height:38px;font-size:12px;border-radius:3px}.kv{padding:10px 0}
+#tick{background:var(--void);padding:6px 14px;max-width:calc(100vw - var(--walk));font-size:12px}#tick.fade{opacity:.85}
+#cmd{background:var(--void);border-top-color:var(--rule-3)}#cmd .p{color:var(--a)}#cmd input{font-size:14px}
+#cbox{background:#130f25dc}#cbox .slab{padding:26px;border-color:var(--rule-3);border-radius:4px}
+.garden-welcome{padding:8px 0 20px;border-bottom:1px dashed var(--rule-3);margin-bottom:26px}.garden-welcome .k{color:var(--orchid)}.garden-welcome h2{font:400 clamp(30px,3.5vw,50px)/1.1 Georgia,serif;letter-spacing:-.02em;color:var(--lit);margin:14px 0 18px;max-width:18ch}
+.garden-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:26px 0}.garden-links a{border:1px solid var(--rule-3);border-radius:4px;padding:22px 18px;background:var(--void);color:var(--lit);font:23px Georgia,serif}.garden-links a:hover{border-color:var(--a)}.garden-links a small{display:block;font:13px/1.65 var(--mono);color:var(--mid);margin-top:12px}.garden-links a::before{content:'✧';display:block;color:var(--orchid);font:24px var(--mono);margin-bottom:12px}
+@media(max-width:1100px){#c-held{display:none}#console-brand{font-size:23px;padding-right:8px}#console-brand small{display:none}}
+@media(max-width:900px){#body{padding:12px 12px 0 8px}#col{max-width:520px;width:100%;justify-self:center}#lane{border:1px solid var(--rule-3);z-index:5;padding:22px 20px 50px;margin:12px 12px 0 8px}#still{max-height:250px}#crest .cell{padding:0 8px}.garden-welcome h2{font-size:36px}.garden-links{gap:12px}#console-brand{font-size:21px}#walk{max-width:110px}}
+@media(max-width:560px){:root{--crest:64px}#console-brand{font-size:18px;padding:0 8px 0 0}#crest>.cell.led-cell{display:none}#crest .k{font-size:10px}#walk{max-width:74px}#pal{padding:0 4px}#palbtn{margin:0;padding:8px 10px}.garden-links{grid-template-columns:1fr}.garden-links a{padding:16px}#lane{padding:20px 16px 50px}}

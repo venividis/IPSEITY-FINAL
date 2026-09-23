@@ -180,7 +180,7 @@ contract PageConsole {
             answers. It is never blank and it is never wrong, and a holder
             is never asked to compare forty-two hex characters by eye.   */
         return string.concat(
-            "<div id=crest>",
+            "<div id=crest><a id=console-brand href=\"/\">IPSEITY<small>YOUR CORNER OF THE NETWORK</small></a>",
             _cell("TOKEN", string.concat("#", id.str())),
             "<div class=cell id=c-chain><span class=k>CHAIN</span>"
             "<span class=v>", _chainName(), "</span></div>",
@@ -299,15 +299,20 @@ contract PageConsole {
                 what the column does, and where the recursion goes, and
                 then it is quiet.                                        */
             return
-                "<p class=blurb>This is the same token you were just holding, laid flat. "
-                "The seven lines on the left are the seven things it will do; open one and "
-                "the work happens here.</p>"
-                "<p class=blurb>The coloured rule down the left margin is this token. If you "
-                "look into another one, it gets a rule of its own beside this one \xe2\x80\x94 so how "
-                "far you have walked is how many rules there are, and each one is the way "
-                "back to the token it belongs to.</p>"
-                "<p class=blurb>Nothing here turns. The instrument turns; its console does "
-                "not, and only one of them ever runs at a time.</p>";
+                "<header class=garden-welcome><span class=k>YOUR TOKEN, AT YOUR FINGERTIPS</span>"
+                "<h2>A small world. A world of possibilities.</h2>"
+                "<p class=blurb>Turn it. Fill it. Make something with it. Choose a tool beside "
+                "your token to begin.</p></header>"
+                "<div class=garden-links><a href=\"/chat\">The commons"
+                "<small>A public meeting place. Read the network, or speak as your token.</small></a>"
+                "<a href=\"/modules\">Your workbench"
+                "<small>Tools, journal entries and small worlds, carried by your NFT.</small></a>"
+                "<a href=\"/swap\">External swap"
+                "<small>Trade through Uniswap v3. Review the route and its fees.</small></a>"
+                "<a href=\"/gallery\">The collection"
+                "<small>Find another identity. Follow its thread, then return to yours.</small></a></div>"
+                "<p class=blurb>The coloured rules at the left trace your path through tokens. "
+                "Each rule takes you back. Open the live instrument when you want to see it turn.</p>";
         }
         string memory body;
 
