@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Packet Garden · Living crystal</title>
+<style>
+/*═══════════════════════════════════════════════════════════════════════════
+  IPSEITY · the surface
+
+  Packet Garden. The token keeps its own hue in the artwork and identity
+  rule. Navigation and transaction semantics use a stable, legible palette:
+  cyan for reading, coral for the primary action, amber for a caution.
+═══════════════════════════════════════════════════════════════════════════*/
+:root{
+  --h:34;                      /* token hue, overwritten from chain state */
+  --a:#67e8f9; --orchid:#d0a6ff; --coral:#ff75af; --token:hsl(var(--h) 92% 66%);   /* accent  — the token's own colour        */
+  --a-dim:#569caf;
+  --a-ghost:#67e8f914;
+  --b:hsl(calc(var(--h) + 186) 78% 64%);  /* counter-accent               */
+
+  --void:#130f25; --void-2:#1c1731; --void-3:#251d3e;
+  --rule:#3d3057; --rule-2:#57426f; --rule-3:#82639e;
+  --dim:#aa9bbe; --mid:#b6abc9; --txt:#ded3ee; --lit:#f4edff;
+  --ok:#94e2b5; --warn:#ffc46b; --bad:#ff8e9d;
+
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,"Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --rail:44px;
+  --dock:104px;
+  --sheet:min(408px,100vw);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --safeT:env(safe-area-inset-top,0px);
+  --safeB:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--void);color:var(--txt);
+  font-family:var(--mono);font-size:14px;line-height:1.55;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"zero" 1;
+  overscroll-behavior:none;text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased}
+body{opacity:0;transition:opacity .9s var(--ease)}
+body.up{opacity:1}
+/*  The field is the whole field. Two custom properties used to hold the
+    strip the deck had taken off the right or the bottom, and every size
+    here was written against them — `calc(100% - var(--fx,0px))`, which
+    with nothing setting it resolves to exactly 100% and reads like
+    something conditional. It was not dead code while the deck existed;
+    it is now, and dead code that still computes is worse than dead code
+    that does not, because it survives a search for what is unused.   */
+/*  Sized by calc rather than by insets. A canvas is a replaced element:
+    given left, right and `width:auto` together, CSS drops the right offset
+    and uses the intrinsic width — which for an untouched canvas is 2px,
+    and resize() then reads that 2px back and keeps it. Measured, not
+    reasoned about: the first build of this laid out an 1180x860 field as
+    2x2 and drew nothing.                                              */
+canvas#field{position:fixed;left:0;top:0;
+  width:100%;height:100%;
+  display:block;touch-action:none;z-index:0}
+svg#wires{position:fixed;left:0;top:0;
+  width:100%;height:100%;
+  pointer-events:none;z-index:2}
+
+/*──────────────────────────── type ────────────────────────────*/
+.k{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.v{font-size:12px;letter-spacing:.01em;color:var(--lit)}
+.n{font-size:14px;letter-spacing:.05em;color:var(--txt)}
+.s{font-size:12px;letter-spacing:.08em;color:var(--mid)}
+.acc{color:var(--a)}
+.mut{color:var(--dim)}
+hr{border:0;height:1px;background:var(--rule);margin:12px 0}
+::selection{background:var(--a);color:var(--void)}
+
+/*──────────────────────── scrollbars ────────────────────────*/
+*::-webkit-scrollbar{width:4px;height:4px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:var(--rule-2);border-radius:2px}
+*::-webkit-scrollbar-thumb:hover{background:var(--rule-3)}
+
+/*──────────────────────────── rail ────────────────────────────*/
+#rail{position:fixed;top:0;left:0;right:0;z-index:7;display:flex;align-items:stretch;
+  height:calc(var(--rail) + var(--safeT));padding-top:var(--safeT);
+  background:linear-gradient(180deg,rgba(19,15,37,.92) 40%,rgba(19,15,37,0));
+  pointer-events:none;backdrop-filter:blur(2px)}
+#rail>*{pointer-events:auto}
+.cell{display:flex;flex-direction:column;justify-content:center;gap:1px;padding:0 13px;
+  border-right:1px solid var(--rule);min-width:0}
+.cell:last-child{border-right:0}
+#c-id{flex:0 0 auto}
+#c-form{flex:0 0 auto}
+#c-net{flex:1 1 auto;overflow:hidden}
+#c-net .v{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#link{border:0;background:transparent;border-left:1px solid var(--rule);color:var(--a);
+  font:inherit;font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  padding:0 15px;cursor:pointer;transition:background .2s var(--ease);white-space:nowrap}
+#link:hover,#link:focus-visible{background:var(--a-ghost);outline:none}
+#link.live{color:var(--ok)}
+.led{width:5px;height:5px;border-radius:50%;background:var(--dim);display:inline-block;
+  margin-right:7px;vertical-align:middle;transition:background .3s,box-shadow .3s}
+.led.live{background:var(--ok);box-shadow:0 0 9px var(--ok)}
+.led.ro{background:var(--a);box-shadow:0 0 9px var(--a-dim)}
+
+/*──────────────────────── where the deck was ────────────────────────*/
+/*  A deck stood here: up to four contract-rendered pages loaded at once
+    and shown one at a time, in a strip beside the field. It is gone, and
+    what it cost is worth writing down where the next person will find it.
+
+    A pane was a whole second document. Open `/door` in one and the site's
+    front page arrived, which lists the collection; follow a token from
+    there and you reached `/token/<id>/live`, which is an entire second
+    instrument — a different token, its own ring, its own rotor bank, its
+    own raymarcher, running inside the first. That instrument carried the
+    same control that opened the deck, so it went round again, and the
+    reader who found it put it exactly right: it is interesting, and you
+    cannot tell where the copies came from. Every level was byte-identical
+    to the top one. Nothing said whose token you were looking at or how
+    far in you had walked.
+
+    The heat was the arithmetic of that. Three 4-D distance fields at the
+    quality ladder's top tier, on one main thread, on a phone.
+
+    So the ring is the navigation and a node opens a native plate — this
+    document, this token, one thread. Leaving is a navigation, which
+    replaces the document rather than stacking one on another. Looking at
+    somebody else's token is a thing the flat side should do well and
+    legibly; it is not a thing that should happen four deep by accident. */
+/*──────────────────────── node labels ────────────────────────*/
+#nodes{position:fixed;left:0;top:0;
+  width:100%;height:100%;
+  z-index:3;pointer-events:none}
+.nd{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;cursor:pointer;
+  padding:5px 10px;white-space:nowrap;font-size:12px;letter-spacing:.21em;
+  text-transform:uppercase;color:var(--mid);background:rgba(19,15,37,.62);
+  border:1px solid transparent;transition:color .22s,border-color .22s,background .22s,transform .22s;
+  user-select:none;will-change:transform,opacity}
+.nd:hover{color:var(--lit);border-color:var(--rule-3);background:rgba(19,15,37,.86)}
+.nd.on{color:var(--void);background:var(--a);border-color:var(--a);font-weight:600}
+.nd.hi{color:var(--lit);border-color:var(--a);background:rgba(19,15,37,.9)}
+.nd.shut{color:#a397b4}
+.nd.shut::after{content:" ·";color:var(--a-dim)}
+
+/*──────── the plate: a sealed node, answered where you tapped ────────
+
+    A modal sheet used to slide up from the bottom of the screen to say
+    that a node had not been opened. Four hundred pixels of chrome, over
+    the artwork, anchored to nothing, to deliver one sentence about the
+    dim thing you had just tapped in the opposite corner.
+
+    The plate is that sentence, put where the question was asked.
+
+    It does NOT follow the orbit. That is the same rule the rail follows
+    and it is not laziness: a target that drifts while a thumb is on its
+    way to it is not a target. So the plate is placed once, stays, and
+    draws a wire to wherever its node has since gone — which also means
+    the node may orbit behind the solid without stranding the reader.  */
+#plate{position:fixed;z-index:7;width:min(268px,calc(100vw - 28px));
+  padding:13px 14px 12px;background:rgba(28,23,49,.96);border:1px solid var(--rule-3);
+  border-left:1px solid var(--a);
+  transform-origin:left center;pointer-events:auto;
+  opacity:0;transform:scale(.96);transition:opacity .2s var(--ease),transform .2s var(--ease)}
+#plate.on{opacity:1;transform:scale(1)}
+#plate[hidden]{display:none}
+#plname{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--a);
+  padding-right:18px}
+#plblurb{font-size:14px;line-height:1.6;color:var(--mid);margin:7px 0 0}
+/*  The cost is stated before the button, never after it, and never in a
+    tone lighter than the thing it describes: this is irreversible.   */
+#plnote{font-size:12px;line-height:1.55;color:var(--dim);margin:9px 0 0}
+#plgo{display:block;width:100%;margin-top:11px;padding:9px;cursor:pointer;
+  background:transparent;border:1px solid var(--a);color:var(--a);
+  font:inherit;font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+  transition:background .2s,color .2s}
+#plgo:hover{background:var(--a);color:var(--void)}
+#plno{position:absolute;top:6px;right:6px;background:transparent;border:0;
+  padding:3px 6px;cursor:pointer;font:inherit;font-size:12px;color:var(--dim)}
+#plno:hover{color:var(--lit)}
+
+/*──────────────────────── ticker ────────────────────────*/
+#tick{position:fixed;left:0;z-index:6;
+  bottom:calc(var(--dock) + var(--safeB));
+  padding:6px 13px;max-width:min(56vw,440px);pointer-events:none;
+  font-size:12px;letter-spacing:.06em;color:var(--mid);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:opacity .4s var(--ease)}
+#tick b{color:var(--a);font-weight:400}
+#tick.err{color:var(--bad)}
+#tick.ok{color:var(--ok)}
+
+/*──────────────────────── the dock: 4D controls ────────────────────────*/
+#dock{position:fixed;left:0;right:0;bottom:0;z-index:6;
+  padding:0 13px calc(9px + var(--safeB));
+  background:linear-gradient(0deg,rgba(19,15,37,.94) 46%,rgba(19,15,37,0));
+  pointer-events:none;user-select:none}
+#dock>*{pointer-events:auto}
+
+#planes{display:flex;gap:5px;align-items:flex-end;margin-bottom:8px;
+  overflow-x:auto;scrollbar-width:none;padding-top:14px}
+#planes::-webkit-scrollbar{display:none}
+.pl{flex:0 0 auto;border:1px solid var(--rule-2);background:rgba(28,23,49,.8);
+  padding:5px 8px 4px;cursor:pointer;min-width:52px;
+  transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+.pl:hover{border-color:var(--rule-3)}
+.pl.on{border-color:var(--a);background:var(--a-ghost)}
+.pl.w{border-style:dashed}
+.pl .pn{font-size:12px;letter-spacing:.16em;color:var(--mid);text-transform:uppercase}
+.pl.on .pn{color:var(--a)}
+.pl .pv{font-size:12px;letter-spacing:.04em;color:var(--dim);margin-top:1px}
+.pl .bar{position:absolute;left:0;bottom:0;height:1px;background:var(--a);width:0;
+  transition:width .12s linear}
+.pl .spin{position:absolute;right:3px;top:3px;width:4px;height:4px;border-radius:50%;
+  background:var(--b);opacity:0;transition:opacity .25s}
+.pl.rot .spin{opacity:.9}
+
+#wrow{display:flex;align-items:center;gap:11px;height:30px}
+#wrow .k{flex:0 0 auto}
+#wtrack{flex:1 1 auto;height:30px;position:relative;cursor:ew-resize;touch-action:none}
+#wtrack::before{content:"";position:absolute;left:0;right:0;top:14px;height:1px;background:var(--rule-2)}
+#wticks{position:absolute;inset:0;pointer-events:none}
+#wticks i{position:absolute;top:10px;width:1px;height:9px;background:var(--rule)}
+#wticks i.mid{height:14px;top:8px;background:var(--rule-3)}
+#whead{position:absolute;top:5px;width:2px;height:20px;background:var(--a);
+  box-shadow:0 0 12px var(--a);pointer-events:none;transition:none}
+#wval{flex:0 0 auto;width:62px;text-align:right;font-size:14px;color:var(--lit)}
+#wauto{flex:0 0 auto;border:1px solid var(--rule-2);background:transparent;color:var(--dim);
+  font:inherit;font-size:12px;letter-spacing:.18em;text-transform:uppercase;padding:5px 8px;
+  cursor:pointer;transition:.2s var(--ease)}
+#wauto.on{color:var(--a);border-color:var(--a-dim)}
+
+/*──────────────────────── sheet ────────────────────────*/
+#sheet{position:fixed;z-index:8;background:var(--void-2);
+  border-left:1px solid var(--rule-2);display:flex;flex-direction:column;
+  transition:transform .42s var(--ease);will-change:transform}
+@media (min-width:781px){
+  #sheet{top:0;right:0;bottom:0;width:var(--sheet);transform:translateX(101%)}
+  #sheet.open{transform:none}
+  #grip{display:none}
+}
+@media (max-width:780px){
+  #sheet{left:0;right:0;bottom:0;max-height:min(78vh,660px);
+    border-left:0;border-top:1px solid var(--rule-2);transform:translateY(101%)}
+  #sheet.open{transform:none}
+  #tick{max-width:74vw}
+}
+#grip{height:22px;display:flex;align-items:center;justify-content:center;cursor:grab;
+  touch-action:none;flex:0 0 auto}
+#grip::after{content:"";width:34px;height:2px;background:var(--rule-3);border-radius:2px}
+#shead{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 15px;border-bottom:1px solid var(--rule);flex:0 0 auto}
+#shead .t{font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:var(--lit)}
+#shut{border:0;background:transparent;color:var(--dim);font:inherit;font-size:15px;
+  cursor:pointer;padding:2px 5px;line-height:1;transition:color .2s}
+#shut:hover{color:var(--lit)}
+#sbody{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;
+  padding:14px 15px calc(20px + var(--safeB))}
+.blurb{font-size:14px;line-height:1.62;color:var(--mid);margin-bottom:14px}
+
+/*──────────────────────── controls ────────────────────────*/
+label.f{display:block;margin:10px 0 4px}
+input[type=text],input[type=number],textarea,select{
+  width:100%;background:var(--void);border:1px solid var(--rule-2);color:var(--lit);
+  font:inherit;font-size:12px;padding:8px 10px;outline:none;
+  transition:border-color .18s;border-radius:0;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus,select:focus{border-color:var(--a)}
+input::placeholder,textarea::placeholder{color:#a397b4}
+textarea{resize:vertical;min-height:64px;line-height:1.5}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),
+  linear-gradient(135deg,var(--dim) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 15px,calc(100% - 11px) 15px;
+  background-size:4px 4px,4px 4px;background-repeat:no-repeat;padding-right:30px}
+button.b{display:block;width:100%;margin-top:12px;padding:11px;border:1px solid var(--a);
+  background:transparent;color:var(--a);font:inherit;font-size:12px;letter-spacing:.24em;
+  text-transform:uppercase;cursor:pointer;transition:.2s var(--ease)}
+button.b:hover:not(:disabled){background:var(--a);color:var(--void)}
+button.b:disabled{opacity:.32;cursor:not-allowed}
+button.b.g{border-color:var(--rule-3);color:var(--mid)}
+button.b.g:hover:not(:disabled){background:var(--rule);color:var(--lit)}
+.row{display:flex;gap:8px}
+.row>*{flex:1 1 0;min-width:0}
+
+/* range */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;
+  background:transparent;cursor:pointer;margin:2px 0}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--rule-2)}
+input[type=range]::-moz-range-track{height:1px;background:var(--rule-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:2px;height:18px;
+  background:var(--a);margin-top:-8px;box-shadow:0 0 10px var(--a);border-radius:0}
+input[type=range]::-moz-range-thumb{width:2px;height:18px;background:var(--a);border:0;
+  border-radius:0;box-shadow:0 0 10px var(--a)}
+
+/* readouts */
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
+  border-bottom:1px solid var(--rule);align-items:baseline}
+.kv:last-child{border-bottom:0}
+.kv .vv{font-size:14px;color:var(--lit);text-align:right;
+  overflow-wrap:anywhere;min-width:0}
+pre.code{background:var(--void);border:1px solid var(--rule);padding:9px 10px;
+  font-size:12px;line-height:1.55;color:var(--mid);overflow-x:auto;
+  white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;max-height:190px}
+pre.code b{color:var(--a);font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.chip{border:1px solid var(--rule-2);padding:5px 9px;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--mid);cursor:pointer;transition:.18s var(--ease)}
+.chip:hover{border-color:var(--rule-3);color:var(--lit)}
+.chip.on{border-color:var(--a);color:var(--a);background:var(--a-ghost)}
+.chip.shut{opacity:.4;cursor:not-allowed}
+
+/*──────────────────────── confirm slab ────────────────────────*/
+#confirm{position:fixed;inset:0;z-index:12;background:rgba(19,15,37,.82);
+  backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;
+  padding:18px}
+#confirm.open{display:flex}
+#cbox{width:min(468px,100%);max-height:88vh;overflow-y:auto;background:var(--void-2);
+  border:1px solid var(--rule-3);padding:18px}
+#cbox h3{font-size:14px;letter-spacing:.26em;text-transform:uppercase;color:var(--a);
+  font-weight:400;margin-bottom:4px}
+#cbox .plain{font-size:12px;line-height:1.6;color:var(--lit);margin:10px 0 14px;
+  padding-left:11px;border-left:1px solid var(--a)}
+
+/*──────────────────────── nest (token inside token) ────────────────────────*/
+#nest{position:fixed;z-index:4;pointer-events:none;
+  transform-style:preserve-3d;perspective:900px;display:none}
+#nest.on{display:block}
+#nestbox{position:absolute;border:1px solid var(--a-dim);background:#000;
+  box-shadow:0 0 44px rgba(0,0,0,.72), 0 0 0 1px rgba(0,0,0,.55);
+  overflow:hidden;pointer-events:auto;transform-origin:0 0}
+#nestbox iframe{width:100%;height:100%;border:0;display:block;background:#000}
+#nestbar{position:absolute;top:-19px;left:0;font-size:8px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--a);white-space:nowrap}
+
+/*  The two the thumb needs. `/` opens the command list on a keyboard and
+    there is no keyboard on a phone, so the list gets a button; and the
+    door nodes orbit, which means on a narrow screen they can be behind
+    you when you want them, so the way out to the 2-D site is always on
+    the rail as well.                                                    */
+/*  The rail is a row of fixed cells and a phone is 412 points wide, so
+    without this the two buttons on the end are simply past the edge —
+    which is how the way out of the instrument came to be unreachable on
+    the device most people hold. The buttons hug the right, and the one
+    cell that is decoration rather than navigation stands aside when
+    there is no room for it.                                           */
+#link{margin-left:auto;flex:none}
+#r2d,#rcmd{flex:none}
+/*  The identity cells give way before the actions do: a chain name can be
+    an ellipsis and still tell you what you need, but a button past the
+    edge is a button that does not exist.                              */
+.cell{flex:0 1 auto;overflow:hidden}
+/*  The chain cell used to take every spare point on the rail (`flex:1`,
+    an id selector, so nothing a class says can argue). On a desk that is
+    invisible; on a phone it pushed the two buttons past the right edge,
+    which is how the way out of the instrument came to be missing on the
+    device most people use. It takes what it needs now.                */
+#c-net{flex:0 1 auto}
+.cell .v{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:560px){ #c-form{display:none} }
+#r2d,#rcmd{background:none;border:0;border-left:1px solid var(--rule);
+  color:var(--mid);font:600 11px/1 var(--mono);letter-spacing:.14em;
+  padding:0 14px;cursor:pointer;align-self:stretch}
+#r2d:hover,#rcmd:hover,#r2d:focus-visible,#rcmd:focus-visible{color:var(--a);outline:none}
+#r2d[hidden]{display:none}
+/*──────────────────────── palette ────────────────────────*/
+#pal{position:fixed;inset:0;z-index:13;background:rgba(19,15,37,.7);backdrop-filter:blur(6px);
+  display:none;align-items:flex-start;justify-content:center;padding:12vh 16px 16px}
+#pal.open{display:flex}
+#palbox{width:min(520px,100%);background:var(--void-2);border:1px solid var(--rule-3)}
+#palq{width:100%;background:transparent;border:0;border-bottom:1px solid var(--rule-2);
+  padding:14px 16px;font:inherit;font-size:14px;color:var(--lit);outline:none}
+#pallist{max-height:52vh;overflow-y:auto}
+.pi{display:flex;align-items:baseline;gap:11px;padding:9px 16px;cursor:pointer;
+  border-bottom:1px solid var(--rule)}
+.pi:last-child{border-bottom:0}
+.pi.sel{background:var(--a-ghost)}
+.pi .pt{font-size:12px;color:var(--lit);flex:0 0 auto}
+.pi .pd{font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pi .pk{margin-left:auto;font-size:12px;color:var(--dim);letter-spacing:.14em;flex:0 0 auto}
+
+/*──────────────────────── coach ────────────────────────*/
+#coach{position:fixed;left:50%;bottom:calc(var(--dock) + 34px + var(--safeB));
+  transform:translateX(-50%);z-index:9;pointer-events:none;text-align:center;
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);
+  background:rgba(19,15,37,.76);padding:7px 15px;border:1px solid var(--rule);
+  opacity:0;transition:opacity .55s var(--ease);max-width:88vw}
+#coach.on{opacity:1}
+#coach b{color:var(--a);font-weight:400}
+
+/*──────────────────────── boot ────────────────────────*/
+#boot{position:fixed;inset:0;z-index:20;background:var(--void);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:15px;
+  transition:opacity .7s var(--ease)}
+#boot.gone{opacity:0;pointer-events:none}
+#boot .mark{font-size:14px;letter-spacing:.72em;color:var(--a);text-indent:.72em}
+#boot .sub{font-size:12px;letter-spacing:.26em;color:var(--dim);text-transform:uppercase}
+#bootbar{width:150px;height:1px;background:var(--rule-2);overflow:hidden}
+#bootbar i{display:block;height:100%;width:0;background:var(--a);transition:width .3s linear}
+
+/*──────────────────────── fatal ────────────────────────*/
+#fatal{position:fixed;inset:0;z-index:30;background:var(--void);display:none;
+  align-items:center;justify-content:center;padding:24px;text-align:center}
+#fatal.on{display:flex}
+#fatal div{max-width:420px;font-size:14px;line-height:1.7;color:var(--mid)}
+#fatal h4{color:var(--bad);font-size:12px;letter-spacing:.26em;text-transform:uppercase;
+  font-weight:400;margin-bottom:10px}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms !important}
+}
+/* Packet Garden's frame is DOM, not another renderer. Its decorations are
+   deliberately still; a moving target must never be the only way in. */
+:root{--rail:72px;--left:236px;--right:292px;--ftop:184px;--fbottom:240px;--dock:180px;--sheet:min(440px,100vw)}
+body{background:radial-gradient(ellipse at 50% 0,#38244e55,transparent 65%),var(--void)}
+:focus-visible{outline:2px solid var(--a);outline-offset:4px}
+button,a,input,select,textarea{touch-action:manipulation}
+button{border-radius:3px}
+.k{letter-spacing:.13em}.s{letter-spacing:.02em}.blurb{font-size:14px;line-height:1.7}
+#rail{height:calc(var(--rail) + var(--safeT));padding:10px 18px;background:var(--void);border-bottom:1px solid var(--rule-3);gap:8px}
+#brand{display:flex;align-items:center;gap:12px;color:var(--orchid);text-decoration:none;margin-right:auto;min-width:0}
+#brand strong{font:700 28px/1 Georgia,serif;letter-spacing:.04em;text-shadow:2px 2px #67e8f94d}
+#brand small{display:block;font:10px/1.4 var(--mono);letter-spacing:.14em;color:var(--mid);margin-top:6px}
+.pixel-flower{width:7px;height:7px;background:var(--a);color:var(--orchid);box-shadow:-7px -7px,7px -7px,-7px 7px,7px 7px,0 -14px,0 14px,-14px 0,14px 0;display:inline-block;flex:none;margin:16px}
+#c-form{display:none}#c-id{border:0}#c-net{border:0;min-width:100px}.cell{padding:0 10px}
+#link{background:var(--coral);color:var(--void);padding:0 18px;font-size:13px;letter-spacing:0;text-transform:none;border:1px solid #ffa5c9;min-height:44px;margin-left:8px}
+#link:hover,#link:focus-visible{background:#ffa5c9}#link.live{background:var(--void-2);color:var(--ok);border-color:var(--ok)}
+#r2d,#rcmd{border:1px solid var(--rule-2);padding:0 12px;min-width:44px;font-size:13px;letter-spacing:0}
+#garden-nav{position:fixed;top:84px;bottom:52px;left:12px;width:212px;padding:16px 10px;z-index:5;border:1px solid var(--rule-3);background:var(--void-2);display:flex;flex-direction:column;gap:7px;overflow-y:auto}
+.garden-id{border:1px dashed var(--rule-3);padding:12px;color:var(--orchid);font-size:13px;letter-spacing:.08em;margin-bottom:14px}
+.garden-nav-item{display:flex;align-items:center;gap:12px;padding:12px 10px;color:var(--txt);font:14px/1.4 var(--mono);text-decoration:none;border:1px solid transparent;border-radius:3px;min-height:46px;background:none;cursor:pointer;text-align:left}
+.garden-nav-item span{width:22px;font-size:21px;text-align:center;color:var(--orchid)}
+.garden-nav-item:hover{background:#d0a6ff14;border-color:var(--rule-3)}
+.garden-nav-item[aria-current]{background:var(--coral);color:var(--void)}.garden-nav-item[aria-current] span{color:inherit}
+.garden-nav-item[aria-disabled=true]{color:var(--dim);border-style:dashed;cursor:help}
+.garden-nav-note{margin-top:auto;padding:26px 8px 2px;font-size:12px;line-height:1.7;color:var(--mid)}
+.garden-nav-note b{color:var(--a);font-weight:400;display:block;margin-bottom:8px}
+.pixel-garden{height:104px;margin-top:22px;position:relative;overflow:hidden;border-bottom:1px dashed var(--rule-3)}
+.pixel-garden i{position:absolute;left:var(--x);bottom:0;width:2px;height:var(--stem);background:#94e2b580}
+.pixel-garden i::before{content:"";position:absolute;top:0;left:-2px;width:6px;height:6px;background:var(--a);color:var(--flower,var(--orchid));box-shadow:-6px -6px,6px -6px,-6px 6px,6px 6px,0 -12px,0 12px}
+.pixel-garden i::after{content:"";position:absolute;top:28px;left:-5px;width:4px;height:4px;background:#94e2b5;box-shadow:10px 8px,-4px -4px,14px 4px,0 24px,10px 32px}
+#garden-title{position:fixed;left:calc(var(--left) + 20px);right:calc(var(--right) + 20px);top:96px;z-index:3}
+#garden-title p{color:var(--orchid);font-size:11px;letter-spacing:.14em;margin-bottom:8px}
+#garden-title h1{font:400 clamp(24px,2.6vw,44px)/1.12 Georgia,serif;color:var(--lit);letter-spacing:-.02em}
+#garden-field{position:fixed;left:var(--left);right:var(--right);top:var(--ftop);bottom:var(--fbottom);border:1px solid var(--rule-3);border-radius:4px;overflow:hidden;background:var(--void);box-shadow:0 0 0 5px #d0a6ff06}
+#garden-field::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;border:6px solid transparent;border-image:repeating-linear-gradient(45deg,#d0a6ff66 0 1px,transparent 1px 4px) 6}
+canvas#field,svg#wires,#nodes{position:absolute;inset:0;width:100%;height:100%}#nest{position:absolute;inset:0}
+#garden-field:not(.show-labels) #nodes,#garden-field:not(.show-labels) #wires{visibility:hidden}
+#garden-labels{position:absolute;right:14px;top:14px;z-index:4;background:#130f25cc;border:1px solid var(--rule-3);color:var(--mid);font:11px var(--mono);padding:9px 12px;min-height:36px;cursor:pointer}
+#garden-labels[aria-pressed=true]{color:var(--a);border-color:var(--a)}
+#garden-motion{position:absolute;left:14px;top:14px;z-index:4;display:flex;gap:5px;flex-wrap:wrap;max-width:calc(100% - 150px)}
+#garden-motion button{background:#130f25e8;border:1px solid var(--rule-3);color:var(--mid);font:11px var(--mono);min-height:36px;padding:8px 10px;cursor:pointer}
+#garden-motion button[aria-pressed=true]{color:var(--a);border-color:var(--a);background:#172737eb}
+#garden-view-note{position:absolute;left:16px;bottom:48px;z-index:3;color:var(--orchid);font:10px var(--mono);letter-spacing:.09em;pointer-events:none}
+@media(max-width:780px){#garden-motion{left:10px;top:10px;max-width:calc(100% - 92px);gap:4px}#garden-motion button{font-size:10px;min-height:34px;padding:7px}#garden-labels{right:10px;top:10px;padding:7px;font-size:10px;width:68px}#garden-view-note{left:12px;bottom:54px;font-size:9px}}
+.nd{font-size:11px;letter-spacing:.07em;padding:8px;min-height:32px;background:#1c1731cc;border-color:var(--rule)}
+#garden-side{position:fixed;right:12px;top:84px;bottom:52px;width:268px;display:flex;flex-direction:column;gap:14px;z-index:5;overflow-y:auto}
+.garden-card{border:1px solid var(--rule-3);padding:8px;background:var(--void-2);border-radius:4px}
+.garden-card h2{font:600 13px/1.4 var(--mono);letter-spacing:.06em;color:var(--void);background:var(--a);padding:12px;margin-bottom:16px}
+.garden-card:nth-child(2) h2{background:var(--orchid)}.garden-card:nth-child(3) h2{background:#ffb7a7}
+.garden-card p{font:14px/1.7 var(--mono);color:var(--mid);margin:12px 8px}
+.garden-card .garden-label{font-size:11px;color:var(--orchid);letter-spacing:.08em;text-transform:uppercase}
+.garden-card a{display:flex;align-items:center;justify-content:space-between;color:var(--lit);text-decoration:none;padding:14px 10px;min-height:48px;border-top:1px dashed var(--rule-3);gap:8px}
+.garden-card a:hover{color:var(--a);background:var(--a-ghost)}.garden-card a small{display:block;color:var(--mid);font-size:12px;margin-top:3px}
+.garden-card a span:first-child{font:24px Georgia,serif}.garden-card .garden-glyph{height:54px;display:grid;place-items:center;font:38px Georgia,serif;color:var(--orchid);background:radial-gradient(circle at center,#67e8f91c,transparent 65%);letter-spacing:16px}
+#dock{left:var(--left);right:var(--right);bottom:54px;padding:10px 14px;background:var(--void-2);border:1px solid var(--rule-2);border-radius:4px}
+#planes{padding-top:0;gap:6px}.pl{flex:1;min-width:42px;padding:8px}.pl .pn{font-size:12px}.pl .pv{font-size:11px;letter-spacing:0}
+#wrow{height:36px;gap:8px}#wrow .k{font-size:11px;letter-spacing:.06em}#wauto{font-size:11px;letter-spacing:.05em;min-height:36px}
+#garden-actions{display:flex;gap:12px;margin-top:10px}#garden-actions button{font:13px/1.3 var(--mono);padding:11px 9px;min-height:44px;flex:1;background:transparent;border:1px solid var(--rule-3);color:var(--lit);cursor:pointer}#garden-actions #garden-focus{background:var(--coral);color:var(--void);border-color:var(--coral)}
+#garden-actions button:hover{filter:brightness(1.15)}
+#tick{left:calc(var(--left) + 8px);right:calc(var(--right) + 8px);bottom:calc(var(--fbottom) + 10px);max-width:none;background:#130f25dc;border-radius:3px;font-size:11px;z-index:4}
+#coach{left:calc(var(--left) + (100% - var(--left) - var(--right))/2);bottom:calc(var(--fbottom) + 54px);max-width:calc(100% - var(--left) - var(--right) - 30px);font-size:11px;letter-spacing:.04em;text-transform:none}
+#garden-command{position:fixed;bottom:0;left:0;right:0;height:40px;display:flex;align-items:center;gap:14px;border-top:1px solid var(--rule-3);background:var(--void);z-index:7;padding:0 20px;font:12px var(--mono);color:var(--mid)}
+#garden-command button{color:var(--a);font:inherit;background:none;border:0;cursor:pointer;min-height:36px;text-align:left}#garden-command span:last-child{margin-left:auto;font-size:10px;letter-spacing:.09em}
+#sheet{box-shadow:-16px 0 70px #0006;border-color:var(--rule-3)}#shead{padding:16px;background:var(--void-3)}#shut{min-width:44px;min-height:44px}#sbody{padding:20px}
+button.b{font-size:13px;letter-spacing:.05em;min-height:44px;background:var(--coral);color:var(--void);border-color:var(--coral)}button.b.g{background:transparent;color:var(--a);border-color:var(--rule-3)}button.b:disabled{opacity:.55}
+input[type=text],input[type=number],textarea,select{font-size:14px;min-height:44px;border-radius:3px}input::placeholder,textarea::placeholder{color:var(--dim)}
+.chip{min-height:36px;background:transparent;font-family:var(--mono)}.pi{padding:14px 16px}.pi .pd{font-size:12px}#plno{min-width:36px;min-height:36px}#plname{padding-right:26px}
+body.garden-focus{--left:12px;--right:12px;--ftop:84px}body.garden-focus #garden-nav,body.garden-focus #garden-side,body.garden-focus #garden-title{display:none}
+@media(max-width:1200px){:root{--right:12px;--left:220px}#garden-side{display:none}#garden-nav{width:196px}#brand small{display:none}#garden-title h1{font-size:34px}}
+@media(max-width:780px){:root{--rail:64px;--left:10px;--right:10px;--ftop:204px;--fbottom:232px}#rail{padding:9px 10px;gap:4px;height:64px}#brand strong{font-size:21px}#brand .pixel-flower{display:none}#c-id,#c-net{display:none}#link{padding:0 12px;margin-left:0;font-size:12px}#r2d{padding:0 8px;font-size:12px}#rcmd{padding:0 10px}#garden-nav{left:10px;right:10px;top:74px;bottom:auto;width:auto;height:54px;flex-direction:row;padding:4px;overflow-x:auto;overflow-y:hidden;gap:6px}#garden-nav .garden-id,#garden-nav .garden-nav-note{display:none}.garden-nav-item{white-space:nowrap;padding:8px 10px;min-height:42px;font-size:12px;gap:6px;flex-shrink:0}.garden-nav-item span{font-size:16px;width:18px}#garden-title{top:144px;left:20px;right:20px}#garden-title p{font-size:10px;margin-bottom:6px}#garden-title h1{font-size:25px}#dock{bottom:48px;padding:8px}#planes{gap:4px}.pl{padding:6px;min-width:42px}.pl .pv{font-size:10px}.pl .pn{font-size:11px}#wrow{gap:6px}#wrow .k{font-size:10px}#wval{width:51px;font-size:12px}#garden-actions{gap:8px}#garden-actions button{font-size:12px}#tick{font-size:10px;padding:6px;white-space:normal;max-height:42px}#coach{display:none}#garden-command{padding:0 12px;gap:8px}#garden-command span:last-child{display:none}#sheet{max-height:88dvh}body.garden-focus{--ftop:74px}.nd{font-size:10px;padding:5px;letter-spacing:0}}
+@media(max-height:650px) and (min-width:781px){:root{--ftop:136px;--fbottom:240px}#garden-title{top:88px}#garden-title h1{font-size:27px}#garden-title p{display:none}.garden-nav-note{display:none}#garden-side .garden-card:last-child{display:none}}
+@media(max-height:700px) and (max-width:780px){:root{--ftop:176px}#garden-title{top:140px}#garden-title h1{font-size:21px}#garden-title p{display:none}}
+@media(max-width:780px){:root{--ftop:232px}}
+@media(max-height:520px) and (max-width:780px){:root{--ftop:74px;--fbottom:168px}#garden-nav,#garden-title,#planes{display:none}}
+@media(min-height:521px) and (max-height:700px) and (max-width:780px){:root{--ftop:198px}}
+@media(max-width:380px){#brand strong{font-size:18px}#link{font-size:11px;padding:0 8px}#r2d{font-size:11px;padding:0 6px}#rcmd{min-width:38px;padding:0 8px}#garden-title h1{font-size:23px}}
+/* A nested token or a marketplace thumbnail still gets an actual field.
+   The compact command strip retains access to every tool and way out. */
+@media(max-width:480px) and (max-height:360px){#garden-field{inset:0;border:0;border-radius:0}#garden-field::after,#rail,#garden-nav,#garden-title,#garden-side,#dock,#tick,#coach,#garden-labels,#garden-motion,#garden-view-note{display:none}#garden-command{height:28px;padding:0 8px;background:#130f25cc}#garden-command button{min-height:26px;font-size:10px}#garden-command span{display:none}}
+</style>
+
+<style>
+:root{--left:16px;--right:16px;--ftop:96px;--fbottom:170px}
+body{min-height:480px}#study-title{position:fixed;top:22px;left:28px;right:28px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+#study-title h1{font:30px Georgia,serif;color:var(--orchid);margin:0}
+#study-title p{font:10px var(--mono);letter-spacing:.13em;color:var(--mid);margin:8px 0 0}
+#study-title a{font:12px var(--mono);color:var(--a)}
+#dock{bottom:16px}#tick{bottom:calc(var(--fbottom) + 10px)}#garden-view-note{bottom:58px}
+#study-options{display:flex;gap:16px;align-items:center;margin-bottom:10px;font:11px var(--mono);color:var(--mid)}
+#study-options label{display:flex;align-items:center;gap:9px}#study-options select{font:12px var(--mono);min-height:34px;padding:6px;background:var(--void);color:var(--lit);border:1px solid var(--rule-3)}
+#study-options input{width:120px;accent-color:var(--a)}#v-form{margin-left:auto;color:var(--orchid)}
+#planes{display:none}#wrow{height:34px}#fatal{background:var(--void)}
+@media(max-width:600px){:root{--left:10px;--right:10px;--ftop:106px;--fbottom:165px}#study-title{left:20px;right:20px;top:18px}#study-title h1{font-size:25px}#study-title a{display:none}#study-options{flex-wrap:wrap;gap:8px}#v-form{display:none}#study-options input{width:80px}#dock{bottom:10px}#tick{font-size:10px}}
+@media(max-width:480px) and (max-height:360px){#garden-motion{display:flex}#garden-view-note{display:block}}
+</style>
+<script>window.IPSE={"id":1,"seed":"0x3333333333333333333333333333333333333333333333333333333333333333","form":2,"hue":151,"rot":[4381,19818,0,10013,3233,24511],"w":34768,"ops":17,"open":4095}</script></head>
+<body class="up">
+<header id="study-title"><div><h1>Packet Garden / Living crystal</h1><p>LOCAL RENDER STUDY · DRAG TO ORBIT · SCROLL TO ZOOM</p></div><a href="https://github.com/venividis/IPSEITY-FINAL">IPSEITY ↗</a></header>
+<main id="garden-field" aria-label="Interactive three-dimensional section of a four-dimensional solid">
+<canvas id="field" aria-label="Drag to orbit the crystal. Use the buttons for 3D orbit or 4D flow."></canvas>
+<div id="garden-motion" role="group" aria-label="Artwork viewing controls">
+<button id="garden-orbit" type="button" aria-pressed="true">3D orbit</button><button id="garden-flow" type="button" aria-pressed="false">4D flow</button><button id="garden-play" type="button">Pause</button><button id="garden-reset" type="button">Reset view</button></div>
+<div id="garden-view-note" role="status">LIVE CRYSTAL / DRAG TO EXPLORE</div>
+<button id="garden-labels" type="button" aria-pressed="false">Node labels</button>
+<svg id="wires" aria-hidden="true"></svg><div id="nodes"></div><div id="nest"></div>
+</main>
+<div id="tick" role="status" aria-live="polite">A three-dimensional section of a four-dimensional solid. Turn through w to see it change.</div>
+<div id="dock">
+<div id="study-options"><label>Solid <select id="study-form"><option value="2">24-cell</option><option value="1">16-cell</option><option value="0">Tesseract</option><option value="3">Duocylinder</option><option value="4">Clifford torus</option><option value="5">Tiger</option><option value="6">Ditorus</option><option value="7">Quaternion Julia</option></select></label><label>Color <input id="study-hue" type="range" min="0" max="255" value="151"></label><span id="v-form"></span></div>
+<div id="planes"></div><div id="wrow"><span class="k">Section w</span><div id="wtrack" role="slider" tabindex="0" aria-label="Section along the fourth axis" aria-valuemin="-1.6" aria-valuemax="1.6" aria-valuenow="0"><div id="wticks"></div><div id="whead"></div></div><span id="wval" class="n"></span><button id="wauto" type="button">Drift</button></div>
+</div>
+<div id="fatal"><div><h4>The crystal cannot be drawn</h4><p id="fatalmsg"></p></div></div>
+<script>
+"use strict";
+
+/*───────────────────────────────────────────────────────────────────────────
+  0 · STATE
+  window.IPSE is written between <head> and <body> by tokenURI(). The
+  object below is only what this page falls back to when it is opened
+  outside the chain that owns it.
+───────────────────────────────────────────────────────────────────────────*/
+const S = Object.assign({
+  id: 0,
+  collection: "0x0000000000000000000000000000000000000000",
+  chainId: 1,
+  owner: "0x0000000000000000000000000000000000000000",
+  account: "0x0000000000000000000000000000000000000000",
+  pool: "0x0000000000000000000000000000000000000000",
+  seed: "0x0000000000000000000000000000000000000000000000000000000000000000",
+  hue: 34,
+  form: 0,
+  rot: [0, 0, 0, 0, 0, 0],   // six plane angles, 0..65535 → 0..2π
+  w: 32768,                  // section offset, 0..65535 → -1.6..1.6
+  ops: 0,
+  xfers: 0,
+  strata: 0,
+  open: 0xFFFF,
+  block: 0,
+  depth: 0,
+  rpc: ""
+}, window.IPSE || {});
+
+const DEPTH = Math.max(0, S.depth | 0);
+const ROOT  = DEPTH === 0;
+
+/* the eleven instruments carried by the token */
+const MODULES = [
+  { id:"SELF",   name:"Self",    ring:0, key:"1",
+    blurb:"The token reads itself. Owner, orientation, section, operation count and bound account — pulled live, by eth_call, from the contract that returned this page." },
+  { id:"ROTATE", name:"Rotate",  ring:0, key:"2",
+    blurb:"Commit the orientation you are looking at. Four-dimensional rotation happens in a plane, not about an axis, and there are six planes. Three of them contain w; turning in those changes the shape of the section itself. What you commit becomes what every future viewer sees first." },
+  { id:"SECTION",name:"Section", ring:0, key:"3",
+    blurb:"Choose the solid this token is a section of, and where along w the section is cut. Eight solids; only four of them have any three-dimensional analogue at all." },
+  { id:"SEND",   name:"Send",    ring:0, key:"4",
+    blurb:"Move native value — from your wallet, or from the token's own bound account, in which case the token is the sender and you are only its hand." },
+  { id:"ERC20",  name:"Assets",  ring:0, key:"5",
+    blurb:"Read and move ERC-20 balances. Every byte of calldata is hashed and encoded in this frame, by a keccak-256 implementation carried inside the token." },
+  { id:"CALL",   name:"Call",    ring:0, key:"6",
+    blurb:"Raw execution. Type a human-readable signature and its arguments; the selector is hashed and the parameters ABI-encoded here, then shown to you in full before anything is signed. Any contract, any function." },
+  { id:"SIGN",   name:"Sign",    ring:1, key:"7",
+    blurb:"Produce signatures. A plain message, or EIP-712 typed data — with the domain separator and struct hash computed in this page so you can check them against the wallet's own display." },
+  { id:"SCAN",   name:"Scan",    ring:1, key:"8",
+    blurb:"Interrogate the chain. Block, fees, balances, deployed bytecode, arbitrary storage slots at any address." },
+  { id:"VAULT",  name:"Vault",   ring:1, key:"9",
+    blurb:"Two ERC-6551 accounts, at two salts, both derived here by CREATE2 rather than asked for. The Reach acts and can be emptied by its holder. The Grip receives and has no function that spends — what it holds, it holds forever. Both travel with the token." },
+  { id:"MINT",   name:"Issue",   ring:1, key:"0",
+    blurb:"The token issues its siblings. Minting from inside one token draws the next from the same contract, seeded by the block that carried the call." },
+  { id:"MARKET", name:"Market",  ring:1, key:"m",
+    blurb:"This token is an exchange. Its market holds two assets and anyone may trade against them; the holder is the only one who puts inventory in or takes it out, and the only one who earns the fee. Selling the token sells the market with it. The curve is the solid: how far it has been turned through w sets how tightly the liquidity is concentrated." },
+  { id:"NEST",   name:"Nest",    ring:1, key:"n",
+    blurb:"Open this token inside this token. The frame loads a live instance of itself one section deeper, which can do the same, until the plane runs out of room." }
+];
+const NN = MODULES.length;
+
+/*  The door ring. When this frame is served from the collection's own
+    origin — a web3:// browser or any gateway in front of it — relative
+    paths resolve into the 2-D site, and the instrument becomes the door:
+    eight more vertices in a slower orbit, each opening one surface. In a
+    marketplace's data: sandbox no origin can answer, so the ring simply
+    never forms. These ride outside the shader's twelve — labels, wires
+    and the picking ray know them; the field does not.                  */
+const DOORED = /^(https?|web3):$/.test(location.protocol);
+/*  Where `/connect` goes, and it is now the console rather than the flat
+    site's front page.
+
+    A FUNCTION, because the id is part of the address. `/door` was one
+    string for every token, which is exactly what was wrong with it: a
+    holder who typed /connect arrived at a page about the collection and
+    then had to find their own token in it. `/c/<id>` is a page about the
+    thing they were just holding, and it is the same address whether they
+    typed the word, pressed the control, or were sent the link by
+    somebody else.
+
+    Named in one place because a route spelled in three is a route that
+    will be right in two of them.                                     */
+const LANDING = () => "/c/" + S.id;
+/*  Leaving is `top`, not `window`, and the difference is the whole reason
+    the instruments stacked. A section opened inside itself runs in a frame
+    of its host's document; a console navigated from inside that frame would
+    be a console inside an instrument, which is the arrangement this design
+    just spent a commit removing. `top` moves the document that is actually
+    on screen.
+
+    A marketplace that frames this token from another origin will refuse to
+    hand over `top` — the throw IS the refusal, and in that case this frame
+    is the only document there is to move, so it moves itself.          */
+const leave = (to) => { try { top.location.href = to; } catch(e){ location.href = to; } };
+/*  A ring of seven door nodes used to orbit here, each carrying a route
+    into the flat site. They were the deck's entrances and nothing else:
+    with no deck to enter, a node whose whole definition is `door:"/swap"`
+    is a button that cannot be pressed.
+
+    Removing them shrinks the orbit back to the instrument's own twelve,
+    which is what the geometry was drawn for — the outer shell existed to
+    hold doors, and doors are now something you go through by leaving. */
+
+/* the eight solids. names, and how each behaves as w moves */
+const FORMS = [
+  { n:"Tesseract",       g:"8-cell",         d:"Cube → truncated cube → hexagon → point." },
+  { n:"Hexadecachoron",  g:"16-cell",        d:"Octahedron → cuboctahedron → octahedron." },
+  { n:"Icositetrachoron",g:"24-cell",        d:"Self-dual. Has no three-dimensional analogue." },
+  { n:"Duocylinder",     g:"D²×D²",          d:"Two flat circles' product. Neither is the surface." },
+  { n:"Clifford torus",  g:"S¹×S¹ ⊂ S³",     d:"A flat torus. Flat, in four dimensions, exactly." },
+  { n:"Tiger",           g:"((II)(II))",      d:"A torus of tori. Sections come apart into rings." },
+  { n:"Ditorus",         g:"(((II)I)I)",      d:"A torus whose tube is a torus." },
+  { n:"Quaternion Julia",g:"z ← z² + c",     d:"A four-dimensional fractal. Sections never repeat." }
+];
+
+const TAU = Math.PI * 2;
+const PLANES = [
+  { n:"xy", i:0, w:false }, { n:"xz", i:1, w:false }, { n:"yz", i:2, w:false },
+  { n:"xw", i:3, w:true  }, { n:"yw", i:4, w:true  }, { n:"zw", i:5, w:true  }
+];
+
+/* fixed-point helpers: the chain stores integers, the field wants reals */
+const u16ToAngle = v => (v / 65536) * TAU;
+const angleToU16 = a => ((Math.round((a / TAU) * 65536) % 65536) + 65536) % 65536;
+const u16ToW     = v => (v / 65535) * 3.2 - 1.6;
+const wToU16     = w => Math.max(0, Math.min(65535, Math.round((w + 1.6) / 3.2 * 65535)));
+
+/* live, unsigned view of the token — what you are editing before you commit */
+const L = {
+  rot:  S.rot.map(u16ToAngle),
+  w:    u16ToW(S.w),
+  form: S.form | 0,
+  hue:  S.hue | 0,
+  dirty: false
+};
+/* the last committed view, for the A→B morph */
+const C = { rot: L.rot.slice(), w: L.w, form: L.form, hue: L.hue };
+
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const clamp = (v,a,b) => v < a ? a : v > b ? b : v;
+const lerp  = (a,b,t) => a + (b-a)*t;
+const fmt   = (v,d=3) => (v<0?"":"+") + v.toFixed(d);
+
+document.documentElement.style.setProperty("--h", String(Math.round(L.hue * 360 / 255)));
+
+/*───────────────────────────────────────────────────────────────────────────
+  1 · FOUR-DIMENSIONAL ROTATION
+
+  In three dimensions a rotation is named by the axis it fixes. In four
+  there is no such axis — a rotation is named by the plane it turns, and
+  there are six of them. Three (xy, xz, yz) leave w alone and merely spin
+  the section you already see. Three (xw, yw, zw) turn part of the solid
+  out of this 3-space and pull unseen part of it in: those are the ones
+  that change the section's shape.
+
+  Rotations compose as Givens matrices; their product is orthonormal, so
+  a signed distance measured in the rotated frame is still exact. That is
+  the whole reason sphere tracing a 4D field through a 3-plane is sound.
+───────────────────────────────────────────────────────────────────────────*/
+const PLANE_IJ = [[0,1],[0,2],[1,2],[0,3],[1,3],[2,3]];
+
+function rot4(angles){
+  /* column-major 4×4, ready for gl.uniformMatrix4fv(loc,false,m) */
+  const m = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
+  for(let p = 0; p < 6; p++){
+    const a = angles[p];
+    if(a === 0) continue;
+    const [i,j] = PLANE_IJ[p], c = Math.cos(a), s = Math.sin(a);
+    /* left-multiply by the Givens rotation G(i,j,a) — touches rows i and j */
+    for(let col = 0; col < 4; col++){
+      const oi = col*4 + i, oj = col*4 + j;
+      const vi = m[oi], vj = m[oj];
+      m[oi] = c*vi - s*vj;
+      m[oj] = s*vi + c*vj;
+    }
+  }
+  return m;
+}
+function applyRot4(m, v){
+  return [
+    m[0]*v[0] + m[4]*v[1] + m[8]*v[2]  + m[12]*v[3],
+    m[1]*v[0] + m[5]*v[1] + m[9]*v[2]  + m[13]*v[3],
+    m[2]*v[0] + m[6]*v[1] + m[10]*v[2] + m[14]*v[3],
+    m[3]*v[0] + m[7]*v[1] + m[11]*v[2] + m[15]*v[3]
+  ];
+}
+
+/* small 3-vector kit */
+const V = {
+  sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],
+  add:(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],
+  mul:(a,s)=>[a[0]*s,a[1]*s,a[2]*s],
+  dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],
+  cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],
+  norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];}
+};
+
+/* the seed, unpacked into the eight floats the field needs */
+function seedFloats(hex){
+  const h = String(hex).replace(/^0x/,"").padStart(64,"0");
+  const out = [];
+  for(let i=0;i<8;i++) out.push(parseInt(h.substr(i*8,8),16) / 4294967295);
+  return out;
+}
+const SEED = seedFloats(S.seed);
+
+/*───────────────────────────────────────────────────────────────────────────
+  2 · THE FIELD
+
+  One raymarch pass into a floating-point buffer, a temporal accumulator
+  that turns stillness into resolution, a five-level bloom pyramid, and a
+  filmic composite. Every stage is written out here because the token is
+  not allowed to ask anyone for a shader.
+───────────────────────────────────────────────────────────────────────────*/
+
+const VS3 = `#version 300 es
+in vec2 p; out vec2 vUv;
+void main(){ vUv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }`;
+
+const HEAD3 = `#version 300 es
+precision highp float; precision highp int;
+in vec2 vUv; out vec4 oCol;
+`;
+
+/*── the raymarcher ──────────────────────────────────────────────────────*/
+const FS_FIELD = HEAD3 + `
+uniform vec2  uRes;
+uniform float uTime;
+uniform vec3  uEye, uFwd, uRight, uUp;
+uniform vec2  uJit;          // sub-pixel jitter, drives free antialiasing
+uniform float uLens;         // aperture; stillness opens it
+uniform float uFocus;
+uniform mat4  uRotL, uRotC;  // live orientation, and the committed one
+uniform float uWL, uWC;
+uniform float uFormL, uFormC;
+uniform float uHue;
+uniform float uOps, uPulse, uStrata, uGhost, uAura, uDepth;
+uniform float uSteps, uFlags;
+uniform vec4  uSeedA, uSeedB;
+uniform vec4  uNode[12];
+uniform float uSel;
+
+#define PI  3.141592653589793
+#define TAU 6.283185307179586
+#define F_SHADOW 1.0
+#define F_DISP   2.0
+#define F_AO     4.0
+#define F_AURA   8.0
+bool flag(float b){ return mod(floor(uFlags / b), 2.0) > 0.5; }
+
+float vmax4(vec4 v){ return max(max(v.x, v.y), max(v.z, v.w)); }
+mat2  rot2(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+
+/*───────── four-dimensional solids ─────────
+  Every one of these is an exact Euclidean distance in R⁴, or a bound
+  that is never larger than the true distance. Because the orientation
+  matrix is orthonormal, that property survives the rotation — which is
+  what makes it legal to sphere-trace a 4D field along a ray that only
+  ever lives in a 3-space section of it.                                */
+
+float sdTesseract(vec4 q, float b){            // 8-cell — exact
+  vec4 d = abs(q) - b;
+  return length(max(d, 0.0)) + min(vmax4(d), 0.0);
+}
+float sdCrossPolytope(vec4 q, float s){        // 16-cell — safe bound
+  return (dot(abs(q), vec4(1.0)) - s) * 0.5;   // ‖∇‖ of the L¹ norm is 2 in R⁴
+}
+float sd24Cell(vec4 q, float b){               // 24-cell — tesseract ∩ 16-cell
+  return max(sdTesseract(q, b), sdCrossPolytope(q, 2.0 * b));
+}
+float sdDuocylinder(vec4 q, float a, float b){ // D²×D² — exact
+  vec2 d = vec2(length(q.xy) - a, length(q.zw) - b);
+  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+float sdCliffordTorus(vec4 q, float c, float r){   // tube on S¹×S¹ ⊂ S³ — exact
+  return length(vec2(length(q.xy) - c, length(q.zw) - c)) - r;
+}
+float sdTiger(vec4 q, float r1, float r2, float r){ // ((II)(II)) — exact
+  return length(vec2(length(q.xy) - r1, length(q.zw) - r2)) - r;
+}
+float sdDitorus(vec4 q, float r1, float r2, float r){ // (((II)I)I) — exact
+  float a = length(vec2(length(q.xy) - r1, q.z));
+  return length(vec2(a - r2, q.w)) - r;
+}
+vec4 qSquare(vec4 a){                           // Hamilton product a·a
+  return vec4(a.x * a.x - dot(a.yzw, a.yzw), 2.0 * a.x * a.yzw);
+}
+float sdJulia(vec4 q, vec4 c){                  // z ← z² + c, Hart's estimator
+  vec4  z  = q;
+  float md = 1.0;
+  float m  = dot(z, z);
+  for(int i = 0; i < 9; i++){
+    md *= 4.0 * m;
+    z   = qSquare(z) + c;
+    m   = dot(z, z);
+    if(m > 8.0) break;
+  }
+  return 0.25 * sqrt(m / md) * log(max(m, 1e-8));
+}
+
+/* per-solid step safety: exact fields take the whole distance */
+float formStep(float f){ return f > 6.5 ? 0.72 : 1.0; }
+
+float solid(vec3 p, float w, mat4 R, float f){
+  vec4 q = R * vec4(p, w);
+  int  i = int(f + 0.5);
+  if(i == 0) return sdTesseract(q, 0.82);
+  if(i == 1) return sdCrossPolytope(q, 1.42);
+  if(i == 2) return sd24Cell(q, 0.90);
+  if(i == 3) return sdDuocylinder(q, 0.92, 0.92);
+  if(i == 4) return sdCliffordTorus(q, 0.80, 0.30);
+  if(i == 5) return sdTiger(q, 0.86, 0.62, 0.24);
+  if(i == 6) return sdDitorus(q, 0.86, 0.38, 0.16);
+  vec4 c = vec4(-0.44, 0.34, 0.10, 0.06)
+         + vec4(uSeedA.x - 0.5, uSeedA.y - 0.5, uSeedA.z - 0.5, uSeedA.w - 0.5) * 0.34;
+  return sdJulia(q * 1.30, c) / 1.30;
+}
+
+/* the field the eye is actually in: the live, uncommitted orientation */
+float live(vec3 p){ return solid(p, uWL, uRotL, uFormL); }
+
+/*───────── the instrument shell ─────────*/
+float ring(vec3 p, float rad, float tube, float tilt, float yaw){
+  vec3 q = p;
+  q.yz *= rot2(tilt);
+  q.xz *= rot2(yaw);
+  return length(vec2(length(q.xz) - rad, q.y)) - tube;
+}
+
+/* x: distance · y: material (1 solid · 2 rail · 10+i node) */
+vec2 map(vec3 p){
+  vec2 res = vec2(live(p) * formStep(uFormL), 1.0);
+
+  float t  = uTime * 0.05;
+  float rA = ring(p, 2.62, 0.0040,  0.34,  t);
+  float rB = ring(p, 2.02, 0.0032, -0.78, -t * 1.37);
+  float r  = min(rA, rB);
+  if(r < res.x) res = vec2(r, 2.0);
+
+  for(int i = 0; i < 12; i++){
+    vec4  n = uNode[i];
+    float k = 0.052 + (n.w > 0.5 ? 0.020 : 0.0) + (n.w > 1.5 ? 0.034 : 0.0);
+    float d = length(p - n.xyz) - k;
+    if(d < res.x) res = vec2(d, 10.0 + float(i));
+  }
+  return res;
+}
+
+/* 3-space gradient, tetrahedral — four taps, not six.
+   The offset has to grow with distance. A fixed epsilon rounds off detail
+   up close, and far away it falls under the relative precision of a float,
+   where the normal degenerates into noise. */
+vec3 grad3(vec3 p, float t){
+  vec2 e = vec2(1.0, -1.0) * max(t * 0.0011, 8e-5);
+  return normalize(
+    e.xyy * map(p + e.xyy).x + e.yyx * map(p + e.yyx).x +
+    e.yxy * map(p + e.yxy).x + e.xxx * map(p + e.xxx).x);
+}
+
+/* how far the surface leans out of this 3-space: ∂f/∂w at the hit.
+   Zero means the surface is perpendicular to our section and will slide
+   sideways as w moves; one means it is about to leave entirely.        */
+float leanW(vec3 p){
+  float e = 0.0016;
+  return (solid(p, uWL + e, uRotL, uFormL) - solid(p, uWL - e, uRotL, uFormL)) / (2.0 * e);
+}
+
+float shadow(vec3 ro, vec3 rd, float k){
+  float res = 1.0, t = 0.035;
+  for(int i = 0; i < 26; i++){
+    float h = map(ro + rd * t).x;
+    if(h < 0.0006) return 0.0;
+    res = min(res, k * h / t);
+    /* no lower clamp: flooring the step in a shadow march walks the ray
+       straight through thin geometry and drops the shadow entirely */
+    t  += min(max(h, 1e-4), 0.22);
+    if(t > 5.0) break;
+  }
+  return clamp(res, 0.0, 1.0);
+}
+
+float ao(vec3 p, vec3 n){
+  float o = 0.0, s = 1.0;
+  for(int i = 0; i < 5; i++){
+    float h = 0.012 + 0.11 * float(i);
+    o += (h - map(p + n * h).x) * s;
+    s *= 0.72;
+  }
+  return clamp(1.0 - 1.5 * o, 0.0, 1.0);
+}
+
+vec3 hsl(float h, float s, float l){
+  vec3 k = mod(vec3(0.0, 8.0, 4.0) + h * 12.0, 12.0);
+  return l - s * min(l, 1.0 - l) * clamp(min(k - 3.0, 9.0 - k), -1.0, 1.0);
+}
+
+/* Crystal seams are boundaries of the actual section, not a second mesh.
+   A coordinate constant throughout the slice cannot make a 3-D edge:
+   excluding that row prevents w=0 from lighting an entire 16-cell face. */
+float crystalSeam(vec4 q){
+  vec4 a = abs(q);
+  float first = -10.0, second = -10.0, crossEdge = 10.0;
+  for(int i = 0; i < 4; i++){
+    float spatial = length(vec3(uRotL[0][i], uRotL[1][i], uRotL[2][i]));
+    if(spatial < 0.001) continue;
+    float d = (a[i] - (uFormL < 0.5 ? 0.82 : 0.90)) / spatial;
+    second = max(second, min(first, d)); first = max(first, d);
+    crossEdge = min(crossEdge, a[i] / spatial);
+  }
+  float edge = abs(second);
+  if(uFormL > 0.5 && uFormL < 1.5) edge = crossEdge;
+  if(uFormL > 1.5){
+    float cut = (dot(a, vec4(1.0)) - 1.8) * 0.5;
+    edge = min(abs(first - cut), first > cut ? edge : crossEdge);
+  }
+  return exp(-edge * 170.0);
+}
+
+/* A small procedural light studio travels in world space. No environment
+   map, texture, remote asset or additional render pass is required. */
+vec3 studio(vec3 r, vec3 ice, vec3 violet, vec3 gold){
+  float a = pow(max(dot(r, normalize(vec3(-0.65, 0.55, 0.4))), 0.0), 18.0);
+  float b = pow(max(dot(r, normalize(vec3(0.8, 0.15, -0.5))), 0.0), 30.0);
+  float c = pow(max(dot(r, normalize(vec3(0.1, -0.7, 0.7))), 0.0), 45.0);
+  float strip = exp(-abs(r.y - 0.38) * 65.0) * pow(max(r.z, 0.0), 2.0);
+  return ice * (a * 1.15 + strip * 1.8) + violet * b * 1.4 + gold * c * 0.8;
+}
+
+/* the space the solid hangs in — directional stars stay fixed as we orbit */
+vec3 backdrop(vec3 rd, vec3 warm, vec3 cool){
+  float h  = rd.y * 0.5 + 0.5;
+  vec3  c  = mix(vec3(0.0012, 0.0007, 0.0038), vec3(0.0034, 0.0018, 0.008), h);
+  c += cool * 0.009 * pow(max(0.0, 1.0 - abs(rd.y + 0.2)), 12.0);
+  /* dust: fixed to direction, so it reads as depth and not as noise */
+  vec3  s  = rd * 62.0;
+  vec3  ic = floor(s);
+  float rn = fract(sin(dot(ic, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
+  float st = step(0.985, rn) * exp(-dot(fract(s) - 0.5, fract(s) - 0.5) * 90.0);
+  c += mix(warm, cool, rn) * st * 1.8;
+  return c;
+}
+
+void main(){
+  vec2 frag = gl_FragCoord.xy + uJit;
+  vec2 uv   = (frag - 0.5 * uRes) / uRes.y;
+
+  vec3 cool = hsl(uHue, 0.92, 0.52);
+  vec3 warm = hsl(fract(uHue + 0.17), 0.88, 0.57);
+  vec3 gold = hsl(fract(uHue + 0.48), 0.90, 0.64);
+  vec3 ice = mix(cool, vec3(0.32, 0.88, 1.0), 0.32);
+
+  /* a whisper of aperture: when nothing moves, the accumulator turns
+     these offsets into real depth of field instead of noise */
+  vec3 ro = uEye;
+  vec3 rd = normalize(uFwd * 1.42 + uRight * uv.x + uUp * uv.y);
+  if(uLens > 0.0001){
+    float a = fract(sin(dot(frag, vec2(41.71, 289.13)) + uTime * 91.7) * 24634.6345) * TAU;
+    float r = sqrt(fract(sin(dot(frag, vec2(93.99, 17.05)) + uTime * 53.1) * 12933.7) ) * uLens;
+    vec3  o = uRight * cos(a) * r + uUp * sin(a) * r;
+    vec3  f = ro + rd * uFocus;
+    ro += o;
+    rd  = normalize(f - ro);
+  }
+
+  float t = 0.0, halo = 0.0, aura = 0.0, ghost = 0.0, mat = -1.0;
+  vec3  hp = ro;
+  int   N  = int(uSteps);
+
+  /* one signed offset per frame; the accumulator sums both sides for us */
+  float side = mod(floor(uTime * 60.0), 2.0) * 2.0 - 1.0;
+
+  for(int i = 0; i < 220; i++){
+    if(i >= N) break;
+    hp = ro + rd * t;
+    vec2 m = map(hp);
+    float d = m.x;
+
+    halo += 0.0042 / (0.026 + abs(d) * 7.5);
+
+    if(flag(F_AURA) && uAura > 0.001){
+      /* the neighbouring sections, one to each side along w — the part of
+         the solid this 3-space is about to meet, or has just left */
+      float g = solid(hp, uWL + side * 0.30, uRotL, uFormL);
+      aura += 0.0030 / (0.052 + abs(g) * 12.0);
+    }
+    if(uGhost > 0.001){
+      /* where the chain still believes the solid is */
+      float g = solid(hp, uWC, uRotC, uFormC);
+      ghost += 0.0026 / (0.030 + abs(g) * 15.0);
+    }
+
+    if(d < 0.0009 * (1.0 + t * 0.35)){ mat = m.y; break; }
+    t += d;
+    if(t > 18.0) break;
+  }
+
+  vec3 col = backdrop(rd, warm, cool);
+
+  if(mat > 0.0){
+    vec3 n = grad3(hp, t);
+    vec3 v = -rd;
+    float fres = pow(1.0 - clamp(dot(n, v), 0.0, 1.0), 4.2);
+    vec3  key  = normalize(vec3(0.48, 0.86, 0.40));
+    vec3  fill = normalize(vec3(-0.72, -0.14, -0.58));
+    float kd   = max(dot(n, key), 0.0);
+    float fd   = max(dot(n, fill), 0.0);
+    float sh   = flag(F_SHADOW) ? shadow(hp + n * 0.006, key, 12.0) : 1.0;
+    float occ  = flag(F_AO)     ? ao(hp, n) : 1.0;
+
+    if(mat < 1.5){
+      /*── the solid ──*/
+      vec4  q4   = uRotL * vec4(hp, uWL);
+      float dw   = leanW(hp);
+      float lean = dw / sqrt(dot(n, n) + dw * dw + 1e-6);   // −1..1
+
+      /* base: warm where the surface faces this 3-space, cool where it
+         is angled out of it into w */
+      vec3 base = mix(warm, cool, clamp(abs(lean), 0.0, 1.0) * 0.92);
+
+      col  = base * (0.016 + kd * 0.18 * sh) * occ;
+      col += warm * fd * 0.095 * occ;
+      col += studio(reflect(rd, n), ice, warm, gold) * (0.34 + fres * 0.55);
+      col += ice * fres * 0.48;
+      if(uFormL < 2.5) col += mix(ice, warm, abs(lean)) * crystalSeam(q4) * 0.85;
+
+      /* contours of the fourth coordinate: each band is a place where the
+         surface sits at the same depth along w. They are the only direct
+         evidence on screen that there is a fourth axis at all. */
+      float band = abs(fract(q4.w * 3.6 - uTime * 0.045) - 0.5) * 2.0;
+      float line = smoothstep(0.90, 1.0, band);
+      col += mix(warm, cool, 0.35) * line * 0.10 * (0.4 + occ * 0.6);
+
+      /* strata: one fold for every operation this token has performed */
+      if(uStrata > 0.5){
+        float sBand = sin(dot(q4, vec4(6.1, 4.7, 5.3, 3.9)) + uStrata * 0.7);
+        col += warm * 0.045 * smoothstep(0.93, 1.0, sBand) * min(uStrata / 24.0, 1.0);
+      }
+
+      /* One transmitted ray gives the crystal a back surface and actual
+         optical thickness even below the dispersion tier. The light at
+         its closest interior point is a visual caustic, not token state.
+         Bounded steps retain the existing quality ladder on phones. */
+      vec3 rr = refract(rd, n, 1.0 / 1.28);
+      vec3 ip = hp - n * 0.012;
+      float it = 0.0;
+      for(int k = 0; k < 28; k++){
+        float dd = -live(ip + rr * it) * formStep(uFormL);
+        if(dd < 0.0008) break;
+        it += max(dd, 0.005);
+        if(it > 4.2) break;
+      }
+      vec3 ex = ip + rr * it;
+      float attenuation = exp(-it * 0.48);
+      if(uFormL < 2.5){
+        vec4 back = uRotL * vec4(ex, uWL);
+        col += mix(warm, ice, 0.35) * crystalSeam(back) * attenuation * 0.60;
+      }
+      float nearCore = clamp(-dot(ip, rr), 0.0, it);
+      vec3 cp = ip + rr * nearCore;
+      float core = exp(-dot(cp, cp) * 28.0) * min(it * 4.0, 1.0);
+      float breathing = 0.86 + 0.14 * sin(uTime * 1.35);
+      col += (ice * 0.55 + gold * 0.30) * core * breathing;
+      float cb = dot(ip, rr);
+      float sphere = cb * cb - dot(ip, ip) + 0.0441;
+      if(sphere > 0.0){
+        float ct = -cb - sqrt(sphere);
+        if(ct > 0.0 && ct < it){
+          vec3 cn = normalize(ip + rr * ct);
+          float latitude = pow(0.5 + 0.5 * sin(cn.y * 38.0 + sin(atan(cn.z, cn.x) * 6.0 + uTime * 0.4)), 10.0);
+          col += mix(ice, warm, cn.y * 0.5 + 0.5) * (0.12 + latitude * 0.40);
+          col += gold * pow(max(dot(reflect(rr, cn), key), 0.0), 32.0) * 2.0;
+        }
+      }
+      col += studio(reflect(rr, -n), ice, warm, gold) * attenuation * 0.12;
+
+      /* dispersion: three wavelengths refracted through the body, each
+         losing a different amount to Beer–Lambert absorption on the way */
+      if(flag(F_DISP)){
+        vec3 acc = vec3(0.0);
+        for(int c = 0; c < 3; c++){
+          float ior = 1.34 + float(c) * 0.028;
+          vec3  rr  = refract(rd, n, 1.0 / ior);
+          if(dot(rr, rr) < 0.5) continue;
+          vec3  ip  = hp - n * 0.010;
+          float it  = 0.0;
+          for(int k = 0; k < 40; k++){
+            float dd = -live(ip + rr * it) * formStep(uFormL);
+            if(dd < 0.0008) break;
+            it += max(dd, 0.006);
+            if(it > 4.2) break;
+          }
+          vec3 ex = ip + rr * it;
+          vec3 en = -grad3(ex, t);
+          vec3 ot = refract(rr, en, ior / 1.0);
+          if(dot(ot, ot) < 0.5) ot = reflect(rr, en);
+          vec3 bg = backdrop(normalize(ot), warm, cool) * 7.0;
+          float absorb = exp(-it * (0.62 + float(c) * 0.30));
+          acc[c] = dot(bg, vec3(0.33)) * absorb;
+        }
+        col += acc * 0.55 * (0.25 + fres);
+      }
+
+      col += warm * uPulse * 0.85;
+
+    } else if(mat < 2.5){
+      /*── the rails the instrument hangs from ──*/
+      float around = atan(hp.z, hp.x);
+      float packets = pow(0.5 + 0.5 * sin(around * 52.0 - uTime * 0.8), 16.0);
+      vec3 rail = mix(ice, warm, 0.5 + 0.5 * sin(around * 2.0));
+      col = rail * (0.20 + fres * 0.22 + packets * 0.90);
+      col += gold * pow(0.5 + 0.5 * cos(around - uTime * 0.24), 100.0) * 1.5;
+    } else {
+      /*── the instrument nodes ──*/
+      float idx = mat - 10.0;
+      float st  = 0.0;
+      for(int i = 0; i < 12; i++){ if(abs(float(i) - idx) < 0.5) st = uNode[i].w; }
+      vec3 nc = st < 0.5 ? vec3(0.04, 0.045, 0.08)
+              : st < 1.5 ? mix(ice, warm, fract(idx * 0.38))
+                         : gold;
+      col = nc * (0.10 + kd * 0.24 * sh + fres * 1.0) * occ;
+      col += studio(reflect(rd, n), ice, warm, gold) * 0.3;
+      if(st > 1.5) col += gold * (0.26 + 0.10 * sin(uTime * 3.4));
+    }
+  }
+
+  /* The old unbounded halo saturated every facet to white. Light stays
+     local, leaving dark faces and the far surface legible through it. */
+  col += ice * min(halo, 1.6) * (0.032 + uOps * 0.018);
+  col += warm * aura * uAura * 0.18;         // the sections on either side
+  col += vec3(0.26, 0.30, 0.48) * ghost * uGhost * 0.18;  // the committed truth
+
+  /* recursion tint — each section deeper is measurably colder */
+  col = mix(col, col * vec3(0.74, 0.84, 1.0), clamp(uDepth * 0.22, 0.0, 0.66));
+
+  oCol = vec4(max(col, 0.0), 1.0);
+}`;
+
+/*── temporal accumulator: stillness is resolution ──────────────────────*/
+const FS_ACC = HEAD3 + `
+uniform sampler2D uCur, uHist;
+uniform float uBlend;
+void main(){
+  vec3 c = texture(uCur,  vUv).rgb;
+  vec3 h = texture(uHist, vUv).rgb;
+  oCol = vec4(mix(h, c, uBlend), 1.0);
+}`;
+
+/*── bright pass + downsample (Kawase dual filter) ──────────────────────*/
+const FS_DOWN = HEAD3 + `
+uniform sampler2D uSrc;
+uniform vec2  uTexel;
+uniform float uThresh;   // > 0 only on the first level
+void main(){
+  vec2 o = uTexel;
+  vec3 s = texture(uSrc, vUv).rgb * 4.0
+         + texture(uSrc, vUv + vec2(-o.x, -o.y)).rgb
+         + texture(uSrc, vUv + vec2( o.x, -o.y)).rgb
+         + texture(uSrc, vUv + vec2(-o.x,  o.y)).rgb
+         + texture(uSrc, vUv + vec2( o.x,  o.y)).rgb;
+  s /= 8.0;
+  if(uThresh > 0.0){
+    float l = dot(s, vec3(0.2126, 0.7152, 0.0722));
+    s *= max(l - uThresh, 0.0) / max(l, 1e-4);
+  }
+  oCol = vec4(s, 1.0);
+}`;
+
+const FS_UP = HEAD3 + `
+uniform sampler2D uSrc;
+uniform vec2 uTexel;
+void main(){
+  vec2 o = uTexel;
+  vec3 s = texture(uSrc, vUv + vec2(-o.x * 2.0, 0.0)).rgb
+         + texture(uSrc, vUv + vec2(-o.x, o.y)).rgb * 2.0
+         + texture(uSrc, vUv + vec2(0.0, o.y * 2.0)).rgb
+         + texture(uSrc, vUv + vec2( o.x, o.y)).rgb * 2.0
+         + texture(uSrc, vUv + vec2( o.x * 2.0, 0.0)).rgb
+         + texture(uSrc, vUv + vec2( o.x, -o.y)).rgb * 2.0
+         + texture(uSrc, vUv + vec2(0.0, -o.y * 2.0)).rgb
+         + texture(uSrc, vUv + vec2(-o.x, -o.y)).rgb * 2.0;
+  oCol = vec4(s / 12.0, 1.0);
+}`;
+
+/*── composite: bloom, aberration, ACES, grain, dither ──────────────────*/
+const FS_POST = HEAD3 + `
+uniform sampler2D uScene, uBloom;
+uniform vec2  uRes;
+uniform float uTime, uBloomAmt, uExposure, uVig, uGrain, uAberr;
+
+vec3 aces(vec3 x){                       // Narkowicz's fit of the RRT+ODT
+  const float a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14;
+  return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+float hash(vec2 p){
+  p = fract(p * vec2(443.897, 441.423));
+  p += dot(p, p.yx + 19.19);
+  return fract((p.x + p.y) * p.x);
+}
+void main(){
+  vec2  uv = vUv;
+  vec2  d  = uv - 0.5;
+  float r2 = dot(d, d);
+
+  /* the lens is not achromatic at the edge of the frame */
+  vec3 s;
+  if(uAberr > 0.0001){
+    vec2 k = d * r2 * uAberr;
+    s = vec3(texture(uScene, uv + k).r,
+             texture(uScene, uv).g,
+             texture(uScene, uv - k).b);
+  } else {
+    s = texture(uScene, uv).rgb;
+  }
+
+  s += texture(uBloom, uv).rgb * uBloomAmt;
+  s *= uExposure;
+  s *= 1.0 - uVig * r2 * 1.35;                     // vignette
+  s  = aces(s);
+  s  = pow(max(s, 0.0), vec3(1.0 / 2.2));          // to sRGB
+
+  float g = hash(gl_FragCoord.xy + fract(uTime) * 91.7);
+  s += (g - 0.5) * uGrain;                          // grain
+  s += (hash(gl_FragCoord.xy * 1.7) - 0.5) / 255.0; // ordered-enough dither
+
+  oCol = vec4(clamp(s, 0.0, 1.0), 1.0);
+}`;
+
+/*───────────────────────────────────────────────────────────────────────────
+  3 · THE ENGINE
+───────────────────────────────────────────────────────────────────────────*/
+const cvs = $("#field");
+let gl = null, hasFloat = false, MIPS = 5;
+const P = {};        // programs
+let parallel = null;
+const FB = {};       // framebuffers
+let scale = 1, dpr = 1, W = 1, H = 1;
+
+/* quality ladder — climbs when the frame budget allows, falls when it doesn't */
+const TIERS = [
+  { steps: 64,  flags: 4,           bloom: 0.26, aberr: 0.0000, disp: false },
+  { steps: 96,  flags: 4 | 8,       bloom: 0.34, aberr: 0.0016, disp: false },
+  { steps: 140, flags: 1 | 4 | 8,   bloom: 0.40, aberr: 0.0030, disp: false },
+  { steps: 190, flags: 1|2|4|8,     bloom: 0.46, aberr: 0.0042, disp: true  }
+];
+
+/*───────────────────── what the ladder may not do ─────────────────────
+
+  The quality ladder climbs while the frame rate holds and falls when it
+  does not. That is the correct rule for a desktop and the wrong one for
+  something held in a hand, because it optimises for frames and pays in
+  watts: a capable phone sustains sixty frames at the top tier, so the
+  ladder settles there and stays — a hundred and ninety raymarch steps per
+  pixel, at full resolution, for as long as the page is open.
+
+  Sustaining sixty frames and being pleasant to hold are different goals
+  and the ladder only knew the first one. It was reported as heat, which
+  is what a device says when it has been asked for everything it has.
+
+  So the ladder gets a ceiling rather than a new algorithm. It still falls
+  the moment a device struggles; it simply may not climb past what a
+  handheld should be asked to sustain.                                  */
+const HANDHELD = matchMedia("(pointer:coarse)").matches || innerWidth < 781;
+const CALM = matchMedia("(prefers-reduced-motion:reduce)").matches;
+const TIER_CEIL  = CALM ? 1 : (HANDHELD ? 2 : TIERS.length - 1);
+const SCALE_CEIL = CALM ? 0.7 : (HANDHELD ? 0.85 : 1);
+
+/*  And a rate the loop drops to once the accumulator has converged and
+    nothing has changed. It never stopped drawing: after ninety-six still
+    frames each new one contributes a ninety-seventh of itself, and it
+    kept computing a whole picture, sixty times a second, to add almost
+    nothing to a picture that was already finished.
+
+    Not zero, because the field is not static — four things in the shader
+    move on uTime. They move slowly enough (0.045 to 0.05 a second) that
+    ten frames a second is the same image to an eye and a sixth of the
+    work to a battery.                                                  */
+const IDLE_HZ = CALM ? 4 : 10;
+const IDLE_MS = 1000 / IDLE_HZ;
+const CONVERGED = 96;
+let lastDraw = 0;
+
+/*  Two documents, one thread.
+
+    The throttle above answers a loop that is idle. It could never answer
+    the other half of the heat, because in that half the loop is not idle
+    — it is busy, and correctly so. When the token is opened inside
+    itself there are two complete raymarchers on one main thread, each
+    asking a phone for everything it has, and each one's quality ladder
+    reading the other's cost as its own device being slow.
+
+    Which of the two is being looked at is not ambiguous. The inner
+    section is the picture; the host is the frame around it. So the host
+    yields: it keeps drawing, because an inner section hanging in a field
+    frozen mid-turn reads as broken, but it draws at a walking pace and
+    spends the rest of the thread on the copy in front of it.
+
+    Kept on the class rather than beside it. `on` is what puts the inner
+    section on the screen, so there is one fact and one place holding it,
+    and no way for the yield and the picture to disagree.              */
+const NEST_HZ = CALM ? 2 : 5;
+const NEST_MS = 1000 / NEST_HZ;
+let nestBox = null;
+const nestUp = () =>
+  (nestBox || (nestBox = document.getElementById("nest"))).classList.contains("on");
+/*  Clamped, not just initialised: on a handheld the default was already
+    the ceiling, and under reduced motion it started one above it and
+    would only have come down by failing to keep up.                   */
+let tier = Math.min(2, TIER_CEIL);
+
+function compile(type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+    const log = gl.getShaderInfoLog(s) || "";
+    const line = (log.match(/(\d+):(\d+)/) || [])[2];
+    throw new Error("shader " + (line ? "line " + line + ": " : "") + log.split("\n")[0]);
+  }
+  return s;
+}
+function program(fs, uniforms){
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, VS3));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  gl.bindAttribLocation(p, 0, "p");
+  gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const u = {};
+  for(const n of uniforms) u[n] = gl.getUniformLocation(p, n);
+  return { p, u };
+}
+
+function target(w, h, float){
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  const [ifmt, type] = float ? [gl.RGBA16F, gl.HALF_FLOAT] : [gl.RGBA8, gl.UNSIGNED_BYTE];
+  gl.texImage2D(gl.TEXTURE_2D, 0, ifmt, w, h, 0, gl.RGBA, type, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fb = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return { tex, fb, w, h, ok };
+}
+
+function initGL(){
+  /* Without preventDefault the context is never restored, and a browser
+     that runs out of contexts - which is exactly what nesting this token
+     inside itself risks - takes the oldest one back silently. */
+  cvs.addEventListener("webglcontextlost", e => {
+    e.preventDefault();
+    paused = true;
+    say("The GPU took this context back. Waiting for it.", "err");
+  }, false);
+  cvs.addEventListener("webglcontextrestored", () => {
+    try {
+      initGL(); W = H = 1; resize(); paused = false; accFrames = 0;
+      say("Context restored.", "ok");
+    } catch(e){ fatal(String(e.message || e)); }
+  }, false);
+
+  gl = cvs.getContext("webgl2", {
+    antialias: false, alpha: false, depth: false, stencil: false,
+    premultipliedAlpha: false, preserveDrawingBuffer: false,
+    powerPreference: "high-performance", desynchronized: true
+  });
+  if(!gl) throw new Error("This browser has no WebGL2 context to give.");
+
+  /* Two different extensions, and neither one is a promise. RGBA16F is
+     what this pipeline asks for, and it is filterable in WebGL2 core, so
+     half-float alone is enough - but the only trustworthy check is to
+     build a target and ask the driver whether it worked. A device that
+     advertises the extension and then hands back an incomplete
+     framebuffer renders black, not badly. */
+  hasFloat = !!gl.getExtension("EXT_color_buffer_float")
+          || !!gl.getExtension("EXT_color_buffer_half_float");
+  gl.getExtension("OES_texture_float_linear");
+  parallel = gl.getExtension("KHR_parallel_shader_compile");
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  P.field = program(FS_FIELD, [
+    "uRes","uTime","uEye","uFwd","uRight","uUp","uJit","uLens","uFocus",
+    "uRotL","uRotC","uWL","uWC","uFormL","uFormC","uHue","uOps","uPulse",
+    "uStrata","uGhost","uAura","uDepth","uSteps","uFlags","uSeedA","uSeedB","uSel"
+  ]);
+  for(let i = 0; i < NN; i++) P.field.u["uNode" + i] = gl.getUniformLocation(P.field.p, "uNode[" + i + "]");
+
+  P.acc  = program(FS_ACC,  ["uCur","uHist","uBlend"]);
+  P.down = program(FS_DOWN, ["uSrc","uTexel","uThresh"]);
+  P.up   = program(FS_UP,   ["uSrc","uTexel"]);
+  P.post = program(FS_POST, ["uScene","uBloom","uRes","uTime","uBloomAmt","uExposure","uVig","uGrain","uAberr"]);
+
+  gl.disable(gl.DEPTH_TEST);
+  gl.disable(gl.BLEND);
+  return true;
+}
+
+function allocate(w, h){
+  if(hasFloat){
+    /* one probe, once: if RGBA16F will not attach on this device, drop the
+       whole pipeline to 8-bit rather than discovering it a frame later */
+    const probe = target(4, 4, true);
+    if(!probe.ok) hasFloat = false;
+    gl.deleteTexture(probe.tex);
+    gl.deleteFramebuffer(probe.fb);
+  }
+  for(const k of Object.keys(FB)){
+    const t = FB[k];
+    if(Array.isArray(t)) t.forEach(x => { gl.deleteTexture(x.tex); gl.deleteFramebuffer(x.fb); });
+    else { gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fb); }
+    delete FB[k];
+  }
+  const f = hasFloat;
+  FB.scene = target(w, h, f);
+  FB.accA  = target(w, h, f);
+  FB.accB  = target(w, h, f);
+  FB.mip   = [];
+  let mw = w, mh = h;
+  for(let i = 0; i < MIPS; i++){
+    mw = Math.max(2, mw >> 1); mh = Math.max(2, mh >> 1);
+    FB.mip.push(target(mw, mh, f));
+  }
+  FB.up = [];
+  for(let i = 0; i < MIPS - 1; i++) FB.up.push(target(FB.mip[i].w, FB.mip[i].h, f));
+  if(!FB.scene.ok || !FB.accA.ok)
+    throw new Error("this device would not give the field a buffer to draw into");
+  accFrames = 0;
+}
+
+/*  The field's own rectangle, which stopped being the window's the day the
+    deck could take a strip off one edge. Everything that used to read
+    innerWidth/innerHeight — the framebuffer, the projection, the picking
+    ray, the label clamp — reads these instead, so a pane makes the solid
+    smaller rather than hiding half of it, and every gesture keeps working
+    on the part that is left. The canvas is inset by --fx/--fy in CSS; its
+    Packet Garden caches its origin as FX/FY. Picking subtracts that origin;
+    labels, wires and nested sections keep using local field coordinates.  */
+let FW = innerWidth, FH = innerHeight, FX = 0, FY = 0, fieldDirty = true;
+/*  Reading offsetWidth forces a synchronous layout, and resize() runs once
+    a frame. Measuring there unconditionally put a forced layout in the
+    frame loop for a number that changes only when the window changes or
+    the deck moves — so it is measured on those two events instead, which
+    is exactly when it can differ.                                      */
+const remeasure = () => { fieldDirty = true; };
+addEventListener("resize", remeasure);
+
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if(fieldDirty){
+    fieldDirty = false;
+    const rect = cvs.getBoundingClientRect();
+    FW = Math.max(2, rect.width || innerWidth);
+    FH = Math.max(2, rect.height || innerHeight);
+    FX = rect.left; FY = rect.top;
+  }
+  const w = Math.max(2, Math.round(FW * dpr * scale));
+  const h = Math.max(2, Math.round(FH * dpr * scale));
+  if(w === W && h === H) return;
+  W = w; H = h;
+  cvs.width = w; cvs.height = h;
+  allocate(w, h);
+}
+
+function bind(t){
+  gl.bindFramebuffer(gl.FRAMEBUFFER, t ? t.fb : null);
+  gl.viewport(0, 0, t ? t.w : cvs.width, t ? t.h : cvs.height);
+}
+function tex(unit, t){ gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); }
+const tri = () => gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+/*───────────────────────────────────────────────────────────────────────────
+  4 · CAMERA, SHELL, FRAME
+───────────────────────────────────────────────────────────────────────────*/
+const cam = { yaw: 0.62, pitch: 0.26, dist: 7.2, ty: 0.62, tp: 0.26, td: 7.2, drift: true };
+let basis = { eye: [0, 0, 5], fwd: [0, 0, -1], right: [1, 0, 0], up: [0, 1, 0] };
+
+/* A tour belongs to the viewer. These offsets never enter L, liveWord(),
+   or a transaction. Editing or committing returns to the actual section;
+   an animated preview must never silently become a holder's inscription. */
+const VIEW = { mode: "3d", running: !CALM, clock: 0, phase: 0 };
+function viewRotation(){
+  const angles = L.rot.slice();
+  if(VIEW.mode === "4d"){
+    angles[3] += VIEW.phase * 0.24;
+    angles[2] += VIEW.phase * 0.16;
+  }
+  return angles;
+}
+function paintView(){
+  $("#garden-orbit").setAttribute("aria-pressed", String(VIEW.mode === "3d"));
+  $("#garden-flow").setAttribute("aria-pressed", String(VIEW.mode === "4d"));
+  $("#garden-play").textContent = VIEW.running ? "Pause" : "Play";
+  $("#garden-play").setAttribute("aria-label", VIEW.running ? "Pause artwork motion" : "Play artwork motion");
+  $("#garden-view-note").textContent = VIEW.mode === "4d"
+    ? "4D SECTION / LOCAL PREVIEW" : "LIVE CRYSTAL / DRAG TO EXPLORE";
+}
+function endFlow(){
+  if(VIEW.mode !== "4d") return;
+  VIEW.mode = "3d"; VIEW.phase = 0; accFrames = 0; paintView();
+}
+function chooseView(mode){
+  VIEW.mode = mode; VIEW.phase = 0; VIEW.running = true;
+  VIS.spin.fill(0); wDrift = false; $("#wauto").classList.remove("on");
+  cam.drift = true; accFrames = 0; paintView();
+  say(mode === "4d" ? "A moving 3D section through the fourth dimension. This preview is not saved."
+                    : "Orbiting the current section in three dimensions. Drag to take the view.");
+}
+$("#garden-orbit").onclick = () => chooseView("3d");
+$("#garden-flow").onclick = () => chooseView("4d");
+$("#garden-play").onclick = () => {
+  VIEW.running = !VIEW.running;
+  if(!VIEW.running){ cam.ty = cam.yaw; cam.tp = cam.pitch; cam.td = cam.dist; }
+  accFrames = 0; paintView();
+};
+$("#garden-reset").onclick = () => {
+  VIEW.mode = "3d"; VIEW.phase = 0; VIEW.clock = 0; VIEW.running = !CALM;
+  Object.assign(cam, { yaw:0.62, ty:0.62, pitch:0.26, tp:0.26, dist:7.2, td:7.2, drift:true });
+  accFrames = 0; paintView(); say("View reset. Your section and any unsaved edits are unchanged.");
+};
+paintView();
+
+function updateCam(dt){
+  if(cam.drift && VIEW.running) cam.ty += dt * (VIEW.mode === "4d" ? 0.025 : 0.075);
+  const k = 1 - Math.pow(0.0008, dt);
+  cam.yaw   += (cam.ty - cam.yaw)   * k;
+  cam.pitch += (cam.tp - cam.pitch) * k;
+  cam.dist  += (cam.td - cam.dist)  * k;
+  const cp  = Math.cos(cam.pitch);
+  const eye = [Math.sin(cam.yaw) * cp * cam.dist,
+               Math.sin(cam.pitch) * cam.dist,
+               Math.cos(cam.yaw) * cp * cam.dist];
+  const fwd   = V.norm(V.mul(eye, -1));
+  const right = V.norm(V.cross(fwd, [0, 1, 0]));
+  basis = { eye, fwd, right, up: V.cross(right, fwd) };
+}
+
+/* the twelve instruments, hung on two counter-tilted shells */
+const nodes = MODULES.map((m, i) => ({ ...m, i, pos: [0, 0, 0], st: 0 }));
+function placeNodes(time){
+  const shell = (list, rad, tilt, spin, phase) => list.forEach((n, k) => {
+    const a = phase + spin * time + (k / list.length) * TAU;
+    const x = Math.cos(a) * rad, z = Math.sin(a) * rad;
+    const c = Math.cos(tilt), s = Math.sin(tilt);
+    n.pos = [x, -z * s, z * c];
+  });
+  shell(nodes.filter(n => n.ring === 0), 2.62,  0.33,  0.052, 0);
+  shell(nodes.filter(n => n.ring === 1), 2.02, -0.76, -0.071, 0.86);
+  shell(nodes.filter(n => n.ring === 2), 3.30,  0.58,  0.026, 1.9);
+}
+
+function project(p){
+  const v = V.sub(p, basis.eye);
+  const z = V.dot(v, basis.fwd);
+  if(z <= 0.06) return null;
+  // Inverse of the shader/picking ray: fwd * 1.42 + right * uv.x + up * uv.y.
+  // Dividing by the focal length put labels halfway toward the centre.
+  const x = V.dot(v, basis.right) * 1.42 / z;
+  const y = V.dot(v, basis.up)    * 1.42 / z;
+  return { x: FW * 0.5 + x * FH, y: FH * 0.5 - y * FH, z };
+}
+function pick(sx, sy){
+  // Pointer events use viewport coordinates; projection uses the framed field.
+  sx -= FX; sy -= FY;
+  const ux = (sx - FW * 0.5) / FH;
+  const uy = (FH * 0.5 - sy) / FH;
+  const rd = V.norm(V.add(V.mul(basis.fwd, 1.42),
+             V.add(V.mul(basis.right, ux), V.mul(basis.up, uy))));
+  let best = null, bt = 1e9;
+  for(const n of nodes){
+    const oc = V.sub(basis.eye, n.pos);
+    const b  = V.dot(oc, rd), c = V.dot(oc, oc) - 0.0324;
+    const h  = b * b - c;
+    if(h < 0) continue;
+    const t = -b - Math.sqrt(h);
+    if(t > 0 && t < bt){ bt = t; best = n; }
+  }
+  return best;
+}
+
+/* live visual state */
+const VIS = { pulse: 0, sel: -1, aura: 0.55, ghost: 0, spin: [0,0,0,0,0,0], plane: 3 };
+function shock(){ VIS.pulse = 1; accFrames = 0; }
+
+const halton = (i, b) => { let f = 1, r = 0; while(i > 0){ f /= b; r += f * (i % b); i = Math.floor(i / b); } return r; };
+
+let accFrames = 0, accPing = 0;
+let last = performance.now(), t0 = last, fps = 60, fCount = 0, fAcc = 0, frameNo = 0;
+let paused = false, lastKey = "", good = 0;
+
+function stateKey(){
+  return cam.yaw.toFixed(4) + cam.pitch.toFixed(4) + cam.dist.toFixed(4) +
+         L.w.toFixed(4) + L.form + L.rot.map(a => a.toFixed(4)).join("") +
+         VIS.sel + VIS.pulse.toFixed(3) + VIS.ghost.toFixed(2) +
+         VIEW.mode + VIEW.phase.toFixed(4) + W + H;
+}
+
+function frame(now){
+  requestAnimationFrame(frame);
+  if(paused) return;
+
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if(VIEW.running){ VIEW.clock += dt; if(VIEW.mode === "4d") VIEW.phase += dt; }
+  const time = VIEW.clock;
+  frameNo++;
+
+  /* frame budget → quality ladder */
+  /* Asymmetric on purpose. Falling has to be quick or a slow device never
+     recovers; climbing has to be slow or the resolution visibly pumps up
+     and down forever around whatever the device can just barely do. */
+  fAcc += dt; fCount++;
+  if(fAcc > 0.9){
+    fps = fCount / fAcc; fCount = 0; fAcc = 0;
+    if(fps < 26){
+      good = 0;
+      if(tier > 0) tier--;
+      else if(scale > 0.52){ scale = Math.max(0.52, scale - 0.14); resize(); }
+    } else if(fps > 54){
+      if(++good >= 4){
+        good = 0;
+        if(scale < SCALE_CEIL){ scale = Math.min(SCALE_CEIL, scale + 0.08); resize(); }
+        else if(tier < TIER_CEIL) tier++;
+      }
+    } else good = 0;
+  }
+  /*  A ladder measuring frames per second cannot tell a slow device from
+      a busy one. With an inner section open it would read the copy's
+      cost as the device failing and climb down — or, worse, read a
+      thread the copy happened to leave free and climb up into it. It
+      sits at the bottom until the section is closed and then earns its
+      way back the ordinary way.                                      */
+  if(nestUp() && tier > 0){ tier = 0; good = 0; }
+
+  VIS.pulse *= Math.pow(0.05, dt);
+  VIS.ghost += ((L.dirty ? 1 : 0) - VIS.ghost) * Math.min(1, dt * 4);
+
+  /* free-running rotation for any plane the holder set spinning */
+  for(let i = 0; i < 6; i++) if(VIEW.running && VIS.spin[i] !== 0){ L.rot[i] = (L.rot[i] + VIS.spin[i] * dt + TAU) % TAU; markDirty(); }
+
+  updateCam(dt);
+  placeNodes(time);
+  resize();
+
+  const key = stateKey();
+  const still = key === lastKey;
+  lastKey = key;
+  if(!still) accFrames = 0;
+
+  /*  The whole saving. Everything above this line is arithmetic on a
+      handful of numbers; everything below it is the GPU. The nodes still
+      orbit — `layout` is DOM transforms and an SVG line, which is what a
+      browser does cheaply — so the piece keeps moving while the field
+      holds the frame it already finished.                              */
+  /*  Ahead of the idle throttle, and not folded into it: the host is
+      NOT still while an inner section is open — the nodes orbit, the
+      solid turns — so every condition the idle path tests is false and
+      it would have drawn every frame of the one moment it must not. */
+  if(nestUp() && now - lastDraw < NEST_MS){ layout(); return; }
+  if(still && accFrames >= CONVERGED && now - lastDraw < IDLE_MS){ layout(); return; }
+  lastDraw = now;
+
+  const T = TIERS[tier];
+  const converged = Math.min(accFrames, 96);
+  const blend = accFrames === 0 ? 1 : 1 / (converged + 1);
+  /* stillness buys aperture: the accumulator turns jitter into real optics */
+  const lens  = still ? Math.min(0.030, 0.0030 * accFrames) : 0;
+
+  /*── 1 · the field ─────────────────────────────────────────*/
+  const F = P.field;
+  gl.useProgram(F.p);
+  bind(FB.scene);
+  gl.uniform2f(F.u.uRes, W, H);
+  gl.uniform1f(F.u.uTime, time);
+  gl.uniform3fv(F.u.uEye, basis.eye);
+  gl.uniform3fv(F.u.uFwd, basis.fwd);
+  gl.uniform3fv(F.u.uRight, basis.right);
+  gl.uniform3fv(F.u.uUp, basis.up);
+  gl.uniform2f(F.u.uJit, halton(accFrames + 1, 2) - 0.5, halton(accFrames + 1, 3) - 0.5);
+  gl.uniform1f(F.u.uLens, lens);
+  gl.uniform1f(F.u.uFocus, cam.dist);
+  gl.uniformMatrix4fv(F.u.uRotL, false, rot4(viewRotation()));
+  gl.uniformMatrix4fv(F.u.uRotC, false, rot4(C.rot));
+  gl.uniform1f(F.u.uWL, L.w);
+  gl.uniform1f(F.u.uWC, C.w);
+  gl.uniform1f(F.u.uFormL, L.form);
+  gl.uniform1f(F.u.uFormC, C.form);
+  gl.uniform1f(F.u.uHue, (L.hue % 256) / 255);
+  gl.uniform1f(F.u.uOps, Math.min(1, (S.ops | 0) / 48));
+  gl.uniform1f(F.u.uPulse, VIS.pulse);
+  gl.uniform1f(F.u.uStrata, S.strata | 0);
+  gl.uniform1f(F.u.uGhost, VIS.ghost);
+  gl.uniform1f(F.u.uAura, VIS.aura);
+  gl.uniform1f(F.u.uDepth, DEPTH);
+  gl.uniform1f(F.u.uSteps, T.steps);
+  gl.uniform1f(F.u.uFlags, T.flags);
+  gl.uniform4f(F.u.uSeedA, SEED[0], SEED[1], SEED[2], SEED[3]);
+  gl.uniform4f(F.u.uSeedB, SEED[4], SEED[5], SEED[6], SEED[7]);
+  gl.uniform1f(F.u.uSel, VIS.sel);
+  for(let i = 0; i < NN; i++){
+    const n = nodes[i];
+    n.st = VIS.sel === i ? 2 : (isOpen(i) ? 1 : 0);
+    gl.uniform4f(F.u["uNode" + i], n.pos[0], n.pos[1], n.pos[2], n.st);
+  }
+  tri();
+
+  /*── 2 · accumulate ────────────────────────────────────────*/
+  const cur = accPing ? FB.accB : FB.accA;
+  const prv = accPing ? FB.accA : FB.accB;
+  gl.useProgram(P.acc.p);
+  bind(cur);
+  tex(0, FB.scene.tex); gl.uniform1i(P.acc.u.uCur, 0);
+  tex(1, prv.tex);      gl.uniform1i(P.acc.u.uHist, 1);
+  gl.uniform1f(P.acc.u.uBlend, blend);
+  tri();
+  accPing ^= 1;
+  accFrames++;
+
+  /*── 3 · bloom pyramid ─────────────────────────────────────*/
+  gl.useProgram(P.down.p);
+  let src = cur;
+  for(let i = 0; i < MIPS; i++){
+    const dst = FB.mip[i];
+    bind(dst);
+    tex(0, src.tex); gl.uniform1i(P.down.u.uSrc, 0);
+    gl.uniform2f(P.down.u.uTexel, 1 / src.w, 1 / src.h);
+    gl.uniform1f(P.down.u.uThresh, i === 0 ? 0.85 : 0);
+    tri();
+    src = dst;
+  }
+  gl.useProgram(P.up.p);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE);
+  for(let i = MIPS - 2; i >= 0; i--){
+    const dst = FB.mip[i];
+    bind(dst);
+    tex(0, src.tex); gl.uniform1i(P.up.u.uSrc, 0);
+    gl.uniform2f(P.up.u.uTexel, 1 / src.w, 1 / src.h);
+    tri();
+    src = dst;
+  }
+  gl.disable(gl.BLEND);
+
+  /*── 4 · composite ─────────────────────────────────────────*/
+  gl.useProgram(P.post.p);
+  bind(null);
+  tex(0, cur.tex);       gl.uniform1i(P.post.u.uScene, 0);
+  tex(1, FB.mip[0].tex); gl.uniform1i(P.post.u.uBloom, 1);
+  gl.uniform2f(P.post.u.uRes, cvs.width, cvs.height);
+  gl.uniform1f(P.post.u.uTime, time);
+  gl.uniform1f(P.post.u.uBloomAmt, T.bloom);
+  gl.uniform1f(P.post.u.uExposure, 1.16 + VIS.pulse * 0.30);
+  gl.uniform1f(P.post.u.uVig, 0.46);
+  gl.uniform1f(P.post.u.uGrain, still ? 0.008 : 0.016);
+  gl.uniform1f(P.post.u.uAberr, T.aberr);
+  tri();
+
+  layout();
+}
+
+/*───────────────────────────────────────────────────────────────────────────
+  5 · THE OVERLAY — labels tethered to three-dimensional positions
+───────────────────────────────────────────────────────────────────────────*/
+const nodeHost = $("#nodes"), wireHost = $("#wires");
+const isOpen = i => (MODULES[i] && MODULES[i].door) ? true : ((S.open | 0) & (1 << i)) !== 0;
+
+const labels = nodes.map(n => {
+  const d = document.createElement("button");
+  d.className = "nd"; d.type = "button"; d.textContent = n.name;
+  d.setAttribute("aria-label", n.name + " — " + n.blurb.slice(0, 70));
+  d.addEventListener("click", e => { e.stopPropagation(); open(n.i); });
+  nodeHost.appendChild(d);
+  const w = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  w.setAttribute("stroke-width", "1");
+  wireHost.appendChild(w);
+  return { d, w, vis: false };
+});
+
+function layout(){
+  const cx = FW * 0.5, cy = FH * 0.5;
+  for(let i = 0; i < nodes.length; i++){
+    const n = nodes[i], e = labels[i], p = project(n.pos);
+    if(!p){
+      if(e.vis){ e.d.style.display = "none"; e.w.style.display = "none"; e.vis = false; }
+      continue;
+    }
+    if(!e.vis){ e.d.style.display = ""; e.w.style.display = ""; e.vis = true; }
+    const vx = p.x - cx, vy = p.y - cy, len = Math.hypot(vx, vy) || 1;
+    let lx = p.x + (vx / len) * 48, ly = p.y + (vy / len) * 48;
+    /*  A door is a way out, not a decoration, so it is never allowed to
+        drift past the edge and become unreachable. The instrument's own
+        nodes are geometry and stay where the geometry puts them; only
+        the doors are pinned, and the wire still runs to where the node
+        actually is, so nothing is lied about — the handle is just kept
+        inside the room. This is the difference between a phone in
+        portrait and a desk: the field is projected against the taller
+        side, so on a narrow screen the outermost orbit spends most of
+        its time off both edges.                                        */
+    if(n.door){
+      const m = 54;
+      lx = Math.min(Math.max(lx, m), FW - m);
+      ly = Math.min(Math.max(ly, m), FH - m);
+    }
+    /*  Kept as numbers as well as written as a transform, because the deck
+        wire needs this exact point and reading it back out of a CSS string
+        is a parser that can disagree with the thing it parses.        */
+    e.lx = lx; e.ly = ly;
+    e.d.style.transform = "translate(-50%,-50%) translate(" + lx.toFixed(1) + "px," + ly.toFixed(1) + "px)";
+    e.d.style.opacity = clamp(2.3 - p.z * 0.21, 0.34, 1).toFixed(2);
+    e.d.className = "nd" + (VIS.sel === i ? " on" : "") + (isOpen(i) ? "" : " shut");
+    e.w.setAttribute("x1", p.x.toFixed(1)); e.w.setAttribute("y1", p.y.toFixed(1));
+    e.w.setAttribute("x2", lx.toFixed(1));  e.w.setAttribute("y2", ly.toFixed(1));
+    e.w.setAttribute("stroke", VIS.sel === i ? "var(--a)" : "#212838");
+  }
+  if(nestUp()) placeNest();
+  /*  The node moves every frame; a wire drawn only when the deck repaints
+      would lag the thing it points at by however long you do not touch
+      the deck. It is two setAttribute calls against one element.     */
+  if(plateI >= 0) plateWire();
+}
+
+/*───────────────────────────────────────────────────────────────────────────
+  6 · INPUT
+
+  One finger orbits the section. Two pinch. The six chips in the dock are
+  each a small dial: drag one and the solid turns in that plane. Three of
+  them contain w, and turning in those is the only way to change what
+  shape the section is.
+───────────────────────────────────────────────────────────────────────────*/
+function markDirty(){
+  endFlow();
+  L.dirty = L.form !== C.form || Math.abs(L.w - C.w) > 1e-6 ||
+            L.rot.some((a, i) => Math.abs(a - C.rot[i]) > 1e-6) || L.hue !== C.hue;
+  paintDock();
+}
+
+(function orbit(){
+  let down = false, lx = 0, ly = 0, moved = 0, pinch = 0, idle = 0;
+  const start = (x, y) => { down = true; lx = x; ly = y; moved = 0; cam.drift = false; clearTimeout(idle); };
+  const move  = (x, y, shift) => {
+    if(!down) return;
+    const dx = x - lx, dy = y - ly; lx = x; ly = y;
+    moved += Math.abs(dx) + Math.abs(dy);
+    if(shift){ turn(VIS.plane, dx * 0.0075); return; }
+    cam.ty -= dx * 0.0062;
+    cam.tp  = clamp(cam.tp + dy * 0.0062, -1.38, 1.38);
+  };
+  const end = (x, y) => {
+    if(down && moved < 9){
+      const hit = pick(x, y);
+      if(hit) open(hit.i); else shut();
+    }
+    down = false;
+    idle = setTimeout(() => { if(!down) cam.drift = true; }, 4200);
+  };
+  cvs.addEventListener("pointerdown", e => { cvs.setPointerCapture(e.pointerId); start(e.clientX, e.clientY); });
+  cvs.addEventListener("pointermove", e => move(e.clientX, e.clientY, e.shiftKey));
+  cvs.addEventListener("pointerup",   e => end(e.clientX, e.clientY));
+  cvs.addEventListener("pointercancel", () => { down = false; });
+  cvs.addEventListener("wheel", e => {
+    e.preventDefault();
+    if(e.shiftKey) setW(L.w + e.deltaY * 0.0022);
+    else cam.td = clamp(cam.td + e.deltaY * 0.0038, 2.3, 12);
+  }, { passive: false });
+  cvs.addEventListener("touchstart", e => {
+    if(e.touches.length === 2){
+      down = false;
+      pinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                         e.touches[0].clientY - e.touches[1].clientY);
+    }
+  }, { passive: true });
+  cvs.addEventListener("touchmove", e => {
+    if(e.touches.length === 2){
+      const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX,
+                           e.touches[0].clientY - e.touches[1].clientY);
+      cam.td = clamp(cam.td * (pinch / (d || 1)), 2.3, 12);
+      pinch = d;
+    }
+  }, { passive: true });
+})();
+
+function turn(plane, delta){
+  L.rot[plane] = (L.rot[plane] + delta + TAU * 4) % TAU;
+  markDirty();
+}
+function setW(v){
+  L.w = clamp(v, -1.6, 1.6);
+  markDirty();
+  paintW();
+}
+
+/*── the dock ───────────────────────────────────────────────────────────*/
+const planeEls = [];
+(function buildDock(){
+  const host = $("#planes");
+  PLANES.forEach(pl => {
+    const b = document.createElement("div");
+    b.className = "pl" + (pl.w ? " w" : "");
+    b.setAttribute("role", "tab");
+    b.title = pl.w
+      ? "Rotate in the " + pl.n + " plane — turns the solid through the fourth axis, changing the shape of the section. Drag to turn, click to set it spinning."
+      : "Rotate in the " + pl.n + " plane — spins the section without changing its shape. Drag to turn, click to set it spinning.";
+    b.innerHTML = '<div class="spin"></div><div class="pn">' + pl.n +
+                  '</div><div class="pv">0.00</div><div class="bar"></div>';
+    host.appendChild(b);
+    planeEls.push(b);
+
+    let dragging = false, px = 0, travelled = 0;
+    b.addEventListener("pointerdown", e => {
+      b.setPointerCapture(e.pointerId);
+      dragging = true; px = e.clientX; travelled = 0;
+      VIS.plane = pl.i; paintDock();
+    });
+    b.addEventListener("pointermove", e => {
+      if(!dragging) return;
+      const dx = e.clientX - px; px = e.clientX;
+      travelled += Math.abs(dx);
+      turn(pl.i, dx * 0.016);
+    });
+    b.addEventListener("pointerup", e => {
+      dragging = false;
+      if(travelled < 5){
+        VIS.spin[pl.i] = VIS.spin[pl.i] !== 0 ? 0 : (pl.w ? 0.22 : 0.34);
+        if(VIS.spin[pl.i]){ endFlow(); VIEW.running = true; paintView(); }
+        paintDock();
+      }
+    });
+    b.addEventListener("dblclick", () => { L.rot[pl.i] = 0; VIS.spin[pl.i] = 0; markDirty(); });
+  });
+
+  const ticks = $("#wticks");
+  for(let i = 0; i <= 16; i++){
+    const t = document.createElement("i");
+    t.style.left = (i / 16 * 100) + "%";
+    if(i === 8) t.className = "mid";
+    ticks.appendChild(t);
+  }
+  const track = $("#wtrack");
+  const fromX = cx => {
+    const r = track.getBoundingClientRect();
+    setW(((cx - r.left) / Math.max(1, r.width)) * 3.2 - 1.6);
+  };
+  let wd = false;
+  track.addEventListener("pointerdown", e => { track.setPointerCapture(e.pointerId); wd = true; $("#wauto").classList.remove("on"); wDrift = false; fromX(e.clientX); });
+  track.addEventListener("pointermove", e => { if(wd) fromX(e.clientX); });
+  track.addEventListener("pointerup",   () => { wd = false; });
+  track.addEventListener("keydown", e => {
+    const s = e.shiftKey ? 0.2 : 0.02;
+    if(e.key === "ArrowLeft")  { setW(L.w - s); e.preventDefault(); }
+    if(e.key === "ArrowRight") { setW(L.w + s); e.preventDefault(); }
+  });
+  $("#wauto").addEventListener("click", () => {
+    wDrift = !wDrift;
+    if(wDrift){ endFlow(); VIEW.running = true; paintView(); }
+    $("#wauto").classList.toggle("on", wDrift);
+    say(wDrift ? "The section is drifting along w on its own."
+               : "The section is held where you left it.");
+  });
+})();
+
+/* The initial document is the saved section. Drift is an explicit edit;
+   the separate 4D tour can move continuously without changing that word. */
+let wDrift = false, wPhase = 0;
+
+function paintW(){
+  const pct = (L.w + 1.6) / 3.2 * 100;
+  $("#whead").style.left = "calc(" + pct.toFixed(2) + "% - 1px)";
+  $("#wval").textContent = fmt(L.w);
+  $("#wtrack").setAttribute("aria-valuenow", L.w.toFixed(3));
+}
+function paintDock(){
+  for(let i = 0; i < 6; i++){
+    const e = planeEls[i], a = L.rot[i];
+    e.classList.toggle("on",  VIS.plane === i);
+    e.classList.toggle("rot", VIS.spin[i] !== 0);
+    e.querySelector(".pv").textContent = (a / TAU).toFixed(2).replace("0.", ".") + "τ";
+    e.querySelector(".bar").style.width = ((a / TAU) * 100).toFixed(1) + "%";
+  }
+  $("#v-form").textContent = FORMS[L.form].n + (L.dirty ? " ·" : "");
+}
+
+/*── the ticker ─────────────────────────────────────────────────────────*/
+let sayTimer = 0;
+function say(msg, kind){
+  const t = $("#tick");
+  t.className = kind || "";
+  t.innerHTML = msg;
+  t.style.opacity = "1";
+  clearTimeout(sayTimer);
+  sayTimer = setTimeout(() => { t.style.opacity = ".55"; }, 7000);
+}
+
+
+const plateI=-1;
+function open(i){VIS.sel=i;say(MODULES[i].name+" · "+MODULES[i].blurb);}
+function shut(){VIS.sel=-1;}
+function fatal(message){$("#fatalmsg").textContent=message;$("#fatal").classList.add("on");}
+$("#garden-labels").onclick=()=>{const show=$("#garden-field").classList.toggle("show-labels");$("#garden-labels").setAttribute("aria-pressed",String(show));};
+$("#study-form").onchange=e=>{endFlow();L.form=C.form=Number(e.target.value);VIS.ghost=0;markDirty();accFrames=0;};
+$("#study-hue").oninput=e=>{L.hue=C.hue=Number(e.target.value);accFrames=0;};
+addEventListener("keydown",e=>{if(e.code==="Space"&&!/INPUT|SELECT|BUTTON/.test(e.target.tagName)){e.preventDefault();$("#garden-play").click();}});
+addEventListener("visibilitychange",()=>{paused=document.hidden;last=performance.now();accFrames=0;lastDraw=0;});
+setInterval(()=>{if(wDrift&&!paused&&VIEW.running){wPhase+=0.016;setW(Math.sin(wPhase*0.21)*1.12);}},33);
+try{initGL();resize();paintW();paintDock();placeNodes(0);updateCam(0);layout();requestAnimationFrame(frame);}catch(error){fatal(String(error.message||error));}
+</script></body></html>

@@ -10,6 +10,8 @@
     "build": "node tools/build-engine.mjs",
     "verify": "node tools/verify.mjs",
     "preview": "node tools/preview.mjs",
+    "preview:crystal": "node tools/preview-crystal.mjs",
+    "check:crystal": "npm run build && npm run preview:crystal && node tools/verify-crystal.mjs",
     "check:design": "npm run build && npm run modules:build && node tools/verify-packet-garden.mjs",
     "preview:site": "node tools/preview-site.mjs",
     "gallery": "node tools/gallery.mjs && node tools/gallery-page.mjs",
