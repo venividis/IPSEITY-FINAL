@@ -61,7 +61,7 @@ try {
     }
   };
   for(const viewport of [{width:1600,height:1000},{width:900,height:700},
-    {width:390,height:844},{width:320,height:640}]){
+    {width:844,height:390},{width:390,height:844},{width:320,height:640}]){
     await check('Usable artwork, headline and actions at '+viewport.width+'px',async()=>{
       await page.setViewportSize(viewport); await load();
       const boxes=await page.evaluate(()=>{
