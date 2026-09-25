@@ -52,6 +52,7 @@ contract SovereignIpseity {
     mapping(uint256 => uint256) private _nativeLiquid;
     mapping(address => uint256) public totalLiability;
     uint256 public totalNativeLiability;
+    mapping(address => bool) private _executionTarget;
 
     struct Lock { address asset; uint128 amount; uint128 minOut; uint64 unlockAt; address beneficiary; bool claimed; bool autoSell; }
     mapping(uint256 => Lock[]) private _locks;
@@ -163,6 +164,7 @@ contract SovereignIpseity {
 
     function depositETH(uint256 id) external payable exists(id) { if (msg.value == 0) revert Invalid(); _nativeLiquid[id] += msg.value; totalNativeLiability += msg.value; emit Deposited(id, address(0), msg.value); }
     function depositERC20(uint256 id, address asset, uint256 amount) external nonReentrant exists(id) returns (uint256 credited) {
+        if (_executionTarget[asset]) revert Invalid();
         uint256 before_ = IERC20Sovereign(asset).balanceOf(address(this)); if (!IERC20Sovereign(asset).transferFrom(msg.sender, address(this), amount)) revert TransferFailed();
         credited = IERC20Sovereign(asset).balanceOf(address(this)) - before_; if (credited == 0) revert Invalid(); _liquid[id][asset] += credited; totalLiability[asset] += credited; emit Deposited(id, asset, credited);
     }
@@ -219,7 +221,7 @@ contract SovereignIpseity {
         Session storage s = sessions[id][msg.sender]; bytes32 leaf = keccak256(abi.encode(target, data.length >= 4 ? bytes4(data[:4]) : bytes4(0)));
         if (!s.active || s.expires < block.timestamp || s.epoch != custodyEpoch[id] || !_verify(leaf, proof, s.permissionRoot) || uint256(s.nativeSpent) + value > s.nativeCap) revert Unauthorized(); s.nativeSpent += uint128(value); return _execute(id, target, value, data);
     }
-    function _execute(uint256 id, address target, uint256 value, bytes calldata data) internal returns (bytes memory result) { if (target == address(this) || _nativeLiquid[id] < value) revert Invalid(); _nativeLiquid[id] -= value; totalNativeLiability -= value; (bool ok, bytes memory ret) = target.call{value: value}(data); if (!ok) assembly ("memory-safe") { revert(add(ret, 32), mload(ret)) } emit Executed(id, target, value, data.length >= 4 ? bytes4(data[:4]) : bytes4(0)); return ret; }
+    function _execute(uint256 id, address target, uint256 value, bytes calldata data) internal returns (bytes memory result) { if (target == address(this) || totalLiability[target] != 0 || _nativeLiquid[id] < value) revert Invalid(); _executionTarget[target] = true; _nativeLiquid[id] -= value; totalNativeLiability -= value; (bool ok, bytes memory ret) = target.call{value: value}(data); if (!ok) assembly ("memory-safe") { revert(add(ret, 32), mload(ret)) } emit Executed(id, target, value, data.length >= 4 ? bytes4(data[:4]) : bytes4(0)); return ret; }
     function _verify(bytes32 h, bytes32[] calldata proof, bytes32 root) internal pure returns (bool) { for (uint256 i; i < proof.length; ++i) h = h < proof[i] ? keccak256(abi.encodePacked(h, proof[i])) : keccak256(abi.encodePacked(proof[i], h)); return h == root; }
 
     function arrangeEstate(uint256 id, address heir, uint64 inactivity) external onlyHolder(id) { if (heir == address(0) || inactivity < 30 days) revert Invalid(); estateOf[id] = EstatePlan(heir, inactivity, uint64(block.timestamp), 0); }
