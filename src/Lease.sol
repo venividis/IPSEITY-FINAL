@@ -6,6 +6,7 @@ interface IIpseityLease {
     function userOf(uint256 id) external view returns (address);
     function rawUserOf(uint256 id) external view returns (address);
     function userExpires(uint256 id) external view returns (uint256);
+    function userEpoch(uint256 id) external view returns (uint256);
     function leaseAgentOf(uint256 id) external view returns (address);
     function setUserVia(uint256 id, address user, uint64 expires) external;
     function locked(uint256 id) external view returns (bool);
@@ -53,10 +54,11 @@ interface IIpseityLease {
                                     token's, and the rest becomes the
                                     renter's to reclaim
 
-  "Broken" is not asserted by anyone. It is observed from the raw user and
-  expiry the token still carries: an intact lease shows exactly the renter
-  and `until` this contract set, while a transfer deletes the record and an
-  overwrite changes it. That raw record outlives the term, which matters
+  "Broken" is not asserted by anyone. It is observed from the user-assignment
+  epoch and the raw record the token still carries: an intact lease retains
+  the epoch created when this contract set exactly the renter and `until`,
+  while a transfer or overwrite advances it permanently. The raw record
+  outlives the term, which matters
   more than it looks — `userOf` returns zero after expiry for an intact
   lease and a broken one alike, so reading breakage from it meant a lease
   broken on its first day vested in full to the holder the moment the term
@@ -121,6 +123,9 @@ contract Lease {
         ///      only way it can: the party who can end a lease is the party
         ///      who has to say so to be paid for it.
         uint64  seen;
+        /// @dev Assignment version immediately after this lease installed
+        ///      its user record. Any later write permanently changes it.
+        uint256 userEpoch;
     }
 
     mapping(uint256 => Terms)  public termsOf;
@@ -235,10 +240,9 @@ contract Lease {
         if (msg.value != due) revert WrongPayment();
 
         uint64 until = uint64(block.timestamp + uint256(dayCount) * DAY);
-        activeOf[id] = Active(msg.sender, uint64(block.timestamp), until, uint128(due),
-                              uint64(block.timestamp));
-
         HUB.setUserVia(id, msg.sender, until);
+        activeOf[id] = Active(msg.sender, uint64(block.timestamp), until, uint128(due),
+                              uint64(block.timestamp), HUB.userEpoch(id));
         emit Rented(id, msg.sender, until, due);
     }
 
@@ -294,10 +298,10 @@ contract Lease {
         and the whole escrow was whether anybody happened to call `settle`
         in time. Nobody was going to.
 
-        So breakage is read from the raw user and expiry the token carries,
-        which survive the term: an intact lease still shows exactly the
-        renter and `until` this contract set, while a transfer deletes the
-        record and an overwrite changes it. The elapsed share is clamped to
+        So breakage is read from the token's monotonic assignment epoch as
+        well as its raw user and expiry: an intact lease still has the epoch
+        created when this contract set it, while a transfer or overwrite can
+        never restore that epoch. The elapsed share is clamped to
         the term so settling late cannot credit the holder for time after it
         ended.                                                          */
     function _settle(uint256 id) private {
@@ -361,10 +365,11 @@ contract Lease {
         return (true, 0);
     }
 
-    /// @dev Whether the token still shows the lease this contract set.
-    ///      Read rather than declared, and readable after the term has
-    ///      passed — which is the part that was wrong.
+    /// @dev Whether the token still has the assignment this contract set.
+    ///      The monotonic epoch proves continuity even if the holder later
+    ///      recreates identical user and expiry values.
     function _intact(uint256 id, Active memory a) private view returns (bool) {
+        if (HUB.userEpoch(id) != a.userEpoch) return false;
         if (HUB.userExpires(id) != a.until) return false;
         if (HUB.rawUserOf(id) != a.renter) return false;
         return true;
