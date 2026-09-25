@@ -294,7 +294,7 @@ contract LeaseTest is Test {
 
         vm.warp(block.timestamp + 1 days);
         lease.settle(1);
-        (, , uint64 until, , ) = lease.activeOf(1);
+        (, , uint64 until, , , ) = lease.activeOf(1);
         token.setUser(1, buyer, until);
 
         vm.warp(block.timestamp + 30 days);
@@ -302,6 +302,27 @@ contract LeaseTest is Test {
 
         assertEq(lease.earned(1), PER_DAY, "the holder kept nine days it never delivered");
         assertEq(lease.owed(renter), PER_DAY * 9, "the same-expiry overwrite was hidden");
+    }
+
+    /// @dev A holder cannot hide an interruption by recreating the exact
+    ///      expired record after denying the renter service for the term.
+    function test_restoringExpiredLeaseRecordStillRefundsTheRenter() public {
+        _offer();
+        vm.prank(renter);
+        lease.rent{value: PER_DAY * 10}(1, 10, PER_DAY);
+
+        (, , uint64 until, , , ) = lease.activeOf(1);
+        token.setUser(1, address(0), 0);
+
+        vm.warp(uint256(until) + 1);
+        token.setUser(1, renter, until);
+        assertEq(token.rawUserOf(1), renter, "test did not restore the stored record");
+        assertEq(token.userOf(1), address(0), "expired restoration unexpectedly grants use");
+
+        lease.settle(1);
+
+        assertEq(lease.earned(1), 0, "restored history vested undelivered rent");
+        assertEq(lease.owed(renter), PER_DAY * 10, "renter lost the escrow refund");
     }
 
     /// @dev The bias when nobody was watching. The contract cannot know when

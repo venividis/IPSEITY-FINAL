@@ -186,6 +186,10 @@ contract Ipseity is
 
     struct UserInfo { address user; uint64 expires; }
     mapping(uint256 => UserInfo) internal _users;
+    /// @notice Monotonic version of a token's ERC-4907 assignment.
+    /// @dev Changes even when a caller recreates an earlier user record, so
+    ///      escrow contracts can distinguish continuity from restoration.
+    mapping(uint256 => uint256) public userEpoch;
 
     mapping(uint256 => bool)    internal _locked;    // ERC-5192
     mapping(uint256 => uint256) internal _pinned;    // ERC-7160, 1-based; 0 = unpinned
@@ -615,6 +619,7 @@ contract Ipseity is
 
     function setUser(uint256 id, address user, uint64 expires) external onlyHolder(id) {
         _users[id] = UserInfo(user, expires);
+        userEpoch[id] += 1;
         emit UpdateUser(id, user, expires);
     }
 
@@ -667,6 +672,7 @@ contract Ipseity is
             revert NotLeaseAgent();
         }
         _users[id] = UserInfo(user, expires);
+        userEpoch[id] += 1;
         emit UpdateUser(id, user, expires);
     }
 
@@ -680,8 +686,8 @@ contract Ipseity is
     }
 
     /// @notice The stored ERC-4907 user, including after its term expires.
-    /// @dev Rental escrows use this together with userExpires to authenticate
-    ///      the record they installed after userOf has intentionally gone dark.
+    /// @dev Rental escrows use this with userExpires and userEpoch after
+    ///      userOf has intentionally gone dark.
     function rawUserOf(uint256 id) external view returns (address) {
         return _users[id].user;
     }
@@ -991,6 +997,7 @@ contract Ipseity is
             delete _users[id];
             emit UpdateUser(id, address(0), 0);
         }
+        userEpoch[id] += 1;
         // nor does the standing permission to grant one
         if (leaseAgentOf[id] != address(0)) {
             delete leaseAgentOf[id];
