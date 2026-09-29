@@ -1734,3 +1734,28 @@ The onchain hue continues to drive the artwork and console identity rules.
 Cyan, coral, amber, green and error pink keep their interface meanings.
 Packet Garden uses system fonts, CSS ornaments and the existing renderer;
 it requires no font server, CDN or external image request.
+
+**The living crystal's 4D tour is a view, never an inscription.**
+The tour composes temporary rotation angles for the shader. It does not change
+the live section word, committed word, form, hue or token state. Opening a
+section editor, making an edit, or committing leaves that preview. Reset view
+preserves unsaved edits. Initial w drift is off so opening a token shows its
+saved section. The existing explicit Drift and plane controls remain edits.
+→ `tools/verify-crystal.mjs` · *"A 4D tour changes real pixels and orientation
+without changing the section word"*, *"Opening the section editor leaves the
+tour and shows the editable geometry"*
+
+**Pause and reduced motion stop the artwork's animation clock.**
+The camera drift, 4D tour, orbiting nodes, shader lighting and explicit edit
+spins share the pause control. Reduced motion starts paused; an explicit Play,
+orbit, flow or spin action can start motion. A hidden document still suspends
+the renderer, and the handheld and nested-renderer quality ceilings remain.
+→ `tools/verify-crystal.mjs`, `tools/verify-thermal.mjs`
+
+**A portable crystal study has no chain client.**
+`tools/preview-crystal.mjs` extracts the instrument before its chain section,
+then gives that renderer a labelled local fixture and study controls. The
+downloadable HTML is self-contained, renders all eight forms, and issues no
+network requests or wallet calls. It is a rendering study, not a live NFT.
+→ `tools/verify-crystal.mjs` · *"The downloadable study uses the real renderer
+and works without network requests"*

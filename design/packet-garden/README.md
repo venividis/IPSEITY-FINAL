@@ -5,6 +5,10 @@ self-contained instrument, token console, Solidity-rendered pages and module
 workbench. BBS windows, demoscene colour and small pixel flowers frame the
 original onchain artwork. No generated mockup is shipped as the interface.
 
+The object now has a [living crystal renderer](LIVING-CRYSTAL.md), with an
+[interactive offline study](living-crystal.html) and a
+[recorded 3D orbit and 4D flow](living-crystal.mp4).
+
 ## Implemented screens
 
 These are Chromium screenshots of the implementation with local preview state.
