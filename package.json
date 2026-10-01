@@ -60,7 +60,7 @@
     "ethereum-cryptography": "^3.2.0",
     "ethers": "6.17.0",
     "parse5": "7.3.0",
-    "solc": "0.8.36",
+    "solc": "0.8.37",
     "terser": "^5.49.0"
   },
   "devDependencies": {
